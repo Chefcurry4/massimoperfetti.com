@@ -58,12 +58,13 @@ import { site } from '../../data/site';
     /* `flex: 1 1 0; min-height: 0` lets the portrait shrink when the cell is
        short (so the meta block always renders fully). aspect-ratio gives it
        a sensible footprint when there's room; max-height caps it at the
-       intended hero size at large viewports. */
+       intended hero size. The cap is more generous now that AboutCell owns
+       the full column-1 height (Phase 3 moved contacts to the sidebar). */
     flex: 1 1 0;
     min-height: 0;
     width: 100%;
-    aspect-ratio: 4 / 3;
-    max-height: 360px;
+    aspect-ratio: 4 / 5;
+    max-height: 480px;
     border-radius: 14px;
     overflow: hidden;
     /* Layered: gradient fallback below, photo on top. If /me.jpg 404s, the

@@ -1,0 +1,54 @@
+---
+/**
+ * Sidebar Spotify embed.
+ *
+ * Uses Spotify's official embed iframe — no API token, no backend.
+ *
+ * Privacy footprint: the iframe lives in the persistent sidebar, so it's
+ * in-viewport on first paint. `loading="lazy"` would be a no-op here and
+ * has been removed. Spotify will phone home immediately, which CLAUDE.md
+ * §Open questions flags as undecided. Phase 8 (or sooner if asked) will
+ * upgrade this to a click-to-load placeholder pattern.
+ *
+ * Default height is 152px which surfaces the playlist cover + first track
+ * row in a compact form. Bump to 352 if you want the full mini-player.
+ */
+import { site } from '../../data/site';
+
+const playlistTitle = "Massimo's playlist";
+---
+
+<section class="spotify" aria-label="Currently listening">
+  <p class="text-caption muted">listening</p>
+
+  <div class="frame">
+    <iframe
+      src={`${site.spotifyEmbedUrl}?utm_source=generator&theme=0`}
+      title={playlistTitle}
+      width="100%"
+      height="152"
+      allow="autoplay; clipboard-write; encrypted-media; picture-in-picture"
+    ></iframe>
+  </div>
+</section>
+
+<style>
+  .muted {
+    color: var(--text-muted);
+  }
+  .spotify {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .frame {
+    width: 100%;
+    line-height: 0;
+  }
+  .frame iframe {
+    display: block;
+    width: 100%;
+    border: none;
+    border-radius: 12px;
+  }
+</style>

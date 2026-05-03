@@ -22,6 +22,13 @@
   /* Spacing rhythm (theme-invariant) */
   --space-section: clamp(4rem, 3rem + 5vw, 10rem);
 
+  /* Layout (theme-invariant) — used by Sidebar.astro and BentoGrid.astro to
+     stay aligned. Keep the page inset small enough that the wall stays
+     readable on 1024 viewports but generous on 1920+. */
+  --wall-inset: clamp(16px, 2vw, 32px);
+  --sidebar-width: 280px;
+  --sidebar-gap: 16px;
+
   /* Motion (theme-invariant) */
   --duration-fast: 150ms;
   --duration-normal: 280ms;
@@ -52,6 +59,12 @@
   --status-progress-bg: oklch(92% 0.18 117 / 0.12);
   --status-archived: var(--text-muted);
   --status-archived-bg: transparent;
+
+  /* Availability palette — sidebar Now snippet dot. Reuses live as
+     'available'. Limited = amber, unavailable = warm red. */
+  --availability-available: var(--status-live);
+  --availability-limited: oklch(82% 0.16 80);      /* amber */
+  --availability-unavailable: oklch(64% 0.20 25);  /* warm red */
 
   /* Glass treatment — inset highlight + drop shadow per theme. */
   --glass-highlight: rgba(255, 255, 255, 0.06);
@@ -84,6 +97,10 @@
   --status-progress-bg: oklch(48% 0.22 263 / 0.10);
   --status-archived: var(--text-muted);
   --status-archived-bg: transparent;
+
+  --availability-available: var(--status-live);
+  --availability-limited: oklch(60% 0.16 75);
+  --availability-unavailable: oklch(50% 0.20 25);
 
   --glass-highlight: rgba(255, 255, 255, 0.45);
   --glass-shadow: rgba(0, 0, 0, 0.08);

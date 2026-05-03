@@ -12,7 +12,6 @@
 import { getCollection } from 'astro:content';
 
 import AboutCell from './AboutCell.astro';
-import ContactsCell from './ContactsCell.astro';
 import WorkCell from './WorkCell.astro';
 import WritingCell from './WritingCell.astro';
 import ProjectsCell from './ProjectsCell.astro';
@@ -74,10 +73,11 @@ const galleryEntry = gallery[0] ?? null;
 >
   <div class="bento-grid">
 
-    {/* -------- COLUMN 1: about (top) / contacts (bottom) -------- */}
+    {/* -------- COLUMN 1: about hero, full column -------- */}
+    {/* Contacts moved to the persistent sidebar in Phase 3, so the about
+        cell now occupies the entire column for a stronger first impression. */}
     <div class="col col-1">
       <AboutCell />
-      <ContactsCell />
     </div>
 
     {/* -------- COLUMN 2: work-A | work-B (top row) / writing (bottom) -------- */}
@@ -163,21 +163,25 @@ const galleryEntry = gallery[0] ?? null;
 
 <style>
   /* === Desktop wall (>= 1024px) ===
-     The wall is inset from the viewport edges so it reads as a poster sitting
-     on the page background, not glued to the screen. Margin uses clamp so it
-     scales gently from 16px on a 1024 viewport to 32px on a 1920+ one. The
-     height subtracts the same clamp twice so the wall fits the visible
-     viewport exactly, without forcing body scroll. */
+     The wall sits to the right of the persistent sidebar (Phase 3). Both
+     are inset from the viewport edges by --wall-inset (tokens.css). The
+     wall leaves room on its left for the sidebar + a small gap. Tokens:
+       --wall-inset:    page gutter (clamp 16-32 with viewport)
+       --sidebar-width: 280px
+       --sidebar-gap:   16px between sidebar and wall
+  */
   .bento-wall {
-    --wall-inset: clamp(16px, 2vw, 32px);
     height: calc(100dvh - 2 * var(--wall-inset));
     margin: var(--wall-inset);
+    margin-left: calc(
+      var(--wall-inset) + var(--sidebar-width) + var(--sidebar-gap)
+    );
     overflow-x: auto;
     overflow-y: hidden;
     scroll-snap-type: x proximity;
     scrollbar-width: none; /* Firefox */
-    /* outline: none here — the focus is on the scroll container itself for
-       keyboard arrow scrolling; we add a subtle accent outline only on focus-visible */
+    /* focus-visible outline below — the wall itself receives keyboard focus
+       so arrow keys can scroll horizontally. */
   }
   .bento-wall::-webkit-scrollbar {
     display: none;
@@ -191,13 +195,12 @@ const galleryEntry = gallery[0] ?? null;
     /*
      * Variable column widths are deliberate (CLAUDE.md §Anti-patterns
      * banishes uniform grids):
-     *   col 1 — about hero (portrait + name) + compact contacts.
+     *   col 1 — about hero, full column (contacts moved to sidebar in Phase 3).
      *   col 2 — two work cells side-by-side + writing block.
      *   col 3 — project hero column.
      *   col 4 — gallery + map.
      * Total = 440 + 540 + 600 + 420 + 3*16(gap) + 2*32(padding) = 2112px
      * (≈ 206vw at 1024, ≈ 147vw at 1440 — well inside the 200–250vw target).
-     * Col 1 widened (was 360) to give the portrait + name room to breathe.
      */
     display: grid;
     grid-template-columns: 440px 540px 600px 420px;
@@ -218,8 +221,9 @@ const galleryEntry = gallery[0] ?? null;
     scroll-snap-align: start;
   }
   /* Column-specific row partitions.
-     col-1: about hero gets ~71% of column height; compact contacts ~29%. */
-  .col-1 { grid-template-rows: minmax(0, 2.5fr) minmax(0, 1fr); }
+     col-1: about hero now occupies the full column (contacts moved to the
+     persistent sidebar in Phase 3). */
+  .col-1 { grid-template-rows: minmax(0, 1fr); }
   .col-2 { grid-template-rows: minmax(0, 0.45fr) minmax(0, 0.55fr); }
   .col-3 { grid-template-rows: minmax(0, 0.36fr) minmax(0, 0.36fr) minmax(0, 0.28fr); }
   .col-4 { grid-template-rows: minmax(0, 0.55fr) minmax(0, 0.45fr); }
@@ -258,9 +262,14 @@ const galleryEntry = gallery[0] ?? null;
     .bento-wall {
       height: auto;
       margin: 0;
+      /* sidebar is a bottom drawer on mobile (Phase 3 Sidebar.astro); the wall
+         no longer needs the desktop sidebar-width offset on its left. */
+      margin-left: 0;
       overflow-x: visible;
       overflow-y: visible;
       scroll-snap-type: none;
+      /* leave room at the bottom for the collapsed sidebar drawer (~64px) */
+      padding-bottom: 80px;
     }
     .bento-grid {
       display: flex;
@@ -291,6 +300,8 @@ const galleryEntry = gallery[0] ?? null;
     /* Mobile order — flattened single stack:
        About → Work-A → Work-B → Project-1 → Project-2 → Project-3 → Project-4
        → SeeAll → Writing → Gallery → Places → Contacts. */
+    /* Mobile cell order. Contacts moved to the sidebar in Phase 3 — the
+       cell-contacts rule is dropped because no element carries that slot. */
     .cell-about     { order: 1; }
     .cell-work-a    { order: 2; }
     .cell-work-b    { order: 3; }
@@ -302,7 +313,6 @@ const galleryEntry = gallery[0] ?? null;
     .cell-writing   { order: 9; }
     .cell-gallery   { order: 10; }
     .cell-places    { order: 11; }
-    .cell-contacts  { order: 12; }
 
     /* On mobile, cells size to content — drop the desktop 100% height. */
     :global(.bento-cell) { height: auto; min-height: 200px; }

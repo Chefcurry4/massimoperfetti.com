@@ -20,6 +20,21 @@ export interface SiteConfig {
   readonly author: string;
   readonly defaultOgImage: string;
   readonly locale: string;
+  /**
+   * Spotify oEmbed URL for the sidebar widget. Convert any
+   * `open.spotify.com/playlist/{id}` link to `open.spotify.com/embed/playlist/{id}`
+   * — the host accepts the embed path verbatim, no token, no API.
+   */
+  readonly spotifyEmbedUrl: string;
+  /**
+   * Cal.com booking URL — the public event-type link. Massimo's Cal.com
+   * account owns the Google Calendar OAuth so this site stays static (no
+   * functions, no token storage). Used by /book and the sidebar Book CTA.
+   *
+   * Replace the slug below with the real cal.com URL after the account is
+   * created. `theme=auto` lets the embed match the visitor's system theme.
+   */
+  readonly bookingUrl: string;
 }
 
 export const site: SiteConfig = {
@@ -31,4 +46,6 @@ export const site: SiteConfig = {
   author: 'Massimo Perfetti',
   defaultOgImage: '/og-default.png',
   locale: 'en',
+  spotifyEmbedUrl: 'https://open.spotify.com/embed/playlist/382H8jrG9erCxwOiL6naNd',
+  bookingUrl: 'https://cal.com/massimoperfetti/30min',
 };

@@ -1,0 +1,133 @@
+---
+/**
+ * /book — Cal.com booking surface.
+ *
+ * Embeds the public Cal.com event-type page in an iframe. Massimo's Cal.com
+ * account owns the Google Calendar OAuth so the site stays static (no
+ * Netlify Functions, no token storage, no env vars).
+ *
+ * Theme is passed via `?theme=auto` so the embed inherits the visitor's
+ * system theme. To switch to Cal.com's official embed.js for tighter color
+ * sync, replace the iframe with the inline embed snippet from
+ * https://cal.com/docs/embed/inline.
+ */
+import Base from '../layouts/Base.astro';
+import { site } from '../data/site';
+
+const embedSrc = `${site.bookingUrl}?theme=auto&hideEventTypeDetails=false`;
+
+// Plain personal email for the fallback line — keep this in sync with
+// src/data/contacts.ts (first email entry).
+const fallbackEmail = 'massimoperfetti4@gmail.com';
+---
+
+<Base
+  title="Book a call"
+  description="Pick a 30-minute slot. Synced to Massimo's Google Calendar."
+>
+  <main class="page">
+    <header class="head">
+      <p class="text-caption muted">book</p>
+      <h1 class="text-h1 headline">Book a call</h1>
+      <p class="text-body muted intro">
+        30 minutes. Pick a time that works.
+      </p>
+    </header>
+
+    <div class="embed-wrap">
+      <iframe
+        src={embedSrc}
+        title="Book a 30-min call with Massimo Perfetti"
+        loading="lazy"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allow="clipboard-write; payment"
+      ></iframe>
+    </div>
+
+    <footer class="meta">
+      <span class="text-caption muted">
+        Or just email — <a class="email" href={`mailto:${fallbackEmail}`}>{fallbackEmail}</a>
+      </span>
+      <a href="/" class="back text-caption">← back</a>
+    </footer>
+  </main>
+</Base>
+
+<style>
+  /* Sidebar-aware page container: leave room for the persistent sidebar on
+     desktop, full bleed on mobile (sidebar collapses to a bottom drawer).
+     Mirrors BentoGrid.astro's offset math so /book sits in the same gutter
+     as the wall. */
+  .page {
+    margin-left: calc(var(--wall-inset) + var(--sidebar-width) + var(--sidebar-gap));
+    margin-right: var(--wall-inset);
+    padding: clamp(2.5rem, 6vw, 5rem) clamp(1rem, 3vw, 2rem) 5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 920px;
+  }
+  .muted {
+    color: var(--text-muted);
+  }
+  .head {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .headline {
+    margin: 0;
+    color: var(--text);
+  }
+  .intro {
+    margin: 0;
+  }
+
+  .embed-wrap {
+    border: 1px solid var(--border-strong);
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--surface);
+    box-shadow: 0 8px 32px var(--glass-shadow);
+  }
+  .embed-wrap iframe {
+    display: block;
+    width: 100%;
+    /* Clamp keeps the embed comfortable on shorter laptop screens without
+       collapsing on tall desktops. */
+    height: clamp(620px, 80dvh, 880px);
+    border: 0;
+  }
+
+  .meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+  .email {
+    color: var(--text);
+    transition: color var(--duration-fast) var(--ease-out-expo);
+  }
+  .email:hover {
+    color: var(--accent);
+  }
+  .back {
+    color: var(--text-muted);
+    transition: color var(--duration-fast) var(--ease-out-expo);
+  }
+  .back:hover {
+    color: var(--text);
+  }
+
+  @media (max-width: 1023.98px) {
+    .page {
+      margin-left: 0;
+      margin-right: 0;
+      padding-bottom: 88px; /* clear the bottom-drawer sidebar */
+    }
+  }
+</style>

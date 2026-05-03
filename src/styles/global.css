@@ -143,6 +143,88 @@
   }
 
   /*
+   * Tooltip — pure-CSS hover label for icon-only controls. Host wraps the
+   * trigger; bubble is absolutely positioned and faded on hover/focus-within.
+   * Themed via tokens so dark/light flips automatically. Touch devices skip
+   * the bubble (no hover affordance) — interactive children must carry their
+   * own aria-label for screen readers.
+   *
+   * Component file: src/components/ui/Tooltip.astro
+   */
+  .tooltip-host {
+    position: relative;
+    display: inline-flex;
+  }
+  .tooltip-bubble {
+    position: absolute;
+    z-index: 60;
+    pointer-events: none;
+    white-space: nowrap;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border-strong);
+    box-shadow: 0 4px 12px var(--glass-shadow);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1.3;
+    letter-spacing: 0.01em;
+    opacity: 0;
+    transition:
+      opacity var(--duration-fast) var(--ease-out-expo),
+      transform var(--duration-fast) var(--ease-out-expo);
+  }
+  /* Side-specific anchor + initial offset (animates in toward the host). */
+  .tooltip-host[data-tooltip-side='top'] .tooltip-bubble {
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translate(-50%, 2px);
+  }
+  .tooltip-host[data-tooltip-side='bottom'] .tooltip-bubble {
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translate(-50%, -2px);
+  }
+  .tooltip-host[data-tooltip-side='left'] .tooltip-bubble {
+    right: calc(100% + 8px);
+    top: 50%;
+    transform: translate(2px, -50%);
+  }
+  .tooltip-host[data-tooltip-side='right'] .tooltip-bubble {
+    left: calc(100% + 8px);
+    top: 50%;
+    transform: translate(-2px, -50%);
+  }
+  @media (hover: hover) {
+    .tooltip-host:hover .tooltip-bubble,
+    .tooltip-host:focus-within .tooltip-bubble {
+      opacity: 1;
+    }
+    .tooltip-host[data-tooltip-side='top']:hover .tooltip-bubble,
+    .tooltip-host[data-tooltip-side='top']:focus-within .tooltip-bubble {
+      transform: translate(-50%, 0);
+    }
+    .tooltip-host[data-tooltip-side='bottom']:hover .tooltip-bubble,
+    .tooltip-host[data-tooltip-side='bottom']:focus-within .tooltip-bubble {
+      transform: translate(-50%, 0);
+    }
+    .tooltip-host[data-tooltip-side='left']:hover .tooltip-bubble,
+    .tooltip-host[data-tooltip-side='left']:focus-within .tooltip-bubble {
+      transform: translate(0, -50%);
+    }
+    .tooltip-host[data-tooltip-side='right']:hover .tooltip-bubble,
+    .tooltip-host[data-tooltip-side='right']:focus-within .tooltip-bubble {
+      transform: translate(0, -50%);
+    }
+  }
+  @media (hover: none) {
+    .tooltip-bubble {
+      display: none;
+    }
+  }
+
+  /*
    * Liquid glass — cross-browser-safe recipe (no SVG displacement).
    * Source: CLAUDE.md §Liquid glass. Highlight + shadow flow from tokens
    * so the recipe re-tunes per theme.

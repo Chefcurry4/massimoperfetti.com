@@ -1,13 +1,15 @@
 ---
 /**
  * Base layout: HTML shell, head metadata, View Transitions wired,
- * theme bootstrap inlined to avoid FOUC.
+ * theme bootstrap inlined to avoid FOUC, persistent sidebar mounted.
  *
- * Scope: shell only. Sidebar, bento grid, page-specific chrome are NOT here —
- * they belong to later phases (Phase 2 grid, Phase 3 sidebar).
+ * The Sidebar uses `transition:persist` so it stays alive across all
+ * Astro View Transitions navigations (Phase 4 morphs, Phase 5 detail
+ * pages). Spotify keeps playing, theme toggle state survives.
  */
 import { ClientRouter } from 'astro:transitions';
 import { site } from '../data/site';
+import Sidebar from '../components/sidebar/Sidebar.astro';
 import '../styles/global.css';
 
 interface Props {
@@ -71,6 +73,7 @@ const ogImageUrl = new URL(ogImage, site.url).toString();
     <ClientRouter />
   </head>
   <body>
+    <Sidebar />
     <slot />
   </body>
 </html>

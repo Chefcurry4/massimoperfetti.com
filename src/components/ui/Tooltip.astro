@@ -1,0 +1,40 @@
+---
+/**
+ * Tooltip — a hover-revealed label for icon-only controls.
+ *
+ * Wraps any child slot with a `position: relative` host span and an
+ * absolutely-positioned bubble that fades in on `:hover` / `:focus-within`.
+ * Pure CSS, zero JS. Themed via tokens so the bubble flips with dark/light.
+ *
+ * Accessibility: the bubble is decorative (`aria-hidden="true"`) — interactive
+ * children should already carry their own `aria-label`. The tooltip is purely
+ * a visual affordance; no aria-describedby plumbing required.
+ *
+ * On `@media (hover: none)` (touch) the bubble stays hidden — no hover means
+ * no tooltip, and the underlying `aria-label` covers screen readers.
+ *
+ * Edge collision is not auto-handled. Pass `side` explicitly when the default
+ * 'top' would clip (use 'right' near the top of a sidebar, etc.).
+ */
+export type TooltipSide = 'top' | 'bottom' | 'left' | 'right';
+
+interface Props {
+  label: string;
+  side?: TooltipSide;
+  /**
+   * Optional class hook on the host so consumers can tune layout (e.g.
+   * `display: block` for full-width buttons). Defaults to inline-flex.
+   */
+  class?: string;
+}
+
+const { label, side = 'top', class: className } = Astro.props;
+---
+
+<span
+  class:list={['tooltip-host', className]}
+  data-tooltip-side={side}
+>
+  <slot />
+  <span class="tooltip-bubble" aria-hidden="true">{label}</span>
+</span>
