@@ -106,12 +106,19 @@ const updatedRelative = (() => {
     margin: 0;
     color: var(--text);
     line-height: 1.45;
-    /* clamp generously — the sidebar is narrow but tall */
+    /* 3 lines fits the sidebar at typical viewport heights without stealing
+       room from the Spotify flex-fill below. Drops to 2 on short viewports. */
     display: -webkit-box;
-    -webkit-line-clamp: 4;
-    line-clamp: 4;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+  @media (max-height: 800px) {
+    .status {
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+    }
   }
 
   .meta {

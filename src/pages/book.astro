@@ -54,18 +54,22 @@ const fallbackEmail = 'massimoperfetti4@gmail.com';
 </Base>
 
 <style>
-  /* Sidebar-aware page container: leave room for the collapsed sidebar
-     rail on desktop, full bleed on mobile. Mirrors BentoGrid.astro's offset
-     math — anchored to --sidebar-rail (64px) so the expanded sidebar floats
-     over without reflowing the page. */
+  /* Sidebar-aware page container: anchored to the collapsed rail width on
+     desktop so the expanded sidebar floats over without reflow. Sized to
+     the visible viewport (100dvh - 2 * inset) so the iframe below can
+     flex-fill instead of needing its own scrollbar. */
   .page {
+    height: calc(100dvh - 2 * var(--wall-inset));
+    margin: var(--wall-inset);
     margin-left: calc(var(--wall-inset) + var(--sidebar-rail) + var(--sidebar-gap));
-    margin-right: var(--wall-inset);
-    padding: clamp(2.5rem, 6vw, 5rem) clamp(1rem, 3vw, 2rem) 5rem;
+    padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1rem, 3vw, 2rem) clamp(1rem, 2vw, 1.5rem);
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1rem;
     max-width: 920px;
+    /* min-height: 0 cascades into children so the iframe can shrink below
+       its intrinsic size when needed. */
+    min-height: 0;
   }
   .muted {
     color: var(--text-muted);
@@ -84,6 +88,12 @@ const fallbackEmail = 'massimoperfetti4@gmail.com';
   }
 
   .embed-wrap {
+    /* Absorb the remaining vertical space after header + meta footer.
+       `min-height: 0` is required for flex-shrink to work below intrinsic
+       size; `flex: 1 1 auto` lets the iframe fill what's available without
+       a hardcoded clamp that overflows on shorter laptop viewports. */
+    flex: 1 1 auto;
+    min-height: 0;
     border: 1px solid var(--border-strong);
     border-radius: 14px;
     overflow: hidden;
@@ -93,9 +103,7 @@ const fallbackEmail = 'massimoperfetti4@gmail.com';
   .embed-wrap iframe {
     display: block;
     width: 100%;
-    /* Clamp keeps the embed comfortable on shorter laptop screens without
-       collapsing on tall desktops. */
-    height: clamp(620px, 80dvh, 880px);
+    height: 100%;
     border: 0;
   }
 
@@ -125,9 +133,20 @@ const fallbackEmail = 'massimoperfetti4@gmail.com';
 
   @media (max-width: 1023.98px) {
     .page {
-      margin-left: 0;
-      margin-right: 0;
-      padding-bottom: 88px; /* clear the bottom-drawer sidebar */
+      /* Mobile: full-bleed, content-sized height (the bento page already
+         scrolls vertically as a long stack, so /book can flow the same way).
+         Drawer handle clearance via padding-bottom. */
+      height: auto;
+      min-height: calc(100dvh - 88px);
+      margin: 0;
+      padding: 16px 16px 88px;
+    }
+    .embed-wrap {
+      /* Give the embed a real height target on mobile (no flex-fill — the
+         page is content-sized). Cap at 80dvh so the user can still see
+         the back link below. */
+      flex: 0 0 auto;
+      min-height: 80dvh;
     }
   }
 </style>

@@ -10,9 +10,11 @@
  * §Open questions flags as undecided. Phase 8 (or sooner if asked) will
  * upgrade this to a click-to-load placeholder pattern.
  *
- * Height 352px = the full mini-player: cover + scrollable track list +
- * playback controls. The compact 152px variant only showed cover + first
- * track row, which felt thin in the sidebar.
+ * Height: the iframe flex-fills whatever space is left in the sidebar after
+ * Identity, Now, and Contacts have taken theirs. Floor 200px so it's still
+ * usable; cap 420px so it doesn't dominate on tall monitors. The HTML
+ * `height` attribute is omitted because CSS controls layout — the iframe
+ * height attribute would conflict with `height: 100%`.
  */
 import { site } from '../../data/site';
 
@@ -26,8 +28,6 @@ const playlistTitle = "Massimo's playlist";
     <iframe
       src={`${site.spotifyEmbedUrl}?utm_source=generator&theme=0`}
       title={playlistTitle}
-      width="100%"
-      height="352"
       allow="autoplay; clipboard-write; encrypted-media; picture-in-picture"
     ></iframe>
   </div>
@@ -38,17 +38,25 @@ const playlistTitle = "Massimo's playlist";
     color: var(--text-muted);
   }
   .spotify {
+    /* Absorb remaining vertical space in the sidebar. Floor + ceiling keep
+       the player usable on tall and short monitors. */
+    flex: 1 1 auto;
+    min-height: 200px;
+    max-height: 420px;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
   }
   .frame {
+    flex: 1 1 auto;
+    min-height: 0;
     width: 100%;
     line-height: 0;
   }
   .frame iframe {
     display: block;
     width: 100%;
+    height: 100%;
     border: none;
     border-radius: 12px;
   }
