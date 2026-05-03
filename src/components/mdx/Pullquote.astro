@@ -1,0 +1,76 @@
+---
+/**
+ * <Pullquote /> — large display-serif quote pulled out of the body flow.
+ *
+ * Usage (in an .mdx file):
+ *
+ *     import Pullquote from '../../components/mdx/Pullquote.astro';
+ *
+ *     <Pullquote attribution="van Rees Lab thesis notes">
+ *       Curriculum rollout + Sobolev loss together stabilize what either does alone.
+ *     </Pullquote>
+ *
+ * Treatment:
+ *   - Display-serif, ~24px, slightly italic
+ *   - Negative margin on desktop so it bleeds ~24px into the prose gutter
+ *     (gives the editorial "the quote escapes the column" feel)
+ *   - Inline (no negative margin) on mobile <600px
+ *   - Optional `attribution` renders as mono-caption below
+ *
+ * No quote glyph injected — the source markdown can include "..." or — if
+ * Massimo prefers — drop them; either reads fine because the visual change
+ * already communicates "this is a pullquote".
+ */
+
+interface Props {
+  attribution?: string;
+}
+
+const { attribution } = Astro.props as Props;
+---
+
+<blockquote class="pullquote">
+  <p class="quote text-h2">
+    <slot />
+  </p>
+  {attribution && <cite class="attribution text-caption muted">{attribution}</cite>}
+</blockquote>
+
+<style>
+  .muted {
+    color: var(--text-muted);
+  }
+  .pullquote {
+    /* Negative margin lets the quote bleed into the prose gutter; the
+       border-left rules give it the magazine-quote anchor. */
+    margin: var(--space-5) calc(var(--space-5) * -1);
+    padding: var(--space-2) var(--space-5);
+    border-left: 2px solid var(--accent);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  .quote {
+    margin: 0;
+    color: var(--text);
+    font-style: italic;
+    /* Pull the .text-h2 default tracking toward zero — italic display
+       serif reads better with looser tracking than the standard h2. */
+    letter-spacing: 0;
+  }
+  .attribution {
+    /* <cite> defaults to italic; reset because the surrounding visual
+       language already reads as a quote. */
+    font-style: normal;
+    margin: 0;
+  }
+
+  @media (max-width: 600px) {
+    .pullquote {
+      /* Don't bleed on narrow viewports; the prose has no gutter to bleed
+         into anyway. */
+      margin: var(--space-4) 0;
+      padding: var(--space-1) var(--space-4);
+    }
+  }
+</style>

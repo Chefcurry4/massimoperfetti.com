@@ -384,6 +384,56 @@ The canonical study repo for our setup is `Charca/astro-movies` (see Reference R
 
 ---
 
+## MDX body components
+
+For richer project bodies, write `.mdx` instead of `.md` and import the
+Phase 5 components at the top of the file. Three are available:
+
+```mdx
+import Figure from '../../components/mdx/Figure.astro';
+import Pullquote from '../../components/mdx/Pullquote.astro';
+import Aside from '../../components/mdx/Aside.astro';
+
+# Heading
+
+Body paragraph here. The drop cap renders on the first letter of the
+first paragraph automatically — no markup needed.
+
+<Figure
+  src="/projects/flowmap/training-curve.png"
+  alt="Training-vs-rollout-error curve over 200 steps"
+  caption="Long-horizon stability across 200 rollout steps."
+  aspect="16/9"
+/>
+
+## Method
+
+Body continues. A pullquote can punctuate a section:
+
+<Pullquote attribution="thesis notes, MIT">
+  Curriculum rollout + Sobolev loss together stabilize what either does alone.
+</Pullquote>
+
+<Aside>
+  Side note that doesn't deserve its own paragraph.
+</Aside>
+```
+
+- **`<Figure>`** — props: `src`, `alt` (required), `caption?`, `aspect?` (e.g. `16/9`). Layered gradient fallback covers missing images so a 404'd `src` shows the gradient, not a broken-icon. Source: `src/components/mdx/Figure.astro`.
+- **`<Pullquote>`** — large display-serif quote pulled into the prose gutter via negative margin on desktop, inline on mobile. Optional `attribution` prop renders below as caption-mono. Source: `src/components/mdx/Pullquote.astro`.
+- **`<Aside>`** — small editorial side-note, accent-tinted left border, sits inside the prose column. Source: `src/components/mdx/Aside.astro`.
+
+Default markdown elements (`> blockquote`, `---` hr, headings, lists, code, links) get the editorial `.prose` treatment automatically — no component needed. See `.prose` rules in `src/styles/global.css`.
+
+Project detail pages also auto-render:
+- A **reading-progress bar** at the top edge (`<ReadingProgress />`).
+- A **related projects** strip below the body (tag-overlap, hidden if no overlap).
+- A **prev / next** nav row at the bottom (date-desc adjacency).
+
+These are wired in `src/pages/projects/[slug].astro` — adding a new project entry surfaces them automatically once it has tag overlap or a date neighbor.
+
+---
+
 ## Sidebar
 
 A single component, `src/components/sidebar/Sidebar.astro`, used in `Base.astro`. Marked `transition:persist="sidebar"` so it does not unmount across navigations — animations and state survive page changes.
@@ -414,7 +464,7 @@ This is the suggested phasing. Work top-down. Don't run ahead.
 - [x] **Phase 2** — Bento grid layout. 4-column wall (360 / 540 / 600 / 420 px) with per-column subgrids, 12 cells, real data + sparse stubs, proximity scroll snap, mobile re-ordering via CSS `order:`, scroll progress indicator, `role="region"` for keyboard a11y. New `.text-mono-small` type rung; `--glass-highlight` / `--glass-shadow` / `--on-cover` tokens. No transitions yet (Phase 4)._
 - [x] **Phase 3** — Sidebar built and persisted. Identity (avatar + name + role), Now snippet with availability dot, public-audience contacts cluster (Tooltip-wrapped icon row), Spotify embed (iframe), theme toggle slotted in. Mobile = bottom drawer with Identity peek, scroll-position-preserving body lock, AbortController-managed listeners. Bento ContactsCell retired; AboutCell expanded to full col-1.
 - [x] **Phase 4** — View Transitions. Card-to-detail morphs wired for projects (3-name: card/image/title), writing (2-name: card/title), gallery (2-name: card/image). Routes: /projects/[slug], /projects (list), /writing/[slug], /gallery/[slug]. Project detail uses a full-bleed split hero (cover left, meta right). Wall scrollLeft preserved across nav via sessionStorage. Cover-hue helper extracted to src/lib/cover-color.ts so source + destination gradients match continuously through the morph.
-- [ ] **Phase 5** — Project detail pages. Layout, typography, transitions completing the round trip.
+- [x] **Phase 5** — Project detail polish. Editorial `.prose` upgrade (drop cap on first paragraph, blockquote, figure/figcaption, hr, 17px body, tighter h2/h3 rhythm). New components: `RelatedProjects` (tag-overlap, transition:names match bento for cross-detail morphs), `NextPrev` (date-desc adjacency), `ReadingProgress` (top-edge bar, used on /projects/[slug] + /writing/[slug]). MDX body components: `<Figure>`, `<Pullquote>`, `<Aside>` (in `src/components/mdx/`, opt-in per .mdx file — see §MDX body components).
 - [ ] **Phase 6** — Places: expandable world map. This is the highest-risk component — likely needs an island. Investigate `react-simple-maps` or a custom SVG world before committing. Reference: gianmarcocavallo.com.
 - [ ] **Phase 7** — Gallery detail. Contact form (Netlify Forms). About popup.
 - [ ] **Phase 8** — Polish: loading states, OG images, sitemap, RSS for `writing/`, accessibility audit, Lighthouse pass.

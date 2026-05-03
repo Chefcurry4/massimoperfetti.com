@@ -1,0 +1,197 @@
+---
+/**
+ * RelatedProjects — horizontal strip of 2–3 sibling projects at the bottom
+ * of /projects/[slug]. Empty-state hides the section.
+ *
+ * Each card carries the same `transition:name="poster-projects-{slug}"` as
+ * the bento ProjectsCell so clicking through morphs the cover into the next
+ * detail page's hero. Cover gradient uses the shared coverHueVars helper
+ * so source + destination agree on hue.
+ *
+ * Rendering follows the bento `ProjectsCell variant="sm"` pattern (no cover
+ * graphic; eyebrow + status + title) to keep the visual language consistent.
+ */
+import { getCollection, type CollectionEntry } from 'astro:content';
+import { relatedProjects } from '../../lib/related-projects';
+import { coverHueVars } from '../../lib/cover-color';
+
+interface Props {
+  current: CollectionEntry<'projects'>;
+  /** Optional cap; default 3. */
+  max?: number;
+}
+
+const { current, max = 3 } = Astro.props;
+
+const all = await getCollection('projects', ({ data }) => !data.draft);
+const related = relatedProjects(current, all, max);
+
+const statusLabel: Record<CollectionEntry<'projects'>['data']['status'], string> = {
+  live: 'live',
+  archived: 'archived',
+  'in-progress': 'in progress',
+};
+---
+
+{
+  related.length > 0 && (
+    <section class="related" aria-label="Related projects">
+      <h2 class="text-caption muted heading">related</h2>
+
+      <ul class="grid">
+        {related.map((entry) => {
+          const initial = entry.data.title.trim().charAt(0).toUpperCase() || '·';
+          const coverStyle = coverHueVars(entry.data.title);
+          return (
+            <li>
+              <a
+                href={`/projects/${entry.id}`}
+                class="card"
+                transition:name={`poster-projects-${entry.id}`}
+                aria-label={`Open ${entry.data.title}`}
+              >
+                <div
+                  class="cover"
+                  style={coverStyle}
+                  aria-hidden="true"
+                  transition:name={`poster-projects-${entry.id}-image`}
+                >
+                  <span class="initial">{initial}</span>
+                </div>
+                <div class="meta">
+                  <div class="row">
+                    <p class="text-caption muted">project</p>
+                    <span class:list={['status-pill', 'text-mono-small', `status-${entry.data.status}`]}>
+                      {statusLabel[entry.data.status]}
+                    </span>
+                  </div>
+                  <h3
+                    class="title text-h3"
+                    transition:name={`poster-projects-${entry.id}-title`}
+                  >
+                    {entry.data.title}
+                  </h3>
+                  <p class="summary text-small muted">{entry.data.summary}</p>
+                </div>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  )
+}
+
+<style>
+  .muted {
+    color: var(--text-muted);
+  }
+  .related {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    /* Optical separation from the body — quiet line, no full-width hr noise. */
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--border);
+  }
+  .heading {
+    margin: 0;
+  }
+  .grid {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--space-4);
+  }
+  .card {
+    display: flex;
+    flex-direction: column;
+    color: inherit;
+    text-decoration: none;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    overflow: hidden;
+    transition:
+      transform var(--duration-normal) var(--ease-out-expo),
+      border-color var(--duration-normal) var(--ease-out-expo),
+      box-shadow var(--duration-normal) var(--ease-out-expo);
+  }
+  .card:hover,
+  .card:focus-visible {
+    transform: translateY(-2px);
+    border-color: var(--border-hover);
+    box-shadow: var(--hover-shadow);
+  }
+  .card:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .card:hover,
+    .card:focus-visible {
+      transform: none;
+    }
+  }
+
+  .cover {
+    flex: 0 0 auto;
+    height: 96px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background:
+      radial-gradient(
+        circle at 30% 30%,
+        oklch(70% 0.18 var(--hue) / 0.85),
+        oklch(35% 0.14 var(--hue-alt) / 0.95) 70%
+      );
+    color: var(--on-cover);
+    border-bottom: 1px solid var(--border);
+  }
+  .initial {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 56px;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    text-align: center;
+    opacity: 0.95;
+    mix-blend-mode: screen;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .meta {
+    padding: var(--space-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  .title {
+    margin: 0;
+    color: var(--text);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .summary {
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

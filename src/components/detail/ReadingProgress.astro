@@ -1,0 +1,69 @@
+---
+/**
+ * ReadingProgress — thin 2px bar fixed to the top of the viewport that fills
+ * left-to-right as the page scrolls. Used on /projects/[slug] and
+ * /writing/[slug] to give a sense of position during long reads.
+ *
+ * Implementation: a fixed-position div with `transform-origin: left;
+ * transform: scaleX(N)`. N is the ratio `scrollY / (documentHeight - viewportHeight)`,
+ * clamped to [0, 1].
+ *
+ * AbortController-managed listeners ensure clean teardown across
+ * View Transitions navigations (re-bound on every astro:page-load).
+ *
+ * Honors prefers-reduced-motion via the global rule in global.css —
+ * the transform transition is shortened, but the value still updates
+ * (a discrete progress signal stays useful even with motion off).
+ */
+---
+
+<div
+  class="reading-progress"
+  data-reading-progress
+  aria-hidden="true"
+></div>
+
+<style>
+  .reading-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    z-index: var(--z-progress);
+    background: var(--accent);
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform 90ms linear;
+    pointer-events: none;
+  }
+</style>
+
+<script>
+  let abortController: AbortController | null = null;
+
+  function bindReadingProgress() {
+    const bar = document.querySelector<HTMLElement>('[data-reading-progress]');
+    if (!bar) return;
+
+    abortController?.abort();
+    abortController = new AbortController();
+    const { signal } = abortController;
+
+    const update = () => {
+      const max = Math.max(
+        document.documentElement.scrollHeight - window.innerHeight,
+        1,
+      );
+      const ratio = Math.max(0, Math.min(1, window.scrollY / max));
+      bar.style.transform = `scaleX(${ratio.toFixed(4)})`;
+    };
+
+    update();
+    window.addEventListener('scroll', update, { passive: true, signal });
+    window.addEventListener('resize', update, { passive: true, signal });
+  }
+
+  bindReadingProgress();
+  document.addEventListener('astro:page-load', bindReadingProgress);
+</script>

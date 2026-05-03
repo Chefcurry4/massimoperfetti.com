@@ -12,6 +12,7 @@
  */
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 import Base from '../../layouts/Base.astro';
+import ReadingProgress from '../../components/detail/ReadingProgress.astro';
 
 export async function getStaticPaths() {
   const entries = await getCollection('writing', ({ data }) => !data.draft);
@@ -37,6 +38,7 @@ const dateLabel = date.toLocaleString('en-US', {
 ---
 
 <Base title={title} description={summary}>
+  <ReadingProgress />
   <main class="detail-page page">
     <a href="/" class="back-link text-caption">← back</a>
 

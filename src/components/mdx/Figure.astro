@@ -1,0 +1,72 @@
+---
+/**
+ * <Figure /> — captioned image for `.mdx` project bodies.
+ *
+ * Usage (in an .mdx file under src/content/projects/):
+ *
+ *     import Figure from '../../components/mdx/Figure.astro';
+ *
+ *     <Figure
+ *       src="/projects/flowmap/training-curve.png"
+ *       alt="Training-vs-rollout-error curve over 200 steps"
+ *       caption="Long-horizon stability across 200 rollout steps."
+ *       aspect="16/9"
+ *     />
+ *
+ * Props:
+ *   src       Path under /public (or external URL).
+ *   alt       Required. Empty string = decorative; pass real text otherwise.
+ *   caption   Optional. Renders as <figcaption> below the image with the
+ *             prose recipe's mono-small treatment.
+ *   aspect    Optional aspect ratio (e.g. "16/9", "4/3", "3/2", "1"). If
+ *             omitted the image's natural aspect ratio is used.
+ *
+ * If the file 404s the layered gradient fallback (--gradient-cool-soft)
+ * stays visible — same broken-icon-free pattern used in AboutCell and
+ * about.astro.
+ */
+
+interface Props {
+  src: string;
+  alt: string;
+  caption?: string;
+  aspect?: string;
+}
+
+const { src, alt, caption, aspect } = Astro.props;
+---
+
+<figure class="mdx-figure">
+  <div
+    class="frame"
+    style={aspect ? `aspect-ratio: ${aspect};` : undefined}
+  >
+    <img src={src} alt={alt} loading="lazy" decoding="async" />
+  </div>
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>
+
+<style>
+  /* Sized to flow inside .prose's 64ch column. The .prose figure rule in
+     global.css already handles caption typography + radius — we only need
+     the gradient fallback layer here so the frame doesn't show a broken
+     image icon if `src` doesn't resolve. */
+  .mdx-figure {
+    margin: var(--space-3) 0;
+  }
+  .frame {
+    width: 100%;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    background-color: var(--surface);
+    background-image: var(--gradient-cool-soft);
+    background-size: cover;
+    background-position: center;
+  }
+  .frame img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+</style>

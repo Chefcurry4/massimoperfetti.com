@@ -23,6 +23,9 @@
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import { coverHueVars } from '../../lib/cover-color';
+import ReadingProgress from '../../components/detail/ReadingProgress.astro';
+import RelatedProjects from '../../components/detail/RelatedProjects.astro';
+import NextPrev from '../../components/detail/NextPrev.astro';
 
 export async function getStaticPaths() {
   const entries = await getCollection('projects', ({ data }) => !data.draft);
@@ -56,6 +59,7 @@ const dateLabel = date.toLocaleString('en-US', {
 ---
 
 <Base title={title} description={summary}>
+  <ReadingProgress />
   <main class="detail-page page">
     <a href="/" class="back-link text-caption">← back</a>
 
@@ -121,6 +125,9 @@ const dateLabel = date.toLocaleString('en-US', {
         <Content />
       </div>
     </article>
+
+    <RelatedProjects current={entry} />
+    <NextPrev current={entry} />
   </main>
 </Base>
 

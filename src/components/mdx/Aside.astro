@@ -1,0 +1,47 @@
+---
+/**
+ * <Aside /> — small editorial side-note for `.mdx` project bodies.
+ *
+ * Usage:
+ *
+ *     import Aside from '../../components/mdx/Aside.astro';
+ *
+ *     <Aside>
+ *       These regularizers don't fix bias; they fix variance.
+ *     </Aside>
+ *
+ * Treatment:
+ *   - Subtle surface tint with hairline left border in accent at low alpha
+ *   - Slightly smaller body, line-height tightened
+ *   - Inline in the prose column (no negative margin) so the rhythm stays
+ *     intact — for "by the way" notes, not for headlines
+ */
+---
+
+<aside class="mdx-aside">
+  <slot />
+</aside>
+
+<style>
+  .mdx-aside {
+    /* `.text-small` (14px) sits one rung below .prose body (17px) — gives
+       the side-note a clear hierarchy without minting a 15px off-scale value. */
+    margin: var(--space-3) 0;
+    padding: var(--space-3) var(--space-4);
+    border-left: 2px solid color-mix(in oklab, var(--accent) 40%, transparent);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    background: color-mix(in oklab, var(--accent) 4%, var(--surface));
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  /* Inline children (paragraphs, links) inherit the smaller size. Block
+     children flow with normal margin reset — same convention as .prose p. */
+  .mdx-aside :global(p) {
+    margin: 0;
+  }
+  .mdx-aside :global(p) + :global(p) {
+    margin-top: var(--space-2);
+  }
+</style>

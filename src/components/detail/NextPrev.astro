@@ -1,0 +1,132 @@
+---
+/**
+ * NextPrev — two-column link strip below RelatedProjects on /projects/[slug].
+ *
+ * Sorts the projects collection by `data.date` desc (same order as the bento
+ * featured row), finds the index of `current`, and renders prev (newer) /
+ * next (older) sibling links. View Transition names match the bento naming
+ * so the morph still works when navigating sequentially through projects.
+ *
+ * Edge cases:
+ *   - current is newest → only "previous" renders (sits on the right by
+ *     default; with no prev sibling, the row collapses and "next" sits
+ *     right-aligned)
+ *   - current is oldest → only "next" renders (left-aligned)
+ *   - only 1 project total → both absent, the section is omitted
+ */
+import { getCollection, type CollectionEntry } from 'astro:content';
+
+interface Props {
+  current: CollectionEntry<'projects'>;
+}
+
+const { current } = Astro.props;
+
+const all = (await getCollection('projects', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
+);
+
+const idx = all.findIndex((e) => e.id === current.id);
+// "newer" sits to the LEFT of current in a date-desc list (lower index).
+// "older" sits to the RIGHT (higher index).
+const newer = idx > 0 ? all[idx - 1] : null;
+const older = idx < all.length - 1 ? all[idx + 1] : null;
+
+const hasAny = Boolean(newer || older);
+---
+
+{
+  hasAny && (
+    <nav class="nextprev" aria-label="Adjacent projects">
+      {newer ? (
+        <a class="link prev" href={`/projects/${newer.id}`} rel="prev">
+          <span class="text-caption muted">← newer project</span>
+          <span class="title text-h3">{newer.data.title}</span>
+        </a>
+      ) : (
+        <span class="link spacer" aria-hidden="true" />
+      )}
+
+      {older ? (
+        <a class="link next" href={`/projects/${older.id}`} rel="next">
+          <span class="text-caption muted">older project →</span>
+          <span class="title text-h3">{older.data.title}</span>
+        </a>
+      ) : (
+        <span class="link spacer" aria-hidden="true" />
+      )}
+    </nav>
+  )
+}
+
+<style>
+  .muted {
+    color: var(--text-muted);
+  }
+  .nextprev {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+    margin-top: var(--space-5);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--border);
+  }
+  .link {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    text-decoration: none;
+    color: inherit;
+    padding: var(--space-3);
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    transition:
+      border-color var(--duration-fast) var(--ease-out-expo),
+      background var(--duration-fast) var(--ease-out-expo);
+  }
+  /* Spacer keeps the grid balanced when only one side has content. */
+  .link.spacer {
+    pointer-events: none;
+  }
+  .link.next {
+    align-items: flex-end;
+    text-align: right;
+  }
+  .link:hover:not(.spacer),
+  .link:focus-visible:not(.spacer) {
+    border-color: var(--border);
+    background: var(--surface);
+  }
+  .link:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .title {
+    margin: 0;
+    color: var(--text);
+    transition: color var(--duration-fast) var(--ease-out-expo);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .link:hover .title,
+  .link:focus-visible .title {
+    color: var(--accent);
+  }
+
+  @media (max-width: 600px) {
+    .nextprev {
+      grid-template-columns: 1fr;
+      gap: var(--space-2);
+    }
+    .link.next {
+      align-items: flex-start;
+      text-align: left;
+    }
+    .link.spacer {
+      display: none;
+    }
+  }
+</style>

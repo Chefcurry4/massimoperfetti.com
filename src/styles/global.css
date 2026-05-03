@@ -361,11 +361,16 @@
   /* ====================================================================
    * Prose — styles applied to the markdown body of detail pages. Apply
    * to a wrapper around `<Content />` (e.g. `<div class="prose"><Content /></div>`).
-   * Replaces `:global(h2)` / `:global(h3)` / `:global(p)` rules
-   * scattered across project + writing detail files.
+   *
+   * Phase 5 raises this from "functional" to "editorial":
+   *   - 17px body for reading comfort (vs. 16 for UI)
+   *   - drop cap on the first paragraph (display serif, ~3.5×, restrained)
+   *   - blockquote / figure / figcaption / hr treatments
+   *   - generous heading top-margin so sections breathe
    * ==================================================================== */
   .prose {
     color: var(--text);
+    font-size: 17px;
     line-height: 1.65;
     display: flex;
     flex-direction: column;
@@ -378,7 +383,7 @@
     font-size: 24px;
     line-height: 1.2;
     letter-spacing: -0.01em;
-    margin: var(--space-5) 0 var(--space-1);
+    margin: var(--space-7) 0 var(--space-1);
     color: var(--text);
   }
   .prose h3 {
@@ -386,11 +391,31 @@
     font-weight: 600;
     font-size: 18px;
     line-height: 1.3;
-    margin: var(--space-4) 0 var(--space-1);
+    margin: var(--space-5) 0 var(--space-1);
     color: var(--text);
   }
   .prose p {
     margin: 0;
+  }
+  /*
+   * Drop cap on the first paragraph only. Restrained — single letter,
+   * display serif, no decorative box. Float-left so the first ~2 lines
+   * wrap around it. Mobile keeps the affordance but smaller.
+   */
+  .prose > p:first-of-type::first-letter {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 3.5em;
+    line-height: 0.9;
+    float: left;
+    margin: 0.05em 0.08em 0 0;
+    letter-spacing: -0.04em;
+    color: var(--text);
+  }
+  @media (max-width: 600px) {
+    .prose > p:first-of-type::first-letter {
+      font-size: 3em;
+    }
   }
   .prose ol,
   .prose ul {
@@ -413,6 +438,64 @@
     text-decoration: underline;
     text-underline-offset: 3px;
     text-decoration-thickness: 1px;
+  }
+  /*
+   * Blockquote — left rule, italic, no background. cite line uses
+   * caption-mono for attribution. Margin matches the prose gap.
+   */
+  .prose blockquote {
+    margin: var(--space-2) 0;
+    padding: 0 0 0 var(--space-4);
+    border-left: 2px solid var(--border-strong);
+    font-style: italic;
+    color: var(--text);
+  }
+  .prose blockquote p {
+    margin: 0;
+  }
+  .prose blockquote cite {
+    display: block;
+    margin-top: var(--space-2);
+    font-style: normal;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.4;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  /*
+   * Figure + figcaption — image gets radius-md, caption is mono small
+   * with a hairline separator above. Margin fits the prose flow.
+   */
+  .prose figure {
+    margin: var(--space-3) 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+  .prose figure img,
+  .prose figure picture,
+  .prose figure video {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    display: block;
+  }
+  .prose figcaption {
+    padding-top: var(--space-1);
+    border-top: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1.4;
+    color: var(--text-muted);
+  }
+  /* hr — quiet section break. */
+  .prose hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: var(--space-6) 0;
   }
   /* Wider variant for longer-form essays where 64ch reads tight. */
   .prose-wide {
