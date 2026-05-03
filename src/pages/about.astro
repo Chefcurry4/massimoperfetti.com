@@ -22,7 +22,7 @@ const [photoMountain, photoOrcas, photoCurry] = about.photos;
   <main class="page">
     <header class="head">
       <p class="text-caption muted">about</p>
-      <h1 class="text-h1 headline">{about.headline}</h1>
+      <h1 class="text-display headline">{about.headline}</h1>
     </header>
 
     <article class="essay">
@@ -83,22 +83,26 @@ const [photoMountain, photoOrcas, photoCurry] = about.photos;
 
     <footer class="meta">
       <span class="text-caption">{site.name}</span>
-      <a href="/" class="back text-caption">← back</a>
+      <a href="/" class="back-link text-caption">← back</a>
     </footer>
   </main>
 </Base>
 
 <style>
-  /* Sidebar-aware page container — anchors to the collapsed sidebar rail
-     (64px) so the expanded sidebar floats over without reflowing. Mirrors
-     /book and BentoGrid. */
+  /* Sidebar-aware page container. /about's vertical rhythm differs from the
+     other detail pages (longer-form essay, deeper top padding) so it keeps a
+     custom .page rule rather than using `.detail-page`. Back link uses the
+     global `.back-link` class via markup. */
   .page {
     margin-left: calc(var(--wall-inset) + var(--sidebar-rail) + var(--sidebar-gap));
     margin-right: var(--wall-inset);
-    padding: clamp(2.5rem, 6vw, 5rem) clamp(1rem, 3vw, 2rem) 5rem;
+    padding:
+      clamp(var(--space-6), 6vw, var(--space-8))
+      clamp(var(--space-4), 3vw, var(--space-6))
+      var(--space-8);
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: var(--space-6);
     max-width: 880px;
   }
   .muted {
@@ -108,7 +112,7 @@ const [photoMountain, photoOrcas, photoCurry] = about.photos;
   .head {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: var(--space-3);
   }
   .headline {
     margin: 0;
@@ -118,7 +122,7 @@ const [photoMountain, photoOrcas, photoCurry] = about.photos;
   .essay {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: var(--space-5);
   }
   .essay p {
     margin: 0;
@@ -136,7 +140,7 @@ const [photoMountain, photoOrcas, photoCurry] = about.photos;
   .row {
     display: grid;
     align-items: center;
-    gap: clamp(1rem, 3vw, 2.25rem);
+    gap: clamp(var(--space-4), 3vw, var(--space-6));
   }
   .row-right {
     grid-template-columns: minmax(0, 1fr) minmax(0, 220px);
@@ -163,7 +167,7 @@ const [photoMountain, photoOrcas, photoCurry] = about.photos;
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: var(--space-2);
     width: 100%;
   }
   .photo img {
@@ -171,16 +175,13 @@ const [photoMountain, photoOrcas, photoCurry] = about.photos;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     border: 1px solid var(--border);
     /* Layered fallback: if the image 404s, the gradient below stays visible
-       so the page never shows a broken-image icon. Mirrors AboutCell. */
+       so the page never shows a broken-image icon. Mirrors AboutCell — the
+       soft variant of --gradient-cool reads as a backdrop, not a portrait. */
     background-color: var(--surface);
-    background-image: linear-gradient(
-      135deg,
-      oklch(72% 0.08 264 / 0.5),
-      oklch(38% 0.06 295 / 0.6)
-    );
+    background-image: var(--gradient-cool-soft);
     background-size: cover;
     box-shadow: 0 8px 24px var(--glass-shadow);
   }
@@ -199,19 +200,13 @@ const [photoMountain, photoOrcas, photoCurry] = about.photos;
   }
 
   .meta {
-    margin-top: 1.5rem;
-    padding-top: 1rem;
+    margin-top: var(--space-5);
+    padding-top: var(--space-4);
     border-top: 1px solid var(--border);
     display: flex;
     justify-content: space-between;
     align-items: center;
     color: var(--text-muted);
-  }
-  .back {
-    transition: color var(--duration-fast) var(--ease-out-expo);
-  }
-  .back:hover {
-    color: var(--text);
   }
 
   /* Mobile — collapse to single column. Photos stack inline below their
@@ -222,13 +217,16 @@ const [photoMountain, photoOrcas, photoCurry] = about.photos;
     .page {
       margin-left: 0;
       margin-right: 0;
-      padding: clamp(2rem, 8vw, 3rem) clamp(1rem, 5vw, 1.5rem) 88px;
+      padding:
+        clamp(var(--space-6), 8vw, var(--space-7))
+        clamp(var(--space-4), 5vw, var(--space-5))
+        calc(var(--space-7) + var(--space-5));
     }
     .row,
     .row-right,
     .row-left {
       grid-template-columns: 1fr;
-      gap: 1rem;
+      gap: var(--space-4);
     }
     .row-left .photo,
     .row-left p {

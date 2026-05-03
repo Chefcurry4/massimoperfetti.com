@@ -48,7 +48,7 @@ const periodLabel = `${fmt(period.start)} — ${period.end ? fmt(period.end) : '
   .title-block {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: var(--space-1);
   }
   .title {
     margin: 0;
@@ -61,7 +61,7 @@ const periodLabel = `${fmt(period.start)} — ${period.end ? fmt(period.end) : '
   .meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: var(--space-2);
     align-items: center;
   }
   .dot {

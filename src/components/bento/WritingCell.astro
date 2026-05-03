@@ -34,7 +34,7 @@ const detailHref = `/writing/${entry.id}`;
   <Cell slot={slot}>
     <p class="text-caption muted">writing</p>
 
-    <h3 class="text-h2 title" transition:name={`poster-writing-${entry.id}-title`}>{title}</h3>
+    <h3 class="text-h3 title" transition:name={`poster-writing-${entry.id}-title`}>{title}</h3>
 
   <p class="meta text-caption muted">
     <span>{dateLabel}</span>
@@ -48,7 +48,7 @@ const detailHref = `/writing/${entry.id}`;
       tags.length > 0 && (
         <ul class="tags" aria-label="tags">
           {tags.slice(0, 3).map((t) => (
-            <li class="tag text-caption">{t}</li>
+            <li class="tag-chip text-caption">{t}</li>
           ))}
         </ul>
       )
@@ -65,7 +65,7 @@ const detailHref = `/writing/${entry.id}`;
     height: 100%;
     color: inherit;
     text-decoration: none;
-    border-radius: 18px;
+    border-radius: var(--radius-lg);
   }
   .card-link:focus-visible {
     outline: 2px solid var(--accent);
@@ -74,9 +74,9 @@ const detailHref = `/writing/${entry.id}`;
   .title {
     margin: 0;
     color: var(--text);
-    /* h2 size × 2 lines fits the col-2 writing row at typical viewports;
-       step to 1 line on short ones (where h2 is also stepped down via
-       the global type-scale media query). */
+    /* h3 sized × 2 lines fits the col-2 writing row at typical viewports;
+       step to 1 line on short ones. Demoted from h2 → h3 since h2 is a
+       structural tier reserved for page sections, not card titles. */
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
@@ -92,7 +92,7 @@ const detailHref = `/writing/${entry.id}`;
   .meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: var(--space-2);
     align-items: center;
   }
   .dot {
@@ -118,12 +118,7 @@ const detailHref = `/writing/${entry.id}`;
     margin: auto 0 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 0.4rem;
+    gap: var(--space-1);
   }
-  .tag {
-    padding: 0.2rem 0.55rem;
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    color: var(--text-muted);
-  }
+  /* .tag-chip lives in global.css. */
 </style>

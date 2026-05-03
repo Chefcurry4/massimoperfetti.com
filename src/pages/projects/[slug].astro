@@ -56,8 +56,8 @@ const dateLabel = date.toLocaleString('en-US', {
 ---
 
 <Base title={title} description={summary}>
-  <main class="page">
-    <a href="/" class="back text-caption">← back</a>
+  <main class="detail-page page">
+    <a href="/" class="back-link text-caption">← back</a>
 
     <article
       class="project"
@@ -76,7 +76,7 @@ const dateLabel = date.toLocaleString('en-US', {
         <div class="hero-meta">
           <div class="row">
             <p class="text-caption muted">project</p>
-            <span class:list={['status', 'text-mono-small', `status-${status}`]}>
+            <span class:list={['status-pill', 'text-mono-small', `status-${status}`]}>
               {statusLabel[status]}
             </span>
           </div>
@@ -94,7 +94,7 @@ const dateLabel = date.toLocaleString('en-US', {
             tags.length > 0 && (
               <ul class="tags" aria-label="tags">
                 {tags.map((t) => (
-                  <li class="tag text-caption">{t}</li>
+                  <li class="tag-chip text-caption">{t}</li>
                 ))}
               </ul>
             )
@@ -117,7 +117,7 @@ const dateLabel = date.toLocaleString('en-US', {
         </div>
       </div>
 
-      <div class="body">
+      <div class="prose">
         <Content />
       </div>
     </article>
@@ -125,30 +125,16 @@ const dateLabel = date.toLocaleString('en-US', {
 </Base>
 
 <style>
-  /* Sidebar-aware page container — anchored to --sidebar-rail like the
-     bento wall and /book and /about. */
+  /* Page chrome (margin-left for sidebar, mobile bleed, padding, gap)
+     comes from `.detail-page` in global.css. Local rules cover only what's
+     specific to this page: hero split, cover, hero-meta, links list. */
   .page {
-    min-height: calc(100dvh - 2 * var(--wall-inset));
-    margin: var(--wall-inset);
-    margin-left: calc(var(--wall-inset) + var(--sidebar-rail) + var(--sidebar-gap));
-    padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1rem, 3vw, 2rem) 4rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
     max-width: 1080px;
+    /* gap from .detail-page is --space-5; tighten between hero and prose */
+    gap: var(--space-4);
   }
   .muted {
     color: var(--text-muted);
-  }
-  .back {
-    color: var(--text-muted);
-    text-decoration: none;
-    transition: color var(--duration-fast) var(--ease-out-expo);
-    align-self: flex-start;
-  }
-  .back:hover,
-  .back:focus-visible {
-    color: var(--text);
   }
 
   /* Hero split: cover left, meta right. The morphing elements (cover, title)
@@ -156,8 +142,8 @@ const dateLabel = date.toLocaleString('en-US', {
   .hero {
     display: grid;
     grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-    gap: clamp(1rem, 2.5vw, 2rem);
-    border-radius: 18px;
+    gap: clamp(var(--space-4), 2.5vw, var(--space-6));
+    border-radius: var(--radius-lg);
     overflow: hidden;
     border: 1px solid var(--border);
     background: var(--surface);
@@ -181,7 +167,8 @@ const dateLabel = date.toLocaleString('en-US', {
     color: var(--on-cover);
   }
   .cover-initial {
-    /* Bigger than the bento variant — this is the hero. */
+    /* Bigger than the bento variant — this is the hero. Off-scale on
+       purpose: graphic-display, not body text. */
     font-family: var(--font-display);
     font-weight: 500;
     font-size: clamp(96px, 14vw, 200px);
@@ -195,10 +182,10 @@ const dateLabel = date.toLocaleString('en-US', {
   }
 
   .hero-meta {
-    padding: clamp(1.25rem, 2.5vw, 2rem);
+    padding: clamp(var(--space-4), 2.5vw, var(--space-6));
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: var(--space-3);
     min-width: 0;
   }
 
@@ -206,31 +193,7 @@ const dateLabel = date.toLocaleString('en-US', {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 0.5rem;
-  }
-  .status {
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    padding: 0.15rem 0.55rem;
-    border-radius: 999px;
-    border: 1px solid var(--border-strong);
-    color: var(--text-muted);
-    background: transparent;
-    white-space: nowrap;
-  }
-  .status-live {
-    color: var(--status-live);
-    border-color: var(--status-live);
-    background: var(--status-live-bg);
-  }
-  .status-in-progress {
-    color: var(--status-progress);
-    border-color: var(--status-progress);
-    background: var(--status-progress-bg);
-  }
-  .status-archived {
-    color: var(--status-archived);
-    background: var(--status-archived-bg);
+    gap: var(--space-2);
   }
 
   .title {
@@ -251,13 +214,7 @@ const dateLabel = date.toLocaleString('en-US', {
     margin: 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 0.4rem;
-  }
-  .tag {
-    padding: 0.18rem 0.5rem;
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    color: var(--text-muted);
+    gap: var(--space-1);
   }
 
   .links {
@@ -266,12 +223,12 @@ const dateLabel = date.toLocaleString('en-US', {
     margin: auto 0 0;
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: var(--space-1);
   }
   .link {
     display: inline-flex;
     align-items: baseline;
-    gap: 0.5rem;
+    gap: var(--space-2);
     color: var(--text);
     text-decoration: none;
     transition: color var(--duration-fast) var(--ease-out-expo);
@@ -281,62 +238,6 @@ const dateLabel = date.toLocaleString('en-US', {
     color: var(--accent);
   }
 
-  /* Body markdown — sized to a comfortable reading measure. The styling
-     here is intentionally light; Phase 5 polishes the prose typography. */
-  .body {
-    max-width: 64ch;
-    color: var(--text);
-    line-height: 1.65;
-    display: flex;
-    flex-direction: column;
-    gap: 0.9rem;
-  }
-  .body :global(h2) {
-    font-family: var(--font-display);
-    font-weight: 500;
-    font-size: 24px;
-    line-height: 1.2;
-    letter-spacing: -0.01em;
-    margin: 1.5rem 0 0.25rem;
-    color: var(--text);
-  }
-  .body :global(h3) {
-    font-family: var(--font-sans);
-    font-weight: 600;
-    font-size: 18px;
-    line-height: 1.3;
-    margin: 1rem 0 0.25rem;
-    color: var(--text);
-  }
-  .body :global(p) {
-    margin: 0;
-  }
-  .body :global(code) {
-    font-family: var(--font-mono);
-    font-size: 0.9em;
-    padding: 0.1em 0.35em;
-    border-radius: 4px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-  }
-  .body :global(a) {
-    color: var(--accent);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    text-decoration-thickness: 1px;
-  }
-  .body :global(ol),
-  .body :global(ul) {
-    padding-left: 1.25rem;
-    margin: 0;
-  }
-
-  @media (max-width: 1023.98px) {
-    .page {
-      margin: 0;
-      padding: 16px 16px 88px;
-    }
-  }
   @media (max-width: 767px) {
     .hero {
       grid-template-columns: 1fr;

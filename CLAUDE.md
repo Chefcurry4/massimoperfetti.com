@@ -64,29 +64,36 @@ Do not introduce: Next.js, server components, a database, a CMS, shadcn/ui (woul
 │   ├── components/
 │   │   ├── bento/                  # bento cell components
 │   │   │   ├── BentoGrid.astro     # the wall itself
-│   │   │   ├── AboutCell.astro
-│   │   │   ├── ContactsCell.astro
+│   │   │   ├── AboutCell.astro     # full column-1 hero (contacts moved to sidebar in Phase 3)
 │   │   │   ├── WorkCell.astro
 │   │   │   ├── WritingCell.astro
-│   │   │   ├── ProjectsCell.astro  # 3-4 projects + "see all" button
+│   │   │   ├── ProjectsCell.astro  # 3-4 projects, lg + sm variants
 │   │   │   ├── GalleryCell.astro
-│   │   │   └── PlacesCell.astro    # expandable world map
+│   │   │   ├── PlacesCell.astro    # expandable world map
+│   │   │   ├── SeeAllCell.astro    # "see all projects" CTA tile
+│   │   │   └── StubCell.astro      # intentional empty slot
 │   │   ├── sidebar/
-│   │   │   ├── Sidebar.astro       # persistent across navigations
+│   │   │   ├── Sidebar.astro       # persistent; rail/panel hover-expand
+│   │   │   ├── Identity.astro      # avatar + name + role + availability ring
 │   │   │   ├── NowSnippet.astro
-│   │   │   ├── ContactsCluster.astro
-│   │   │   ├── ThemeToggle.astro
+│   │   │   ├── ContactsCluster.astro  # contacts row + "Book a call" + email popover
 │   │   │   └── SpotifyWidget.astro
-│   │   ├── ui/                     # primitives: Glass, Card, Tag, etc.
-│   │   └── transitions/            # view-transition helpers
+│   │   └── ui/                     # primitives:
+│   │       ├── Cell.astro          # bento cell wrapper (chrome, padding, hover-lift)
+│   │       ├── ThemeToggle.astro   # sun/moon, persists to localStorage
+│   │       └── Tooltip.astro       # site-wide hover label primitive
 │   ├── pages/
 │   │   ├── index.astro             # the bento wall (home)
 │   │   ├── projects/[slug].astro   # project detail pages
+│   │   ├── projects/index.astro    # full projects index
 │   │   ├── writing/[slug].astro
-│   │   ├── places/index.astro      # full places map page
-│   │   ├── gallery/index.astro     # full gallery page
+│   │   ├── gallery/[slug].astro
 │   │   ├── about.astro             # standalone about page (also used by popup)
-│   │   └── contact.astro           # contact form (Netlify Forms)
+│   │   ├── book.astro              # /book — Cal.com booking embed
+│   │   ├── design.astro            # /design — internal design system reference (sitemap-excluded)
+│   │   ├── places/index.astro      # full places map page (Phase 6)
+│   │   ├── gallery/index.astro     # full gallery page (Phase 7)
+│   │   └── contact.astro           # contact form (Phase 7, Netlify Forms)
 │   └── styles/
 │       ├── tokens.css              # CSS custom properties (theme tokens, both themes)
 │       └── global.css              # @import 'tailwindcss' source(none); @theme inline; type scale + .glass; reset; font @imports
@@ -262,14 +269,30 @@ Implement via `data-theme="dark" | "light"` attribute on `<html>`. All tokens ar
 
 Load via Fontsource or `@fontsource-variable/*` packages; do NOT load from Google Fonts CDN (privacy + perf). Subset to Latin + Latin-Extended.
 
-Type scale (pixels, rem in implementation):
-- `display`: 56px / 1.05 / -0.02em — Lora 500
-- `h1`: 40px / 1.1 / -0.015em — Lora 500
-- `h2`: 28px / 1.2 — Lora 500
-- `h3`: 20px / 1.3 — Geist 600
-- `body`: 16px / 1.55 — Geist 400
-- `small`: 14px / 1.5 — Geist 400
-- `caption`: 12px / 1.4 / 0.02em uppercase — Geist Mono 400
+Type scale (apply via `.text-*` component classes in `global.css`; never override `font-size` in components):
+- `text-display`: 56px / 1.05 / -0.02em — Lora 500. Page hero (currently `/about`, `/_design`).
+- `text-h1`: 40px / 1.1 / -0.015em — Lora 500. Page headlines (`/book`, hero portrait name).
+- `text-h2`: 28px / 1.2 — Lora 500. Structural section headings only — NOT card titles.
+- `text-h3`: 20px / 1.3 — Geist 600. Card titles, section sub-headings.
+- `text-body`: 16px / 1.55 — Geist 400.
+- `text-small`: 14px / 1.5 — Geist 400.
+- `text-ui`: 13px / 1.3 / -0.005em — Geist 500. **Interactive control labels** (CTAs, buttons). Replaces ad-hoc 12.5px / 18px escapes.
+- `text-caption`: 12px / 1.4 / 0.02em uppercase — Geist Mono 400. Eyebrows.
+- `text-mono-small`: 11px / 1.4 — Geist Mono 400. Handles, tokens, status labels.
+
+### Design tokens — scales
+
+Beyond colors and motion, the system has four numeric scales. Components MUST consume these via `var(--*)` rather than raw values. See `src/pages/_design.astro` for live samples.
+
+**Spacing** (multiples of 4px from a base of 4): `--space-1`..`--space-8` (4, 8, 12, 16, 24, 32, 48, 64). Use for `gap`, `padding`, `margin`. Off-scale values are a smell.
+
+**Radius** (four values): `--radius-sm` 6px, `--radius-md` 14px, `--radius-lg` 18px, `--radius-pill` 999px. Stylelint enforces this scale.
+
+**Z-index** (named layers, 10-unit gaps): `--z-progress` 30, `--z-sidebar` 40, `--z-modal` 50, `--z-tooltip` 60.
+
+**Controls**: `--control-h-sm` 32px (icon links), `--control-h-md` 36px (primary controls). `--icon-sm` 18px, `--icon-xs` 12px.
+
+**Gradients & scrims**: `--gradient-cool` (portrait/avatar fallback), `--gradient-cool-soft` (about photos backdrop), `--scrim-modal` (popover ::backdrop, mobile drawer scrim). One token, no duplication.
 
 ### Liquid glass
 
@@ -320,6 +343,8 @@ Tailwind without rules → generic AI portfolio. The following are non-negotiabl
 
 5. **No arbitrary values without a comment.** `mt-[37px]` is a code smell. Either it's part of the scale or it has a documented reason.
 
+6. **Tokens-first rule.** No new component may introduce a hardcoded spacing, radius, color, or z-index value. If the design needs a value not in the scale, **add it to `tokens.css` first**, then consume it. Off-scale values require a comment justifying why (e.g. "matches Spotify iframe inner border, can't override"). Stylelint enforces hex colors, raw rgba backgrounds, and off-scale `border-radius` via `pnpm lint:css`. Run before commit.
+
 6. **Group classes by category** when stacking utilities: layout → box → typography → color → effects → interaction. This is a readability convention, not a linter rule, but follow it.
 
 ---
@@ -364,13 +389,19 @@ The canonical study repo for our setup is `Charca/astro-movies` (see Reference R
 A single component, `src/components/sidebar/Sidebar.astro`, used in `Base.astro`. Marked `transition:persist="sidebar"` so it does not unmount across navigations — animations and state survive page changes.
 
 Contents, top to bottom:
-1. **Identity** — small avatar/initials + name + one-line role.
+1. **Identity** — avatar (with availability ring) + name + one-line role. The ring around the avatar is colored by `now.availability` so the collapsed rail still signals real-time state without needing to expand.
 2. **Now snippet** — pulled from `src/data/now.ts`. Single sentence: what I'm working on, where I am, availability state. Updated by editing the file.
-3. **Contacts cluster** — email, GitHub, LinkedIn, X, Scholar, etc. Icons only, with tooltip labels. From `src/data/contacts.ts`.
-4. **Theme toggle** — sun/moon icon. Persists to `localStorage`. Reads `prefers-color-scheme` on first visit.
-5. **Spotify widget** — embed of currently-playing or last-played. Use Spotify's official iframe embed (no API key, no backend). Lazy-loaded.
+3. **Contacts cluster** — two subsections: a public-audience icon row (email, GitHub, LinkedIn, newsletter, LeetCode) wrapped in `<Tooltip side="right">`, and a "Book a 30-min call" CTA pill linking to `/book`. The email icon opens a popover listing all three addresses (personal / MIT / TU Delft); academic emails are folded back in only via that popover so the row stays compact.
+4. **Spotify widget** — embed of currently-playing or last-played. Spotify's official iframe (no API key, no backend).
+5. **Theme toggle** — sun/moon icon. Persists to `localStorage`. Reads `prefers-color-scheme` on first visit. Sits in the footer; on the collapsed rail it floats absolutely at bottom-center.
 
-Style: glass surface, fixed left side on desktop (~280px wide), bottom drawer on mobile (or top hamburger — decide when we get there).
+**Hover-rail model (desktop ≥ 1024px).** The sidebar has two states:
+- **Collapsed (rail, `--sidebar-rail` = 64px):** avatar + a vertical accent edge on the right + a chevron trigger near the bottom + the theme toggle. The wall and `/book` page anchor their left margin to the rail width so they never reflow.
+- **Expanded (panel, `--sidebar-width` = 280px):** full content. Triggered by clicking the chevron (or anywhere on the rail). Mouseleave schedules collapse after 1s; mouseenter cancels it; ESC collapses immediately. The expanded panel floats above the wall via `z-index: var(--z-sidebar)` with a soft shadow so the layout doesn't reflow.
+
+**Mobile (< 1024px).** Bottom drawer with Identity peek and a drag-handle grip. Drawer expands to 80dvh on tap; body scroll is locked while open via window.scrollY preservation.
+
+**Spacing.** Outer rhythm uses `--space-5` (24px) between top-level pieces; section dividers are `border-top: 1px solid var(--border)` with `padding-top: var(--space-4)` integrated into each section (no standalone `<hr>`). Editorial whitespace, not flat hairlines.
 
 ---
 
@@ -452,9 +483,12 @@ pnpm preview
 # typecheck
 pnpm astro check
 
-# format & lint (Prettier + ESLint, set up in Phase 0)
+# format
 pnpm format
-pnpm lint
+pnpm format:check
+
+# lint CSS (token discipline — fails on hex colors, off-scale radii, raw rgba backgrounds)
+pnpm lint:css
 ```
 
 ---

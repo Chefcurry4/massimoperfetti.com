@@ -76,7 +76,7 @@ const detailHref = `/gallery/${entry.id}`;
     height: 100%;
     color: inherit;
     text-decoration: none;
-    border-radius: 18px;
+    border-radius: var(--radius-lg);
   }
   .card-link:focus-visible {
     outline: 2px solid var(--accent);
@@ -106,10 +106,10 @@ const detailHref = `/gallery/${entry.id}`;
     display: block;
   }
   .meta {
-    padding: clamp(0.875rem, 1.6vw, 1.25rem);
+    padding: clamp(var(--space-3), 1.6vw, var(--space-4));
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: var(--space-1);
   }
   .title {
     margin: 0;

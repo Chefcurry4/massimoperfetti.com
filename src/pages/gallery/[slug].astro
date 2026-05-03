@@ -47,8 +47,8 @@ const dateLabel = date.toLocaleString('en-US', {
 ---
 
 <Base title={title} description={caption ?? title}>
-  <main class="page">
-    <a href="/" class="back text-caption">← back</a>
+  <main class="detail-page page">
+    <a href="/" class="back-link text-caption">← back</a>
 
     <article
       class="photograph"
@@ -109,7 +109,7 @@ const dateLabel = date.toLocaleString('en-US', {
 
       {
         Content && (
-          <div class="body">
+          <div class="prose">
             <Content />
           </div>
         )
@@ -119,38 +119,23 @@ const dateLabel = date.toLocaleString('en-US', {
 </Base>
 
 <style>
+  /* Page chrome from `.detail-page`; back link from `.back-link`; markdown
+     body from `.prose`. Local rules cover only the page-specific layout. */
   .page {
-    min-height: calc(100dvh - 2 * var(--wall-inset));
-    margin: var(--wall-inset);
-    margin-left: calc(var(--wall-inset) + var(--sidebar-rail) + var(--sidebar-gap));
-    padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1rem, 3vw, 2rem) 4rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
     max-width: 1080px;
   }
   .muted {
     color: var(--text-muted);
   }
-  .back {
-    color: var(--text-muted);
-    text-decoration: none;
-    transition: color var(--duration-fast) var(--ease-out-expo);
-    align-self: flex-start;
-  }
-  .back:hover,
-  .back:focus-visible {
-    color: var(--text);
-  }
 
   .photograph {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: var(--space-5);
   }
 
   .frame {
-    border-radius: 14px;
+    border-radius: var(--radius-md);
     border: 1px solid var(--border);
     overflow: hidden;
     aspect-ratio: 3 / 2;
@@ -172,7 +157,7 @@ const dateLabel = date.toLocaleString('en-US', {
   .meta {
     display: flex;
     flex-direction: column;
-    gap: 0.6rem;
+    gap: var(--space-2);
     max-width: 720px;
   }
   .title {
@@ -185,7 +170,7 @@ const dateLabel = date.toLocaleString('en-US', {
   }
 
   .exif {
-    margin: 0.5rem 0 0;
+    margin: var(--space-2) 0 0;
     display: grid;
     grid-template-columns: 1fr;
     gap: 0;
@@ -193,8 +178,8 @@ const dateLabel = date.toLocaleString('en-US', {
   .exif .row {
     display: grid;
     grid-template-columns: 96px 1fr;
-    gap: 0.75rem;
-    padding: 0.4rem 0;
+    gap: var(--space-3);
+    padding: var(--space-1) 0;
     border-top: 1px solid var(--border);
     align-items: baseline;
   }
@@ -209,22 +194,4 @@ const dateLabel = date.toLocaleString('en-US', {
     color: var(--text);
   }
 
-  .body {
-    max-width: 64ch;
-    color: var(--text);
-    line-height: 1.65;
-    display: flex;
-    flex-direction: column;
-    gap: 0.9rem;
-  }
-  .body :global(p) {
-    margin: 0;
-  }
-
-  @media (max-width: 1023.98px) {
-    .page {
-      margin: 0;
-      padding: 16px 16px 88px;
-    }
-  }
 </style>

@@ -58,25 +58,25 @@ const updatedRelative = (() => {
   .now {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: var(--space-2);
   }
   .head {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--space-2);
   }
   .availability {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: var(--space-1);
     text-transform: lowercase;
     letter-spacing: 0;
   }
   .dot {
     width: 8px;
     height: 8px;
-    border-radius: 50%;
+    border-radius: var(--radius-pill);
     background: var(--text-muted);
     box-shadow: 0 0 0 2px transparent;
     transition: box-shadow var(--duration-normal) var(--ease-out-expo);
@@ -125,7 +125,7 @@ const updatedRelative = (() => {
     margin: 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 0.4rem;
+    gap: var(--space-1);
     align-items: baseline;
   }
   .sep {

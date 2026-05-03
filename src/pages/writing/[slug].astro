@@ -37,8 +37,8 @@ const dateLabel = date.toLocaleString('en-US', {
 ---
 
 <Base title={title} description={summary}>
-  <main class="page">
-    <a href="/" class="back text-caption">← back</a>
+  <main class="detail-page page">
+    <a href="/" class="back-link text-caption">← back</a>
 
     <article
       class="essay"
@@ -61,16 +61,16 @@ const dateLabel = date.toLocaleString('en-US', {
           tags.length > 0 && (
             <ul class="tags" aria-label="tags">
               {tags.map((t) => (
-                <li class="tag text-caption">{t}</li>
+                <li class="tag-chip text-caption">{t}</li>
               ))}
             </ul>
           )
         }
       </header>
 
-      <p class="lede text-body">{summary}</p>
+      <p class="text-lede">{summary}</p>
 
-      <div class="body">
+      <div class="prose">
         <Content />
       </div>
     </article>
@@ -78,39 +78,25 @@ const dateLabel = date.toLocaleString('en-US', {
 </Base>
 
 <style>
+  /* Page chrome (margin, padding, mobile reset) from `.detail-page`.
+     Back link, tag chip, lede, prose body all from global.css component
+     classes — only the page-specific layout is local. */
   .page {
-    min-height: calc(100dvh - 2 * var(--wall-inset));
-    margin: var(--wall-inset);
-    margin-left: calc(var(--wall-inset) + var(--sidebar-rail) + var(--sidebar-gap));
-    padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1rem, 3vw, 2rem) 4rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
     max-width: 720px;
   }
   .muted {
     color: var(--text-muted);
   }
-  .back {
-    color: var(--text-muted);
-    text-decoration: none;
-    transition: color var(--duration-fast) var(--ease-out-expo);
-    align-self: flex-start;
-  }
-  .back:hover,
-  .back:focus-visible {
-    color: var(--text);
-  }
 
   .essay {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: var(--space-4);
   }
   .head {
     display: flex;
     flex-direction: column;
-    gap: 0.6rem;
+    gap: var(--space-2);
   }
   .title {
     margin: 0;
@@ -119,7 +105,7 @@ const dateLabel = date.toLocaleString('en-US', {
   .meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: var(--space-2);
     align-items: baseline;
   }
   .dot {
@@ -128,80 +114,10 @@ const dateLabel = date.toLocaleString('en-US', {
   .tags {
     list-style: none;
     padding: 0;
-    margin: 0.25rem 0 0;
+    margin: var(--space-1) 0 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 0.4rem;
-  }
-  .tag {
-    padding: 0.18rem 0.5rem;
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    color: var(--text-muted);
+    gap: var(--space-1);
   }
 
-  .lede {
-    margin: 0;
-    color: var(--text);
-    /* slightly larger / heavier than body to set the tone */
-    font-size: 18px;
-    line-height: 1.55;
-  }
-
-  .body {
-    color: var(--text);
-    line-height: 1.7;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-top: 0.5rem;
-  }
-  .body :global(h2) {
-    font-family: var(--font-display);
-    font-weight: 500;
-    font-size: 24px;
-    line-height: 1.2;
-    letter-spacing: -0.01em;
-    margin: 1.5rem 0 0.25rem;
-    color: var(--text);
-  }
-  .body :global(h3) {
-    font-family: var(--font-sans);
-    font-weight: 600;
-    font-size: 18px;
-    line-height: 1.3;
-    margin: 1rem 0 0.25rem;
-    color: var(--text);
-  }
-  .body :global(p) {
-    margin: 0;
-  }
-  .body :global(ol),
-  .body :global(ul) {
-    padding-left: 1.25rem;
-    margin: 0;
-  }
-  .body :global(li) {
-    margin: 0.25rem 0;
-  }
-  .body :global(code) {
-    font-family: var(--font-mono);
-    font-size: 0.9em;
-    padding: 0.1em 0.35em;
-    border-radius: 4px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-  }
-  .body :global(a) {
-    color: var(--accent);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-
-  @media (max-width: 1023.98px) {
-    .page {
-      margin: 0;
-      padding: 16px 16px 88px;
-    }
-  }
 </style>

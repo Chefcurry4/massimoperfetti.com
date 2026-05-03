@@ -49,9 +49,7 @@ import { site } from '../../data/site';
   }
 
   .about-cell {
-    /* Tighter inner gap so the portrait doesn't feel detached from the meta.
-       Cell.astro sets gap:0.75rem by default; we want closer here. */
-    gap: 0.875rem;
+    /* Inherits Cell's --space-3 gap. */
   }
 
   .portrait {
@@ -65,7 +63,7 @@ import { site } from '../../data/site';
     width: 100%;
     aspect-ratio: 4 / 5;
     max-height: 480px;
-    border-radius: 14px;
+    border-radius: var(--radius-md);
     overflow: hidden;
     /* Layered: gradient fallback below, photo on top. If /me.jpg 404s, the
        gradient remains visible. The first background-color sits underneath
@@ -73,11 +71,7 @@ import { site } from '../../data/site';
     background-color: var(--surface);
     background-image:
       url('/me.jpeg'),
-      linear-gradient(
-        135deg,
-        oklch(72% 0.12 264 / 0.85),
-        oklch(38% 0.10 295 / 0.95)
-      );
+      var(--gradient-cool);
     background-size: cover, cover;
     background-position: center top, center;
     background-repeat: no-repeat, no-repeat;
@@ -89,7 +83,7 @@ import { site } from '../../data/site';
        priority content. `flex: 0 0 auto` avoids the content squeezing. */
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: var(--space-1);
     flex: 0 0 auto;
     min-height: 0;
   }
@@ -129,7 +123,7 @@ import { site } from '../../data/site';
     margin-top: auto;
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: var(--space-1);
     color: var(--text-muted);
     transition: color var(--duration-normal) var(--ease-out-expo);
     width: fit-content;
@@ -141,6 +135,6 @@ import { site } from '../../data/site';
   .cta:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 4px;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
   }
 </style>

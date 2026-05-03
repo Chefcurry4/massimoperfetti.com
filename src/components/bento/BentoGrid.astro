@@ -179,8 +179,51 @@ const galleryEntry = gallery[0] ?? null;
     );
     overflow-x: auto;
     overflow-y: hidden;
-    scroll-snap-type: x proximity;
+    /* Mandatory snap so the wall always lands on a column boundary — no more
+       half-visible cells at rest. The 24px scroll-padding matches the inner
+       grid padding so a snapped column's content sits cleanly inside the
+       wall's visible gutter. */
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--space-5);
     scrollbar-width: none; /* Firefox */
+    /* Soft fade on ALL four edges so any cell meeting the wall's bound
+       (horizontally during scroll, vertically when col content meets the
+       wall's height limit) reads as intentional rather than abruptly
+       clipped. Two stacked linear gradients combined via mask-composite:
+       intersect — a pixel is visible only where BOTH gradients are opaque.
+       Content stays fully sharp 24px past every edge. */
+    -webkit-mask-image:
+      linear-gradient(
+        to right,
+        transparent 0,
+        black 24px,
+        black calc(100% - 24px),
+        transparent 100%
+      ),
+      linear-gradient(
+        to bottom,
+        transparent 0,
+        black 24px,
+        black calc(100% - 24px),
+        transparent 100%
+      );
+    -webkit-mask-composite: source-in;
+    mask-image:
+      linear-gradient(
+        to right,
+        transparent 0,
+        black 24px,
+        black calc(100% - 24px),
+        transparent 100%
+      ),
+      linear-gradient(
+        to bottom,
+        transparent 0,
+        black 24px,
+        black calc(100% - 24px),
+        transparent 100%
+      );
+    mask-composite: intersect;
     /* focus-visible outline below — the wall itself receives keyboard focus
        so arrow keys can scroll horizontally. */
   }
@@ -207,16 +250,16 @@ const galleryEntry = gallery[0] ?? null;
     grid-template-columns: 440px 540px 600px 420px;
     grid-template-rows: 1fr;
     grid-auto-flow: column;
-    gap: 16px;
+    gap: var(--space-4);
     /* Grid padding pairs with wall margin to keep cells off the wall edge. */
-    padding: 24px;
+    padding: var(--space-5);
     height: 100%;
     width: max-content;
   }
 
   .col {
     display: grid;
-    gap: 16px;
+    gap: var(--space-4);
     height: 100%;
     min-width: 0;
     scroll-snap-align: start;
@@ -231,7 +274,7 @@ const galleryEntry = gallery[0] ?? null;
 
   .row {
     display: grid;
-    gap: 16px;
+    gap: var(--space-4);
     min-height: 0;
   }
   .work-row {
@@ -252,7 +295,7 @@ const galleryEntry = gallery[0] ?? null;
     transform-origin: left;
     transform: scaleX(0);
     transition: transform 90ms linear;
-    z-index: 50;
+    z-index: var(--z-progress);
     pointer-events: none;
   }
 
@@ -270,14 +313,14 @@ const galleryEntry = gallery[0] ?? null;
       overflow-y: visible;
       scroll-snap-type: none;
       /* leave room at the bottom for the collapsed sidebar drawer (~64px) */
-      padding-bottom: 80px;
+      padding-bottom: var(--space-7);
     }
     .bento-grid {
       display: flex;
       flex-direction: column;
       grid-auto-flow: row;
-      gap: 12px;
-      padding: 16px;
+      gap: var(--space-3);
+      padding: var(--space-4);
       width: auto;
     }
     .col {
@@ -286,7 +329,7 @@ const galleryEntry = gallery[0] ?? null;
     .row {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: var(--space-3);
     }
     .row,
     .col-1,

@@ -1,0 +1,521 @@
+---
+/**
+ * /design — internal design system reference.
+ *
+ * One page that renders every token, every type tier, every UI primitive
+ * with sample data. This is the canonical visual inventory: when a token
+ * is added, render it here. When a primitive changes, see every consumer
+ * here in one screen.
+ *
+ * Excluded from the sitemap via astro.config.mjs (filter on '/design')
+ * so crawlers don't surface it, but the page DOES build and is reachable
+ * at /design for development.
+ *
+ * Manually update CLAUDE.md when you add a new token or class so the spec
+ * and this reference stay in sync.
+ */
+import Base from '../layouts/Base.astro';
+import Tooltip from '../components/ui/Tooltip.astro';
+import ThemeToggle from '../components/ui/ThemeToggle.astro';
+
+// Spacing scale — value strings drive the visual swatches.
+const spaceScale = [
+  { name: 'space-1', value: '0.25rem · 4px' },
+  { name: 'space-2', value: '0.5rem · 8px' },
+  { name: 'space-3', value: '0.75rem · 12px' },
+  { name: 'space-4', value: '1rem · 16px' },
+  { name: 'space-5', value: '1.5rem · 24px' },
+  { name: 'space-6', value: '2rem · 32px' },
+  { name: 'space-7', value: '3rem · 48px' },
+  { name: 'space-8', value: '4rem · 64px' },
+];
+
+const radiusScale = [
+  { name: 'radius-sm', value: '6px', use: 'tooltip, status pill' },
+  { name: 'radius-md', value: '14px', use: 'cards, photo frames, embeds' },
+  { name: 'radius-lg', value: '18px', use: 'cells, sidebar, modal cards' },
+  { name: 'radius-pill', value: '999px', use: 'icon buttons, avatars' },
+];
+
+const colorTokens = [
+  { name: 'bg', use: 'page background' },
+  { name: 'surface', use: 'cards, controls' },
+  { name: 'surface-glass', use: 'liquid-glass surfaces' },
+  { name: 'text', use: 'primary text' },
+  { name: 'text-muted', use: 'secondary, captions' },
+  { name: 'border', use: 'structural dividers' },
+  { name: 'border-strong', use: 'control borders' },
+  { name: 'accent', use: 'hover, focus, ambient wayfinding' },
+];
+
+const statusTokens = [
+  { name: 'status-live', label: 'live' },
+  { name: 'status-progress', label: 'in progress' },
+  { name: 'status-archived', label: 'archived' },
+];
+
+const availabilityTokens = [
+  { name: 'available', label: 'available' },
+  { name: 'limited', label: 'limited' },
+  { name: 'unavailable', label: 'unavailable' },
+];
+
+const typeScale = [
+  { class: 'text-display', sample: 'Display 56px — Lora 500' },
+  { class: 'text-h1', sample: 'Heading 1 — 40px Lora' },
+  { class: 'text-h2', sample: 'Heading 2 — 28px Lora' },
+  { class: 'text-h3', sample: 'Heading 3 — 20px Geist 600' },
+  { class: 'text-body', sample: 'Body — 16px Geist. The quick brown fox jumps over the lazy dog.' },
+  { class: 'text-small', sample: 'Small — 14px Geist. The quick brown fox.' },
+  { class: 'text-ui', sample: 'UI label — 13px Geist 500. CTA buttons live here.' },
+  { class: 'text-caption', sample: 'CAPTION — 12px MONO UPPER' },
+  { class: 'text-mono-small', sample: 'mono-small — 11px Geist Mono. Handles, status labels.' },
+];
+---
+
+<Base title="Design system" description="Internal design system reference.">
+  <main class="page">
+    <header class="head">
+      <p class="text-caption muted">internal</p>
+      <h1 class="text-display headline">Design system</h1>
+      <p class="text-body muted intro">
+        Every token, every type tier, every primitive. If it's not here it
+        isn't part of the system. Update with each change.
+      </p>
+    </header>
+
+    <!-- ============================================ Spacing -->
+    <section class="block">
+      <h2 class="text-h2 section-title">Spacing</h2>
+      <p class="text-small muted section-lead">
+        Multiples of 4px. Use <code>var(--space-N)</code> for gap, padding, margin.
+      </p>
+      <ul class="scale-list">
+        {spaceScale.map((s) => (
+          <li class="scale-row">
+            <code class="text-mono-small token-name">--{s.name}</code>
+            <span class="text-mono-small token-value muted">{s.value}</span>
+            <span class={`scale-bar bar-${s.name}`} aria-hidden="true"></span>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <!-- ============================================ Radius -->
+    <section class="block">
+      <h2 class="text-h2 section-title">Radius</h2>
+      <p class="text-small muted section-lead">
+        Four values. Anything between is a smell — round to the nearest token.
+      </p>
+      <ul class="radius-list">
+        {radiusScale.map((r) => (
+          <li class="radius-item">
+            <span class={`radius-swatch swatch-${r.name}`} aria-hidden="true"></span>
+            <code class="text-mono-small token-name">--{r.name}</code>
+            <span class="text-mono-small token-value muted">{r.value}</span>
+            <span class="text-small muted">{r.use}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <!-- ============================================ Color -->
+    <section class="block">
+      <h2 class="text-h2 section-title">Color</h2>
+      <p class="text-small muted section-lead">
+        Both themes. Toggle in the sidebar to see the inversion. All tokens are
+        semantic — never reference raw colors in components.
+      </p>
+      <ul class="color-list">
+        {colorTokens.map((c) => (
+          <li class="color-item">
+            <span class={`color-swatch swatch-color-${c.name}`} aria-hidden="true"></span>
+            <code class="text-mono-small token-name">--{c.name}</code>
+            <span class="text-small muted">{c.use}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <!-- ============================================ Status pills -->
+    <section class="block">
+      <h2 class="text-h2 section-title">Status pills</h2>
+      <p class="text-small muted section-lead">
+        Used by ProjectsCell. Tinted via <code>--status-*</code> tokens.
+      </p>
+      <div class="pill-row">
+        {statusTokens.map((s) => (
+          <span class={`status-pill text-mono-small status-${s.label.replace(' ', '-')}`}>
+            {s.label}
+          </span>
+        ))}
+      </div>
+    </section>
+
+    <!-- ============================================ Availability -->
+    <section class="block">
+      <h2 class="text-h2 section-title">Availability dots</h2>
+      <p class="text-small muted section-lead">
+        Used by NowSnippet and the avatar ring in Identity. <code>--availability-*</code>.
+      </p>
+      <ul class="availability-list">
+        {availabilityTokens.map((a) => (
+          <li class="availability-item">
+            <span class={`avail-dot dot-${a.name}`} aria-hidden="true"></span>
+            <span class="text-small">{a.label}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <!-- ============================================ Typography -->
+    <section class="block">
+      <h2 class="text-h2 section-title">Typography</h2>
+      <p class="text-small muted section-lead">
+        Apply via class. Don't override <code>font-size</code> in components —
+        if a tier is missing, add it to <code>global.css</code>.
+      </p>
+      <ul class="type-list">
+        {typeScale.map((t) => (
+          <li class="type-row">
+            <code class="text-mono-small token-name">.{t.class}</code>
+            <span class={t.class}>{t.sample}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <!-- ============================================ Shadows -->
+    <section class="block">
+      <h2 class="text-h2 section-title">Shadows</h2>
+      <p class="text-small muted section-lead">
+        Three depths. <code>--glass-shadow</code> for ambient,
+        <code>--hover-shadow</code> for interactive lift,
+        <code>0 16px 48px var(--glass-shadow)</code> for elevated panels.
+      </p>
+      <div class="shadow-row">
+        <div class="shadow-card shadow-base">
+          <span class="text-mono-small">base · cell rest</span>
+        </div>
+        <div class="shadow-card shadow-hover">
+          <span class="text-mono-small">hover · cell lift</span>
+        </div>
+        <div class="shadow-card shadow-elevated">
+          <span class="text-mono-small">elevated · sidebar expanded</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================ Controls -->
+    <section class="block">
+      <h2 class="text-h2 section-title">Controls</h2>
+      <p class="text-small muted section-lead">
+        Two heights — <code>--control-h-sm</code> (32px) and
+        <code>--control-h-md</code> (36px). Same border-radius (<code>pill</code>),
+        same hover affordance.
+      </p>
+      <div class="controls-row">
+        <Tooltip label="Tooltip on hover" side="top">
+          <button type="button" class="demo-icon-link" aria-label="demo small">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M8 12l3 3 5-6" />
+            </svg>
+          </button>
+        </Tooltip>
+        <ThemeToggle />
+        <a href="/book" class="demo-cta text-ui">
+          <span>Demo CTA</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M7 17L17 7M9 7h8v8" />
+          </svg>
+        </a>
+      </div>
+    </section>
+
+    <!-- ============================================ Z-index -->
+    <section class="block">
+      <h2 class="text-h2 section-title">Z-index</h2>
+      <p class="text-small muted section-lead">
+        Named layers. 10-unit gaps so future layers can interleave.
+      </p>
+      <ul class="z-list">
+        <li class="z-row"><code class="text-mono-small token-name">--z-progress</code> <span class="text-small muted">30 · scroll progress bar</span></li>
+        <li class="z-row"><code class="text-mono-small token-name">--z-sidebar</code> <span class="text-small muted">40 · persistent sidebar</span></li>
+        <li class="z-row"><code class="text-mono-small token-name">--z-modal</code> <span class="text-small muted">50 · popovers, dialogs</span></li>
+        <li class="z-row"><code class="text-mono-small token-name">--z-tooltip</code> <span class="text-small muted">60 · always above</span></li>
+      </ul>
+    </section>
+
+    <footer class="meta">
+      <span class="text-caption muted">design system · update with each change</span>
+      <a href="/" class="back text-caption">← back</a>
+    </footer>
+  </main>
+</Base>
+
+<style>
+  /* Sidebar-aware page container — anchored to the rail like /book and /about. */
+  .page {
+    margin-left: calc(var(--wall-inset) + var(--sidebar-rail) + var(--sidebar-gap));
+    margin-right: var(--wall-inset);
+    padding: clamp(var(--space-6), 6vw, var(--space-8)) clamp(var(--space-4), 3vw, var(--space-6)) var(--space-8);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-7);
+    max-width: 980px;
+  }
+  .muted { color: var(--text-muted); }
+  code { font-family: var(--font-mono); font-size: 11px; }
+
+  .head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+  .headline { margin: 0; color: var(--text); }
+  .intro { margin: 0; max-width: 60ch; }
+
+  .block {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--border);
+  }
+  .section-title { margin: 0; color: var(--text); }
+  .section-lead { margin: 0; max-width: 60ch; }
+
+  /* === Spacing scale === */
+  .scale-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  .scale-row {
+    display: grid;
+    grid-template-columns: 120px 140px 1fr;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .scale-bar { display: block; height: 12px; background: var(--accent); border-radius: var(--radius-sm); opacity: 0.55; }
+  .bar-space-1 { width: var(--space-1); }
+  .bar-space-2 { width: var(--space-2); }
+  .bar-space-3 { width: var(--space-3); }
+  .bar-space-4 { width: var(--space-4); }
+  .bar-space-5 { width: var(--space-5); }
+  .bar-space-6 { width: var(--space-6); }
+  .bar-space-7 { width: var(--space-7); }
+  .bar-space-8 { width: var(--space-8); }
+  .token-name { color: var(--text); }
+  .token-value { letter-spacing: 0; }
+
+  /* === Radius === */
+  .radius-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--space-3);
+  }
+  .radius-item {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    grid-template-rows: auto auto;
+    column-gap: var(--space-3);
+    align-items: center;
+    padding: var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+  }
+  .radius-swatch {
+    grid-row: 1 / span 2;
+    width: 56px;
+    height: 56px;
+    background: var(--accent);
+    opacity: 0.6;
+  }
+  .swatch-radius-sm { border-radius: var(--radius-sm); }
+  .swatch-radius-md { border-radius: var(--radius-md); }
+  .swatch-radius-lg { border-radius: var(--radius-lg); }
+  .swatch-radius-pill { border-radius: var(--radius-pill); }
+
+  /* === Color === */
+  .color-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: var(--space-2);
+  }
+  .color-item {
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    grid-template-rows: auto auto;
+    column-gap: var(--space-3);
+    align-items: center;
+    padding: var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+  }
+  .color-swatch {
+    grid-row: 1 / span 2;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-strong);
+  }
+  .swatch-color-bg { background: var(--bg); }
+  .swatch-color-surface { background: var(--surface); }
+  .swatch-color-surface-glass { background: var(--surface-glass); backdrop-filter: blur(20px) saturate(140%); }
+  .swatch-color-text { background: var(--text); }
+  .swatch-color-text-muted { background: var(--text-muted); }
+  .swatch-color-border { background: var(--border); }
+  .swatch-color-border-strong { background: var(--border-strong); }
+  .swatch-color-accent { background: var(--accent); }
+
+  /* === Status pills === */
+  .pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .status-pill {
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border-strong);
+    color: var(--text-muted);
+  }
+  .status-live { color: var(--status-live); border-color: var(--status-live); background: var(--status-live-bg); }
+  .status-in-progress { color: var(--status-progress); border-color: var(--status-progress); background: var(--status-progress-bg); }
+  .status-archived { color: var(--status-archived); background: var(--status-archived-bg); }
+
+  /* === Availability === */
+  .availability-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    gap: var(--space-5);
+    flex-wrap: wrap;
+  }
+  .availability-item { display: inline-flex; align-items: center; gap: var(--space-2); }
+  .avail-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: var(--radius-pill);
+  }
+  .dot-available { background: var(--availability-available); box-shadow: 0 0 0 3px color-mix(in oklab, var(--availability-available) 22%, transparent); }
+  .dot-limited { background: var(--availability-limited); box-shadow: 0 0 0 3px color-mix(in oklab, var(--availability-limited) 22%, transparent); }
+  .dot-unavailable { background: var(--availability-unavailable); box-shadow: 0 0 0 3px color-mix(in oklab, var(--availability-unavailable) 22%, transparent); }
+
+  /* === Type scale === */
+  .type-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+  .type-row {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    align-items: baseline;
+    gap: var(--space-4);
+    padding: var(--space-3) 0;
+    border-top: 1px solid var(--border);
+  }
+  .type-row:first-child { border-top: none; padding-top: 0; }
+
+  /* === Shadows === */
+  .shadow-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--space-5);
+  }
+  .shadow-card {
+    padding: var(--space-5);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    text-align: center;
+  }
+  .shadow-base { box-shadow: 0 8px 32px var(--glass-shadow); }
+  .shadow-hover { box-shadow: var(--hover-shadow); }
+  .shadow-elevated { box-shadow: 0 1px 0 0 var(--glass-highlight) inset, 0 16px 48px var(--glass-shadow); }
+
+  /* === Controls === */
+  .controls-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+  .demo-icon-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--control-h-sm);
+    height: var(--control-h-sm);
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border-strong);
+    color: var(--text);
+    background: transparent;
+    cursor: pointer;
+  }
+  .demo-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--accent);
+    color: var(--text);
+  }
+
+  /* === Z-index list === */
+  .z-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  .z-row {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: var(--space-3);
+    align-items: baseline;
+  }
+
+  .meta {
+    margin-top: var(--space-5);
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-muted);
+  }
+  .back { transition: color var(--duration-fast) var(--ease-out-expo); }
+  .back:hover { color: var(--text); }
+
+  @media (max-width: 1023.98px) {
+    .page {
+      margin-left: 0;
+      margin-right: 0;
+      padding-bottom: 88px;
+    }
+  }
+</style>
