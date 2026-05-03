@@ -1,0 +1,95 @@
+---
+/**
+ * Writing cell — bottom of column 2.
+ *
+ * Renders the most recent writing entry: title, date, summary, reading time.
+ * Tags rendered as small chips at the bottom.
+ */
+import Cell from '../ui/Cell.astro';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  entry: CollectionEntry<'writing'>;
+  slot?: string;
+}
+
+const { entry, slot } = Astro.props;
+const { title, date, summary, tags, readingTime } = entry.data;
+
+const dateLabel = date.toLocaleString('en-US', {
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+});
+---
+
+<Cell slot={slot}>
+  <p class="text-caption muted">writing</p>
+
+  <h3 class="text-h2 title">{title}</h3>
+
+  <p class="meta text-caption muted">
+    <span>{dateLabel}</span>
+    {readingTime && <span class="dot" aria-hidden="true">·</span>}
+    {readingTime && <span>{readingTime} min read</span>}
+  </p>
+
+  <p class="summary text-body muted">{summary}</p>
+
+  {
+    tags.length > 0 && (
+      <ul class="tags" aria-label="tags">
+        {tags.map((t) => (
+          <li class="tag text-caption">{t}</li>
+        ))}
+      </ul>
+    )
+  }
+</Cell>
+
+<style>
+  .muted {
+    color: var(--text-muted);
+  }
+  .title {
+    margin: 0;
+    color: var(--text);
+    /* writing cell is wide (full col 2) — clamp to 3 lines */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  .dot {
+    opacity: 0.6;
+  }
+  .summary {
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .tags {
+    list-style: none;
+    padding: 0;
+    margin: auto 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .tag {
+    padding: 0.2rem 0.55rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--text-muted);
+  }
+</style>

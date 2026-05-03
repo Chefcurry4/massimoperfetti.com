@@ -1,26 +1,29 @@
 ---
 /**
- * Phase 0 stub /about page.
+ * /about — standalone page.
  *
- * Exists only to give View Transitions a destination — the matching
- * `transition:name="hello"` morphs the index headline into this one.
- *
- * Real about content (popup or full page) lands in Phase 7.
+ * Phase 2: simple linear page so deep-links work and there's somewhere
+ * to send "back" navigation from. Phase 7 rebuilds this as a popup that
+ * shares a transition with the bento About cell.
  */
 import Base from '../layouts/Base.astro';
 import { about } from '../data/about';
+import { site } from '../data/site';
 ---
 
 <Base title="About">
   <main class="page">
-    <p class="text-caption muted">about — phase 0 stub</p>
-    <h1 class="text-display" transition:name="hello">{about.headline}</h1>
+    <p class="text-caption muted">about</p>
+    <h1 class="text-h1 headline">{about.headline}</h1>
 
     <div class="body">
-      {about.body.map((paragraph) => <p class="text-body">{paragraph}</p>)}
+      {about.body.map((paragraph) => <p class="text-body muted">{paragraph}</p>)}
     </div>
 
-    <a href="/" class="back text-caption">← back</a>
+    <footer class="meta">
+      <span class="text-caption">{site.name}</span>
+      <a href="/" class="back text-caption">← back</a>
+    </footer>
   </main>
 </Base>
 
@@ -28,30 +31,35 @@ import { about } from '../data/about';
   .page {
     max-width: 720px;
     margin: 0 auto;
-    padding: clamp(2rem, 4vw, 4rem) clamp(1.25rem, 4vw, 2.5rem) 6rem;
+    padding: clamp(2.5rem, 6vw, 5rem) clamp(1.25rem, 4vw, 2.5rem) 5rem;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
   }
-
   .muted {
     color: var(--text-muted);
   }
-
+  .headline {
+    margin: 0;
+    color: var(--text);
+  }
   .body {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+  }
+  .meta {
+    margin-top: 2.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     color: var(--text-muted);
   }
-
   .back {
-    display: inline-block;
-    margin-top: 2rem;
-    color: var(--text-muted);
     transition: color var(--duration-fast) var(--ease-out-expo);
   }
-
   .back:hover {
     color: var(--text);
   }

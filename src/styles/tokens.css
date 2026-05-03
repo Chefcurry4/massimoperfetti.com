@@ -37,6 +37,15 @@
   --text: #ededed;
   --text-muted: #8a8a8a;
   --accent: #d4ff3a; /* placeholder */
+
+  /* Glass treatment — inset highlight + drop shadow per theme. */
+  --glass-highlight: rgba(255, 255, 255, 0.06);
+  --glass-shadow: rgba(0, 0, 0, 0.25);
+
+  /* Foreground color used on top of cover/photo gradients. Theme-invariant
+     in feel (we always sit on a colored medium) but defined per-theme so a
+     light-mode redesign can swap it without code changes. */
+  --on-cover: oklch(98% 0 0);
 }
 
 [data-theme='light'] {
@@ -48,4 +57,9 @@
   --text: #0a0a0a;
   --text-muted: #6a6a6a;
   --accent: #1a4dff; /* placeholder */
+
+  --glass-highlight: rgba(255, 255, 255, 0.45);
+  --glass-shadow: rgba(0, 0, 0, 0.08);
+
+  --on-cover: oklch(98% 0 0);
 }

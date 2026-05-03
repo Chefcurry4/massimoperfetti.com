@@ -1,0 +1,79 @@
+---
+/**
+ * Work cell — column 2 has two of these side-by-side.
+ *
+ * Renders one work entry. Period formats as "Sep 2025 — Present" or
+ * "Jan 2024 — Aug 2025" (Astro 6 content-layer Date coercion gives us a
+ * real Date object).
+ */
+import Cell from '../ui/Cell.astro';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  entry: CollectionEntry<'work'>;
+  slot?: string;
+}
+
+const { entry, slot } = Astro.props;
+const { title, org, period, location, summary } = entry.data;
+
+function fmt(d: Date): string {
+  return d.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+}
+
+const periodLabel = `${fmt(period.start)} — ${period.end ? fmt(period.end) : 'Present'}`;
+---
+
+<Cell slot={slot}>
+  <p class="text-caption muted">work</p>
+
+  <div class="title-block">
+    <h3 class="text-h3 title">{title}</h3>
+    <p class="org text-small">{org}</p>
+  </div>
+
+  <p class="meta text-caption muted">
+    <span>{periodLabel}</span>
+    {location && <span class="dot" aria-hidden="true">·</span>}
+    {location && <span>{location}</span>}
+  </p>
+
+  <p class="summary text-small muted">{summary}</p>
+</Cell>
+
+<style>
+  .muted {
+    color: var(--text-muted);
+  }
+  .title-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .title {
+    margin: 0;
+    line-height: 1.25;
+  }
+  .org {
+    margin: 0;
+    color: var(--text);
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  .dot {
+    opacity: 0.6;
+  }
+  .summary {
+    margin: 0;
+    /* clamp so two work cells side-by-side never push the column taller */
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

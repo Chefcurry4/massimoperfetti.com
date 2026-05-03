@@ -380,7 +380,7 @@ This is the suggested phasing. Work top-down. Don't run ahead.
 
 - [x] **Phase 0** — `pnpm create astro@latest`, Tailwind v4 install, design tokens scaffolded, fonts loaded, dark/light toggle works, `<ClientRouter />` enabled in `Base.astro`. _Done — commit `077bf71`._
 - [x] **Phase 1** — Content collections defined in `src/content.config.ts` with schemas above. One sample entry per collection. _Done — commit `ccddd7f`._
-- [ ] **Phase 2** — Bento grid layout. Static cells with placeholder content. Horizontal scroll on desktop, vertical stack on mobile. No transitions yet.
+- [x] **Phase 2** — Bento grid layout. 4-column wall (360 / 540 / 600 / 420 px) with per-column subgrids, 12 cells, real data + sparse stubs, proximity scroll snap, mobile re-ordering via CSS `order:`, scroll progress indicator, `role="region"` for keyboard a11y. New `.text-mono-small` type rung; `--glass-highlight` / `--glass-shadow` / `--on-cover` tokens. No transitions yet (Phase 4)._
 - [ ] **Phase 3** — Sidebar built and persisted. Now/contacts/theme toggle wired up. Spotify widget last (least essential).
 - [ ] **Phase 4** — View Transitions. Card-to-detail zoom for projects first. Then writing, then gallery. Places gets its own treatment because of the map.
 - [ ] **Phase 5** — Project detail pages. Layout, typography, transitions completing the round trip.

@@ -1,0 +1,346 @@
+---
+/**
+ * BentoGrid — the wall.
+ *
+ * Loads all collection data and singletons, sorts/slices into the fixed
+ * layout slots, and lays out four explicit columns with their own internal
+ * sub-grids. Mobile flattens to a single column with `order:` rules
+ * matching CLAUDE.md's stacking order.
+ *
+ * Phase 2: cells are non-interactive. Phase 4 wires View Transitions.
+ */
+import { getCollection } from 'astro:content';
+
+import AboutCell from './AboutCell.astro';
+import ContactsCell from './ContactsCell.astro';
+import WorkCell from './WorkCell.astro';
+import WritingCell from './WritingCell.astro';
+import ProjectsCell from './ProjectsCell.astro';
+import GalleryCell from './GalleryCell.astro';
+import PlacesCell from './PlacesCell.astro';
+import SeeAllCell from './SeeAllCell.astro';
+import StubCell from './StubCell.astro';
+
+// --- Data load -------------------------------------------------------------
+
+const allProjects = await getCollection('projects', ({ data }) => !data.draft);
+const featuredProjects = allProjects
+  .filter((p) => p.data.featured)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const work = (await getCollection('work')).sort(
+  (a, b) => b.data.period.start.getTime() - a.data.period.start.getTime(),
+);
+
+const writing = (await getCollection('writing', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
+);
+
+const gallery = (await getCollection('gallery')).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
+);
+
+const places = (await getCollection('places')).sort(
+  (a, b) => b.data.visitedOn.getTime() - a.data.visitedOn.getTime(),
+);
+
+// --- Slot allocation -------------------------------------------------------
+
+// Column 2 has two work slots. Pad with `null` for stubs.
+const workSlots: ReadonlyArray<typeof work[number] | null> = [
+  work[0] ?? null,
+  work[1] ?? null,
+];
+
+// Column 3: 2 large + 2 small project slots.
+const projLg: ReadonlyArray<typeof allProjects[number] | null> = [
+  featuredProjects[0] ?? null,
+  featuredProjects[1] ?? null,
+];
+const projSm: ReadonlyArray<typeof allProjects[number] | null> = [
+  featuredProjects[2] ?? null,
+  featuredProjects[3] ?? null,
+];
+
+const writingEntry = writing[0] ?? null;
+const galleryEntry = gallery[0] ?? null;
+---
+
+<div
+  class="bento-wall"
+  tabindex="0"
+  role="region"
+  aria-label="Project wall — use arrow keys to scroll horizontally"
+>
+  <div class="bento-grid">
+
+    {/* -------- COLUMN 1: about (top) / contacts (bottom) -------- */}
+    <div class="col col-1">
+      <AboutCell />
+      <ContactsCell />
+    </div>
+
+    {/* -------- COLUMN 2: work-A | work-B (top row) / writing (bottom) -------- */}
+    <div class="col col-2">
+      <div class="row work-row">
+        {
+          workSlots[0] ? (
+            <WorkCell entry={workSlots[0]} slot="cell-work-a" />
+          ) : (
+            <StubCell label="work entry" slot="cell-work-a" />
+          )
+        }
+        {
+          workSlots[1] ? (
+            <WorkCell entry={workSlots[1]} slot="cell-work-b" />
+          ) : (
+            <StubCell label="work entry" slot="cell-work-b" />
+          )
+        }
+      </div>
+      {
+        writingEntry ? (
+          <WritingCell entry={writingEntry} slot="cell-writing" />
+        ) : (
+          <StubCell label="writing" slot="cell-writing" />
+        )
+      }
+    </div>
+
+    {/* -------- COLUMN 3: project-1 / project-2 / [P3 | P4 | see-all] -------- */}
+    <div class="col col-3">
+      {
+        projLg[0] ? (
+          <ProjectsCell entry={projLg[0]} variant="lg" slot="cell-project-1" />
+        ) : (
+          <StubCell label="featured project" slot="cell-project-1" />
+        )
+      }
+      {
+        projLg[1] ? (
+          <ProjectsCell entry={projLg[1]} variant="lg" slot="cell-project-2" />
+        ) : (
+          <StubCell label="featured project" slot="cell-project-2" />
+        )
+      }
+
+      <div class="row project-row">
+        {
+          projSm[0] ? (
+            <ProjectsCell entry={projSm[0]} variant="sm" slot="cell-project-3" />
+          ) : (
+            <StubCell label="project" slot="cell-project-3" />
+          )
+        }
+        {
+          projSm[1] ? (
+            <ProjectsCell entry={projSm[1]} variant="sm" slot="cell-project-4" />
+          ) : (
+            <StubCell label="project" slot="cell-project-4" />
+          )
+        }
+        <SeeAllCell count={allProjects.length} slot="cell-see-all" />
+      </div>
+    </div>
+
+    {/* -------- COLUMN 4: gallery (top) / places (bottom) -------- */}
+    <div class="col col-4">
+      {
+        galleryEntry ? (
+          <GalleryCell entry={galleryEntry} slot="cell-gallery" />
+        ) : (
+          <StubCell label="gallery" slot="cell-gallery" />
+        )
+      }
+      <PlacesCell entries={places} slot="cell-places" />
+    </div>
+
+  </div>
+</div>
+
+{/* Scroll progress indicator — desktop only (hidden via media query). */}
+<div class="bento-progress" aria-hidden="true"></div>
+
+<style>
+  /* === Desktop wall (>= 1024px) === */
+  .bento-wall {
+    height: 100dvh;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none; /* Firefox */
+    /* outline: none here — the focus is on the scroll container itself for
+       keyboard arrow scrolling; we add a subtle accent outline only on focus-visible */
+  }
+  .bento-wall::-webkit-scrollbar {
+    display: none;
+  }
+  .bento-wall:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+
+  .bento-grid {
+    /*
+     * Variable column widths are deliberate (CLAUDE.md §Anti-patterns
+     * banishes uniform grids):
+     *   col 1 — narrow, about + contacts.
+     *   col 2 — wide, two work cells side-by-side + writing block.
+     *   col 3 — widest, project hero column.
+     *   col 4 — medium, gallery + map.
+     * Total ≈ 2032px → ~200vw on a 1024 viewport, ~145vw on a 1440.
+     */
+    display: grid;
+    grid-template-columns: 360px 540px 600px 420px;
+    grid-template-rows: 1fr;
+    grid-auto-flow: column;
+    gap: 16px;
+    padding: 32px;
+    height: 100%;
+    width: max-content;
+  }
+
+  .col {
+    display: grid;
+    gap: 16px;
+    height: 100%;
+    min-width: 0;
+    scroll-snap-align: start;
+  }
+  /* Column-specific row partitions */
+  .col-1 { grid-template-rows: minmax(0, 1.1fr) minmax(0, 0.9fr); }
+  .col-2 { grid-template-rows: minmax(0, 0.45fr) minmax(0, 0.55fr); }
+  .col-3 { grid-template-rows: minmax(0, 0.36fr) minmax(0, 0.36fr) minmax(0, 0.28fr); }
+  .col-4 { grid-template-rows: minmax(0, 0.55fr) minmax(0, 0.45fr); }
+
+  .row {
+    display: grid;
+    gap: 16px;
+    min-height: 0;
+  }
+  .work-row {
+    grid-template-columns: 1fr 1fr;
+  }
+  .project-row {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  /* === Scroll progress (desktop only) === */
+  .bento-progress {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--accent);
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform 90ms linear;
+    z-index: 50;
+    pointer-events: none;
+  }
+
+  /* === Mobile stack (< 1024px) ===
+     1023.98 (not 1024) sidesteps the ambiguous overlap point between
+     min-width:1024px and max-width:1024px queries. */
+  @media (max-width: 1023.98px) {
+    .bento-wall {
+      height: auto;
+      overflow-x: visible;
+      overflow-y: visible;
+      scroll-snap-type: none;
+    }
+    .bento-grid {
+      display: flex;
+      flex-direction: column;
+      grid-auto-flow: row;
+      gap: 12px;
+      padding: 16px;
+      width: auto;
+    }
+    .col {
+      display: contents; /* let children participate in flex order directly */
+    }
+    .row {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .row,
+    .col-1,
+    .col-2,
+    .col-3,
+    .col-4 {
+      /* unset desktop track sizing so cells size to content */
+      grid-template-rows: none;
+      grid-template-columns: none;
+    }
+
+    /* Mobile order — flattened single stack:
+       About → Work-A → Work-B → Project-1 → Project-2 → Project-3 → Project-4
+       → SeeAll → Writing → Gallery → Places → Contacts. */
+    .cell-about     { order: 1; }
+    .cell-work-a    { order: 2; }
+    .cell-work-b    { order: 3; }
+    .cell-project-1 { order: 4; }
+    .cell-project-2 { order: 5; }
+    .cell-project-3 { order: 6; }
+    .cell-project-4 { order: 7; }
+    .cell-see-all   { order: 8; }
+    .cell-writing   { order: 9; }
+    .cell-gallery   { order: 10; }
+    .cell-places    { order: 11; }
+    .cell-contacts  { order: 12; }
+
+    /* On mobile, cells size to content — drop the desktop 100% height. */
+    :global(.bento-cell) { height: auto; min-height: 200px; }
+    :global(.bento-cell.stub) { min-height: 120px; }
+
+    .bento-progress { display: none; }
+  }
+</style>
+
+<script>
+  /**
+   * Wire the scroll-progress bar. Re-bind on every page-load event so the
+   * binding survives View Transitions navigations (none yet in Phase 2,
+   * but Phase 4 will rely on this).
+   */
+  function bindBentoProgress() {
+    const wall = document.querySelector<HTMLElement>('.bento-wall');
+    const bar = document.querySelector<HTMLElement>('.bento-progress');
+    if (!wall || !bar) return;
+
+    const update = () => {
+      const max = wall.scrollWidth - wall.clientWidth;
+      const ratio = max > 0 ? wall.scrollLeft / max : 0;
+      bar.style.transform = `scaleX(${ratio.toFixed(4)})`;
+    };
+
+    update();
+    wall.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update, { passive: true });
+
+    // Keyboard arrow scrolling — improves a11y on a horizontal scroll view
+    // when the user has focused the wall via tab.
+    wall.addEventListener('keydown', (e) => {
+      const STEP = wall.clientWidth * 0.6;
+      if (e.key === 'ArrowRight') {
+        wall.scrollBy({ left: STEP, behavior: 'smooth' });
+        e.preventDefault();
+      } else if (e.key === 'ArrowLeft') {
+        wall.scrollBy({ left: -STEP, behavior: 'smooth' });
+        e.preventDefault();
+      } else if (e.key === 'Home') {
+        wall.scrollTo({ left: 0, behavior: 'smooth' });
+        e.preventDefault();
+      } else if (e.key === 'End') {
+        wall.scrollTo({ left: wall.scrollWidth, behavior: 'smooth' });
+        e.preventDefault();
+      }
+    });
+  }
+
+  bindBentoProgress();
+  document.addEventListener('astro:page-load', bindBentoProgress);
+</script>

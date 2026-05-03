@@ -1,0 +1,56 @@
+---
+/**
+ * "See all projects" CTA — the third tile in column 3's bottom row.
+ *
+ * Phase 2: rendered as a non-interactive button (tabindex -1) since
+ * /projects index page doesn't exist yet. Phase 4 swaps to anchor with
+ * transition:name set up for the morph.
+ */
+import Cell from '../ui/Cell.astro';
+
+interface Props {
+  count: number;
+  slot?: string;
+}
+
+const { count, slot } = Astro.props;
+---
+
+<Cell glass slot={slot} class="see-all">
+  <p class="text-caption muted">all projects</p>
+  <p class="text-h3 num">{count}</p>
+  <p class="text-small muted">in total</p>
+
+  <span class="cta text-caption" aria-hidden="true">→</span>
+</Cell>
+
+<style>
+  .muted {
+    color: var(--text-muted);
+  }
+  .see-all {
+    /* Phase 2: rendered as <article>, not <a> — no pointer cursor.
+       Phase 4 wraps in an anchor with the projects-index morph wired. */
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.25rem;
+    transition: border-color var(--duration-fast) var(--ease-out-expo);
+  }
+  .see-all:hover {
+    border-color: var(--text);
+  }
+  .num {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(40px, 6vw, 56px);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  .cta {
+    margin-top: auto;
+    align-self: flex-end;
+    font-size: 18px;
+  }
+</style>

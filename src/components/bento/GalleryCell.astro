@@ -1,0 +1,109 @@
+---
+/**
+ * Gallery cell — top of column 4.
+ *
+ * Phase 2: gradient frame is the visible placeholder; we don't render the
+ * <img> tag because we have no real photo files yet (the entry's `image`
+ * field still validates the schema but points at /gallery/... that won't
+ * resolve). When real assets land, set `RENDER_IMG = true` here and the
+ * gradient becomes a backdrop while the image overlays it.
+ *
+ * Caption + EXIF render the same in both states.
+ */
+import Cell from '../ui/Cell.astro';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  entry: CollectionEntry<'gallery'>;
+  slot?: string;
+}
+
+const { entry, slot } = Astro.props;
+const { title, image, caption, location, exif } = entry.data;
+
+const RENDER_IMG = false; // flip true once /public/gallery/* exists
+
+function hashHue(input: string): number {
+  let h = 0;
+  for (let i = 0; i < input.length; i++) h = (h * 31 + input.charCodeAt(i)) >>> 0;
+  return h % 360;
+}
+const hue = hashHue(title);
+const hueAlt = (hue + 60) % 360;
+const fallbackStyle = `--hue: ${hue}; --hue-alt: ${hueAlt};`;
+
+const exifLine = [exif?.camera, exif?.lens, exif?.fStop].filter(Boolean).join(' · ');
+---
+
+<Cell slot={slot} class="gallery-cell">
+  <div class="frame" style={fallbackStyle}>
+    {
+      RENDER_IMG && (
+        <img src={image} alt={caption ?? title} loading="lazy" decoding="async" />
+      )
+    }
+  </div>
+
+  <div class="meta">
+    <p class="text-caption muted">photograph</p>
+    <h3 class="text-h3 title">{title}</h3>
+    {caption && <p class="text-small muted">{caption}</p>}
+    {
+      (location || exifLine) && (
+        <p class="exif text-caption muted">
+          {location && <span>{location}</span>}
+          {location && exifLine && <span class="dot">·</span>}
+          {exifLine && <span>{exifLine}</span>}
+        </p>
+      )
+    }
+  </div>
+</Cell>
+
+<style>
+  .muted {
+    color: var(--text-muted);
+  }
+  .gallery-cell {
+    padding: 0;
+    overflow: hidden;
+  }
+  .frame {
+    position: relative;
+    flex: 1 1 60%;
+    min-height: 0;
+    overflow: hidden;
+    background:
+      linear-gradient(
+        135deg,
+        oklch(72% 0.16 var(--hue) / 0.9),
+        oklch(40% 0.12 var(--hue-alt) / 0.95)
+      );
+    border-bottom: 1px solid var(--border);
+  }
+  .frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .meta {
+    padding: clamp(0.875rem, 1.6vw, 1.25rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .title {
+    margin: 0;
+    color: var(--text);
+  }
+  .exif {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: baseline;
+  }
+  .dot {
+    opacity: 0.6;
+  }
+</style>

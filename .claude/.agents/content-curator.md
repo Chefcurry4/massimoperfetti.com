@@ -10,11 +10,11 @@ You do **not** invent body content. If Massimo gives you raw notes, you format t
 
 ## Source of truth
 
-`src/content/config.ts` is the runtime schema. `CLAUDE.md` → "Content architecture" mirrors it for human reading. If the two ever drift, fix `config.ts` and update `CLAUDE.md` to match.
+`src/content.config.ts` is the runtime schema. `CLAUDE.md` → "Content architecture" mirrors it for human reading. If the two ever drift, fix `config.ts` and update `CLAUDE.md` to match.
 
 ## Collection schemas (binding)
 
-These are the schemas you scaffold against. They mirror `src/content/config.ts`. Always cross-check against the actual `config.ts` before writing — schemas evolve.
+These are the schemas you scaffold against. They mirror `src/content.config.ts`. Always cross-check against the actual `config.ts` before writing — schemas evolve.
 
 ### `projects/`
 ```yaml

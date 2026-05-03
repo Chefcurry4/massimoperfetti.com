@@ -1,0 +1,185 @@
+---
+/**
+ * Project cell — column 3.
+ *
+ * Three render variants:
+ *  - "lg": full-width within the column. Cover fills top half, meta below.
+ *  - "sm": one third of the column 3 bottom row. Compact, no cover image.
+ *
+ * Cover image strategy (Phase 2): we have no real cover assets. Phase 1
+ * sample frontmatter points at `/projects/flowmap-cover.png` which doesn't
+ * exist. We render a gradient placeholder seeded from the project title's
+ * first character, plus the title initial overlaid. Phase later swaps in
+ * real <img> when cover paths resolve.
+ */
+import Cell from '../ui/Cell.astro';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  entry: CollectionEntry<'projects'>;
+  variant?: 'lg' | 'sm';
+  slot?: string;
+}
+
+const { entry, variant = 'lg', slot } = Astro.props;
+const { title, summary, status, tags } = entry.data;
+
+const initial = title.trim().charAt(0).toUpperCase() || '·';
+
+/**
+ * Pick a deterministic gradient pair from the title so the same project
+ * always renders with the same placeholder. Uses two hue offsets in
+ * polar OKLCH so they stay theme-friendly without hardcoded RGB.
+ */
+function hashHue(input: string): number {
+  let h = 0;
+  for (let i = 0; i < input.length; i++) h = (h * 31 + input.charCodeAt(i)) >>> 0;
+  return h % 360;
+}
+const hue = hashHue(title);
+const hueAlt = (hue + 40) % 360;
+const coverStyle = `--hue: ${hue}; --hue-alt: ${hueAlt};`;
+
+const statusLabel: Record<typeof status, string> = {
+  live: 'live',
+  archived: 'archived',
+  'in-progress': 'in progress',
+};
+---
+
+<Cell slot={slot} class={`projects-cell variant-${variant}`}>
+  {
+    variant === 'lg' && (
+      <div class="cover" style={coverStyle} aria-hidden="true">
+        <span class="cover-initial">{initial}</span>
+      </div>
+    )
+  }
+
+  <div class="meta">
+    <div class="row">
+      <p class="text-caption muted">project</p>
+      <span class:list={['status', 'text-mono-small', `status-${status}`]}>{statusLabel[status]}</span>
+    </div>
+
+    <h3 class:list={['title', variant === 'lg' ? 'text-h2' : 'text-h3']}>{title}</h3>
+
+    {variant === 'lg' && <p class="summary text-small muted">{summary}</p>}
+
+    {
+      tags.length > 0 && variant === 'lg' && (
+        <ul class="tags" aria-label="tags">
+          {tags.slice(0, 4).map((t) => (
+            <li class="tag text-caption">{t}</li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+</Cell>
+
+<style>
+  .muted {
+    color: var(--text-muted);
+  }
+
+  .projects-cell {
+    padding: 0;
+    overflow: hidden;
+  }
+  .projects-cell.variant-sm {
+    padding: clamp(1rem, 2vw, 1.5rem);
+    gap: 0.5rem;
+  }
+
+  .cover {
+    position: relative;
+    flex: 1 1 60%;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+      radial-gradient(
+        circle at 30% 30%,
+        oklch(70% 0.18 var(--hue) / 0.85),
+        oklch(35% 0.14 var(--hue-alt) / 0.95) 70%
+      );
+    color: var(--on-cover);
+    border-bottom: 1px solid var(--border);
+  }
+  .cover-initial {
+    /* Decorative typography — sits outside the body type scale on purpose:
+       this is graphic-display, not text-display. */
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(72px, 12vw, 120px);
+    line-height: 1;
+    letter-spacing: -0.04em;
+    opacity: 0.95;
+    mix-blend-mode: screen;
+  }
+
+  .meta {
+    padding: clamp(1rem, 2vw, 1.5rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .variant-sm .meta {
+    padding: 0;
+  }
+
+  .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .status {
+    /* Type comes from .text-mono-small; this only adds the pill chrome. */
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    border: 1px solid var(--border-strong);
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+  .status-live,
+  .status-in-progress {
+    color: var(--text);
+  }
+
+  .title {
+    margin: 0;
+    color: var(--text);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .summary {
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .tags {
+    list-style: none;
+    padding: 0;
+    margin: auto 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .tag {
+    padding: 0.18rem 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--text-muted);
+  }
+</style>

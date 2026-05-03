@@ -1,0 +1,51 @@
+---
+/**
+ * About cell — top of column 1. Glass surface (per CLAUDE.md § Liquid glass:
+ * "Used selectively, not on every surface. Best targets: ... modal popups
+ * (about)").
+ *
+ * Phase 2: static. Phase 7 wires the popup interaction.
+ */
+import Cell from '../ui/Cell.astro';
+import { about } from '../../data/about';
+import { site } from '../../data/site';
+---
+
+<Cell glass slot="cell-about">
+  <p class="text-caption muted">about</p>
+  <h2 class="text-h2 headline">{about.headline}</h2>
+  <p class="text-small muted body">{about.body[0]}</p>
+
+  <footer class="meta">
+    <span class="text-caption">{site.name}</span>
+  </footer>
+</Cell>
+
+<style>
+  .muted {
+    color: var(--text-muted);
+  }
+  .headline {
+    margin: 0;
+    /* clamp to fit a glass cell that has a body line below */
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .body {
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .meta {
+    margin-top: auto;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+</style>

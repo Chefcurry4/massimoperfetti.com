@@ -1,0 +1,56 @@
+---
+/**
+ * Bento cell primitive. Every wall cell wraps in this — same chrome,
+ * same padding rhythm, same border radius.
+ *
+ * Pass `glass` for liquid-glass surfaces (used selectively per CLAUDE.md
+ * §Liquid glass — about, see-all CTA). Pass `class` to extend with a
+ * cell-slot identifier so mobile `order:` rules can grab it.
+ *
+ * `min-width: 0` matters: without it, long children blow out CSS-grid tracks.
+ */
+
+interface Props {
+  glass?: boolean;
+  class?: string;
+  /** Slot identifier for mobile order rules (e.g. "cell-about", "cell-project-1"). */
+  slot?: string;
+  /** Element override — defaults to <article>. */
+  as?: 'article' | 'section' | 'div';
+}
+
+const { glass = false, class: extra = '', slot, as: Tag = 'article' } = Astro.props;
+const classes = [
+  'bento-cell',
+  glass ? 'glass' : '',
+  slot ?? '',
+  extra,
+]
+  .filter(Boolean)
+  .join(' ');
+---
+
+<Tag class={classes}>
+  <slot />
+</Tag>
+
+<style>
+  .bento-cell {
+    padding: clamp(1rem, 2vw, 1.5rem);
+    border-radius: 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    height: 100%;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  /* `.glass` is defined globally in styles/global.css; redeclaring background
+     here would override it, so we only swap the base background away. */
+  .bento-cell.glass {
+    background: var(--surface-glass);
+  }
+</style>
