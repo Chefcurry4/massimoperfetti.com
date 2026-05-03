@@ -69,7 +69,7 @@ const statusLabel: Record<typeof status, string> = {
     {
       tags.length > 0 && variant === 'lg' && (
         <ul class="tags" aria-label="tags">
-          {tags.slice(0, 4).map((t) => (
+          {tags.slice(0, 3).map((t) => (
             <li class="tag text-caption">{t}</li>
           ))}
         </ul>
@@ -184,10 +184,16 @@ const statusLabel: Record<typeof status, string> = {
   .summary {
     margin: 0;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+  @media (min-height: 1080px) {
+    .summary {
+      -webkit-line-clamp: 3;
+      line-clamp: 3;
+    }
   }
   .tags {
     list-style: none;

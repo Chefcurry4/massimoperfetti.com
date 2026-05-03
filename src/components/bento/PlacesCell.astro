@@ -106,7 +106,7 @@ const dots: PlotPoint[] = entries.map((e) => ({
   {
     entries.length > 0 && (
       <ul class="recent" aria-label="recent places">
-        {entries.slice(0, 3).map((e) => (
+        {entries.slice(0, 2).map((e) => (
           <li class="recent-item text-small">
             <span class="city">{e.data.city}</span>
             <span class="country muted">{e.data.country}</span>
@@ -150,11 +150,16 @@ const dots: PlotPoint[] = entries.map((e) => ({
     justify-content: center;
   }
   .world {
-    /* Cap at 240px so the map doesn't crowd the recent-places list below
-       at the col-4 bottom-row height. */
+    /* Cap at 200px so head + map + 2-item recent list fit the col-4 bottom
+       row at viewport heights down to ~720dvh. */
     width: 100%;
     height: 100%;
-    max-height: 240px;
+    max-height: 200px;
+  }
+  @media (max-height: 800px) {
+    .world {
+      max-height: 160px;
+    }
   }
   .land path {
     fill: var(--text-muted);

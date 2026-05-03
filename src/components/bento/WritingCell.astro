@@ -39,7 +39,7 @@ const dateLabel = date.toLocaleString('en-US', {
   {
     tags.length > 0 && (
       <ul class="tags" aria-label="tags">
-        {tags.map((t) => (
+        {tags.slice(0, 3).map((t) => (
           <li class="tag text-caption">{t}</li>
         ))}
       </ul>
@@ -54,12 +54,20 @@ const dateLabel = date.toLocaleString('en-US', {
   .title {
     margin: 0;
     color: var(--text);
-    /* writing cell is wide (full col 2) — clamp to 3 lines */
+    /* h2 size × 2 lines fits the col-2 writing row at typical viewports;
+       step to 1 line on short ones (where h2 is also stepped down via
+       the global type-scale media query). */
     display: -webkit-box;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+  @media (max-height: 800px) {
+    .title {
+      -webkit-line-clamp: 1;
+      line-clamp: 1;
+    }
   }
   .meta {
     display: flex;
@@ -73,10 +81,16 @@ const dateLabel = date.toLocaleString('en-US', {
   .summary {
     margin: 0;
     display: -webkit-box;
-    -webkit-line-clamp: 4;
-    line-clamp: 4;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+  @media (max-height: 800px) {
+    .summary {
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+    }
   }
   .tags {
     list-style: none;

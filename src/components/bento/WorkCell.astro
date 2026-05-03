@@ -69,11 +69,19 @@ const periodLabel = `${fmt(period.start)} — ${period.end ? fmt(period.end) : '
   }
   .summary {
     margin: 0;
-    /* clamp so two work cells side-by-side never push the column taller */
+    /* clamp so two work cells side-by-side never push the column taller.
+       3 lines fits the col-2 work-row at viewport heights down to ~720dvh;
+       step down to 2 on shorter viewports. */
     display: -webkit-box;
-    -webkit-line-clamp: 4;
-    line-clamp: 4;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+  @media (max-height: 800px) {
+    .summary {
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+    }
   }
 </style>

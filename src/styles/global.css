@@ -119,6 +119,30 @@
   }
 
   /*
+   * Short-viewport type scale.
+   *
+   * The bento wall is locked to 100dvh (CLAUDE.md §Layout system: "one
+   * full-viewport-tall row"). Display + h1 + h2 sized for ~900-1080dvh
+   * monitors overflow shorter ones (laptop screens at 768-800dvh, browser
+   * with devtools open). Step the headings down so cells fit the row
+   * partition without the body needing aggressive line-clamps.
+   *
+   * Only fires on desktop (≥ 1024px) since mobile already stacks vertically
+   * and the heights are content-driven.
+   */
+  @media (max-height: 800px) and (min-width: 1024px) {
+    .text-display {
+      font-size: 44px;
+    }
+    .text-h1 {
+      font-size: 32px;
+    }
+    .text-h2 {
+      font-size: 24px;
+    }
+  }
+
+  /*
    * Liquid glass — cross-browser-safe recipe (no SVG displacement).
    * Source: CLAUDE.md §Liquid glass. Highlight + shadow flow from tokens
    * so the recipe re-tunes per theme.
