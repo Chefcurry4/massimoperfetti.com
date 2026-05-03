@@ -7,6 +7,11 @@
  * §Liquid glass — about, see-all CTA). Pass `class` to extend with a
  * cell-slot identifier so mobile `order:` rules can grab it.
  *
+ * The hover-lift rule lives here so every cell gets the same affordance.
+ * `.bento-cell.stub` is the "intentional empty slot" modifier, also styled
+ * here so it picks up component scoping (avoids specificity ties with
+ * `:global` overrides defined elsewhere).
+ *
  * `min-width: 0` matters: without it, long children blow out CSS-grid tracks.
  */
 
@@ -46,11 +51,61 @@ const classes = [
     height: 100%;
     min-width: 0;
     overflow: hidden;
+    transition:
+      transform var(--duration-normal) var(--ease-out-expo),
+      border-color var(--duration-normal) var(--ease-out-expo),
+      box-shadow var(--duration-normal) var(--ease-out-expo);
+    will-change: transform;
   }
 
   /* `.glass` is defined globally in styles/global.css; redeclaring background
      here would override it, so we only swap the base background away. */
   .bento-cell.glass {
     background: var(--surface-glass);
+  }
+
+  /*
+   * Hover affordance — applies to every real cell (incl. glass), excludes
+   * the stub modifier (stubs are not interactive content). Honors
+   * prefers-reduced-motion: only the transform is suppressed; border + shadow
+   * still telegraph hover.
+   */
+  .bento-cell:not(.stub):hover,
+  .bento-cell:not(.stub):focus-within {
+    transform: translateY(-2px);
+    border-color: var(--border-hover);
+    box-shadow: var(--hover-shadow);
+  }
+
+  /* Glass cells need the inset highlight composed with the hover shadow,
+     otherwise the top-edge sheen disappears for the duration of the hover. */
+  .bento-cell.glass:not(.stub):hover,
+  .bento-cell.glass:not(.stub):focus-within {
+    box-shadow:
+      0 1px 0 0 var(--glass-highlight) inset,
+      var(--hover-shadow);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bento-cell {
+      transition-duration: 0.01ms;
+    }
+    .bento-cell:not(.stub):hover,
+    .bento-cell:not(.stub):focus-within {
+      transform: none;
+    }
+  }
+
+  /*
+   * Stub modifier — empty slots styled as dashed-border placeholders.
+   * Lives here (rather than in StubCell.astro) so the data-astro-cid
+   * scoping wins specificity against any global override.
+   */
+  .bento-cell.stub {
+    background: transparent;
+    border: 1px dashed var(--border-strong);
+    align-items: center;
+    justify-content: center;
+    box-shadow: none;
   }
 </style>

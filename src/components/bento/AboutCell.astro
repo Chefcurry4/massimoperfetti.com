@@ -1,51 +1,130 @@
 ---
 /**
- * About cell — top of column 1. Glass surface (per CLAUDE.md § Liquid glass:
- * "Used selectively, not on every surface. Best targets: ... modal popups
- * (about)").
+ * About cell — hero of the wall.
  *
- * Phase 2: static. Phase 7 wires the popup interaction.
+ * Layout (top to bottom):
+ *   1. Portrait — full-width, ~40% of cell height, rounded.
+ *      Implemented as a <div> with background-image so a missing /me.jpg
+ *      degrades to the layered OKLCH gradient instead of a broken-image icon.
+ *      An <img> approach would either show the broken icon or require inline
+ *      JS (`onerror=`) which we don't want for CSP reasons.
+ *   2. Eyebrow caption.
+ *   3. Name (display serif, h1).
+ *   4. Role line.
+ *   5. Body line (clamped to 2).
+ *   6. "→ read more" CTA, accent on hover.
+ *
+ * Glass surface (per CLAUDE.md §Liquid glass selective use).
+ *
+ * To enable the photo, save the chosen portrait to:
+ *   c:\Users\massi\Desktop\website\public\me.jpg
  */
 import Cell from '../ui/Cell.astro';
 import { about } from '../../data/about';
 import { site } from '../../data/site';
 ---
 
-<Cell glass slot="cell-about">
-  <p class="text-caption muted">about</p>
-  <h2 class="text-h2 headline">{about.headline}</h2>
-  <p class="text-small muted body">{about.body[0]}</p>
+<Cell glass slot="cell-about" class="about-cell">
+  <div
+    class="portrait"
+    role="img"
+    aria-label={`Portrait of ${site.name}`}
+  ></div>
 
-  <footer class="meta">
-    <span class="text-caption">{site.name}</span>
-  </footer>
+  <div class="content">
+    <p class="text-caption muted">about</p>
+    <h2 class="text-h1 name">{site.name}</h2>
+    <p class="role text-small">{about.role}</p>
+    <p class="body text-small muted">{about.body[0]}</p>
+
+    <a class="cta text-caption" href="/about">
+      <span aria-hidden="true">→</span>
+      <span>read more</span>
+    </a>
+  </div>
 </Cell>
 
 <style>
   .muted {
     color: var(--text-muted);
   }
-  .headline {
-    margin: 0;
-    /* clamp to fit a glass cell that has a body line below */
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    line-clamp: 4;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+
+  .about-cell {
+    /* Tighter inner gap so the portrait doesn't feel detached from the meta.
+       Cell.astro sets gap:0.75rem by default; we want closer here. */
+    gap: 0.875rem;
   }
+
+  .portrait {
+    flex: 0 0 auto;
+    width: 100%;
+    aspect-ratio: 5 / 4;
+    border-radius: 14px;
+    overflow: hidden;
+    /* Layered: gradient fallback below, photo on top. If /me.jpg 404s, the
+       gradient remains visible. The first background-color sits underneath
+       both for further safety in older renderers. */
+    background-color: var(--surface);
+    background-image:
+      url('/me.jpg'),
+      linear-gradient(
+        135deg,
+        oklch(72% 0.12 264 / 0.85),
+        oklch(38% 0.10 295 / 0.95)
+      );
+    background-size: cover, cover;
+    background-position: center top, center;
+    background-repeat: no-repeat, no-repeat;
+    border: 1px solid var(--border);
+  }
+
+  .content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  .name {
+    margin: 0;
+    color: var(--text);
+    /* slight tightening for the dense column */
+    font-size: clamp(28px, 3.6vw, 36px);
+    line-height: 1.05;
+  }
+
+  .role {
+    margin: 0;
+    color: var(--text);
+  }
+
   .body {
     margin: 0;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-  .meta {
+
+  .cta {
+    /* Same eyebrow caption sizing, but transitions to accent on hover. */
     margin-top: auto;
-    padding-top: 0.75rem;
-    border-top: 1px solid var(--border);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
     color: var(--text-muted);
+    transition: color var(--duration-normal) var(--ease-out-expo);
+    width: fit-content;
+  }
+  .cta:hover,
+  .cta:focus-visible {
+    color: var(--accent);
+  }
+  .cta:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+    border-radius: 4px;
   }
 </style>

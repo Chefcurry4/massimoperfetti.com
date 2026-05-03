@@ -38,6 +38,21 @@
   --text-muted: #8a8a8a;
   --accent: #d4ff3a; /* placeholder */
 
+  /* Hover treatment: border tinted with accent at low opacity, plus a
+     soft drop shadow that combines glass-shadow with a faint accent halo. */
+  --border-hover: oklch(92% 0.18 117 / 0.36);
+  --hover-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.45),
+    0 0 0 1px oklch(92% 0.18 117 / 0.06);
+
+  /* Status pill palette — three tones, low-saturation. */
+  --status-live: oklch(78% 0.16 152);              /* green */
+  --status-live-bg: oklch(78% 0.16 152 / 0.12);
+  --status-progress: oklch(92% 0.18 117);          /* accent yellow-green */
+  --status-progress-bg: oklch(92% 0.18 117 / 0.12);
+  --status-archived: var(--text-muted);
+  --status-archived-bg: transparent;
+
   /* Glass treatment — inset highlight + drop shadow per theme. */
   --glass-highlight: rgba(255, 255, 255, 0.06);
   --glass-shadow: rgba(0, 0, 0, 0.25);
@@ -57,6 +72,18 @@
   --text: #0a0a0a;
   --text-muted: #6a6a6a;
   --accent: #1a4dff; /* placeholder */
+
+  --border-hover: oklch(48% 0.22 263 / 0.32);
+  --hover-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.10),
+    0 0 0 1px oklch(48% 0.22 263 / 0.10);
+
+  --status-live: oklch(54% 0.16 152);
+  --status-live-bg: oklch(54% 0.16 152 / 0.10);
+  --status-progress: oklch(48% 0.22 263);
+  --status-progress-bg: oklch(48% 0.22 263 / 0.10);
+  --status-archived: var(--text-muted);
+  --status-archived-bg: transparent;
 
   --glass-highlight: rgba(255, 255, 255, 0.45);
   --glass-shadow: rgba(0, 0, 0, 0.08);

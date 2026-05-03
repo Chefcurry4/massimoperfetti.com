@@ -1,14 +1,10 @@
 ---
 /**
- * Stub cell — fills empty slots when a column has more layout slots than
- * we have real content for (e.g. column 3 has 4 project slots, we currently
- * have 1 entry, so 3 stubs render to keep the grid honest).
+ * Stub cell — intentional empty slot.
  *
- * Routes through `<Cell>` (with `as="div"` since stubs aren't articles)
- * so border-radius / padding / sizing stay single-source. The `stub`
- * modifier swaps the surface treatment to a dashed-border on transparent
- * background — distinct enough that empty slots read as intentional
- * placeholders, not failures.
+ * All chrome (dashed border, transparent background, centering) lives in
+ * `Cell.astro` under the `.bento-cell.stub` modifier so it inherits component
+ * scoping. This file just carries the slot identifier and the label.
  */
 import Cell from '../ui/Cell.astro';
 
@@ -21,22 +17,11 @@ const { label = 'more to come', slot } = Astro.props;
 ---
 
 <Cell as="div" slot={slot} class="stub">
-  <span class="text-caption muted center">{label}</span>
+  <span class="text-caption muted">{label}</span>
 </Cell>
 
 <style>
-  /* `<Cell class="stub">` keeps the radius + padding contract from Cell.astro;
-     these rules only override surface + layout. */
-  :global(.bento-cell.stub) {
-    background: transparent;
-    border: 1px dashed var(--border-strong);
-    align-items: center;
-    justify-content: center;
-  }
   .muted {
     color: var(--text-muted);
-  }
-  .center {
-    text-align: center;
   }
 </style>

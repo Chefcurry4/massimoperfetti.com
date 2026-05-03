@@ -2,9 +2,10 @@
 /**
  * "See all projects" CTA — the third tile in column 3's bottom row.
  *
- * Phase 2: rendered as a non-interactive button (tabindex -1) since
- * /projects index page doesn't exist yet. Phase 4 swaps to anchor with
- * transition:name set up for the morph.
+ * Phase 2: rendered as a non-interactive cell since /projects index page
+ * doesn't exist yet. Hover lift comes from `.bento-cell` in Cell.astro;
+ * the accent tint on the count + arrow on hover is the local treatment.
+ * Phase 4 wraps in <a> with the morph wired.
  */
 import Cell from '../ui/Cell.astro';
 
@@ -18,7 +19,7 @@ const { count, slot } = Astro.props;
 
 <Cell glass slot={slot} class="see-all">
   <p class="text-caption muted">all projects</p>
-  <p class="text-h3 num">{count}</p>
+  <p class="num">{count}</p>
   <p class="text-small muted">in total</p>
 
   <span class="cta text-caption" aria-hidden="true">→</span>
@@ -29,17 +30,13 @@ const { count, slot } = Astro.props;
     color: var(--text-muted);
   }
   .see-all {
-    /* Phase 2: rendered as <article>, not <a> — no pointer cursor.
-       Phase 4 wraps in an anchor with the projects-index morph wired. */
     align-items: flex-start;
     justify-content: space-between;
     gap: 0.25rem;
-    transition: border-color var(--duration-fast) var(--ease-out-expo);
   }
-  .see-all:hover {
-    border-color: var(--text);
-  }
+
   .num {
+    /* Decorative-display number; same justification as ProjectsCell.cover-initial. */
     margin: 0;
     font-family: var(--font-display);
     font-weight: 500;
@@ -47,10 +44,23 @@ const { count, slot } = Astro.props;
     line-height: 1;
     letter-spacing: -0.02em;
     color: var(--text);
+    transition: color var(--duration-normal) var(--ease-out-expo);
   }
   .cta {
     margin-top: auto;
     align-self: flex-end;
     font-size: 18px;
+    color: var(--text-muted);
+    transition: color var(--duration-normal) var(--ease-out-expo);
+  }
+
+  /* Accent treatment fires off the cell's hover so the lift + tint feel
+     like one gesture. `:focus-within` keeps it accessible for keyboard users
+     once Phase 4 wires the anchor. */
+  .see-all:hover .num,
+  .see-all:focus-within .num,
+  .see-all:hover .cta,
+  .see-all:focus-within .cta {
+    color: var(--accent);
   }
 </style>

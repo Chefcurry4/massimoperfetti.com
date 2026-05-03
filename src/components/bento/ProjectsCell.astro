@@ -93,9 +93,13 @@ const statusLabel: Record<typeof status, string> = {
   }
 
   .cover {
+    /* fixed-basis (no shrink) + own overflow:hidden: the meta block below
+       can't squeeze the cover and the giant initial can't escape the cell
+       even if Lora's vertical metrics over-reach the line-box. */
     position: relative;
-    flex: 1 1 60%;
+    flex: 0 0 56%;
     min-height: 0;
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -110,14 +114,18 @@ const statusLabel: Record<typeof status, string> = {
   }
   .cover-initial {
     /* Decorative typography — sits outside the body type scale on purpose:
-       this is graphic-display, not text-display. */
+       this is graphic-display, not text-display. Capped lower than before
+       (was 120) to leave headroom inside the fixed-basis cover region. */
     font-family: var(--font-display);
     font-weight: 500;
-    font-size: clamp(72px, 12vw, 120px);
+    font-size: clamp(64px, 9vw, 96px);
     line-height: 1;
     letter-spacing: -0.04em;
+    text-align: center;
     opacity: 0.95;
     mix-blend-mode: screen;
+    pointer-events: none;
+    user-select: none;
   }
 
   .meta {
@@ -137,18 +145,31 @@ const statusLabel: Record<typeof status, string> = {
     gap: 0.5rem;
   }
   .status {
-    /* Type comes from .text-mono-small; this only adds the pill chrome. */
+    /* Type comes from .text-mono-small; this only adds the pill chrome.
+       The status-{kind} modifiers below tint the pill via tokens so the
+       semantic ("live" / "in-progress" / "archived") reads visually. */
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    padding: 0.15rem 0.5rem;
+    padding: 0.15rem 0.55rem;
     border-radius: 999px;
     border: 1px solid var(--border-strong);
     color: var(--text-muted);
+    background: transparent;
     white-space: nowrap;
   }
-  .status-live,
+  .status-live {
+    color: var(--status-live);
+    border-color: var(--status-live);
+    background: var(--status-live-bg);
+  }
   .status-in-progress {
-    color: var(--text);
+    color: var(--status-progress);
+    border-color: var(--status-progress);
+    background: var(--status-progress-bg);
+  }
+  .status-archived {
+    color: var(--status-archived);
+    background: var(--status-archived-bg);
   }
 
   .title {

@@ -6,11 +6,14 @@
 
 export interface About {
   readonly headline: string;
+  /** Single-line role/affiliation summary surfaced on the AboutCell. */
+  readonly role: string;
   readonly body: readonly string[];
 }
 
 export const about: About = {
   headline: 'Researcher at MIT van Rees Lab. AI × CFD, full-stack, founder.',
+  role: 'Researcher · MIT van Rees Lab · MSc MIT + TU Delft',
   body: [
     'MSc at MIT and TU Delft. BSc at EPFL and Politecnico di Torino.',
     'Currently working on AI methods for computational fluid dynamics for my master thesis.',

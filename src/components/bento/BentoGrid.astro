@@ -184,14 +184,16 @@ const galleryEntry = gallery[0] ?? null;
     /*
      * Variable column widths are deliberate (CLAUDE.md §Anti-patterns
      * banishes uniform grids):
-     *   col 1 — narrow, about + contacts.
-     *   col 2 — wide, two work cells side-by-side + writing block.
-     *   col 3 — widest, project hero column.
-     *   col 4 — medium, gallery + map.
-     * Total ≈ 2032px → ~200vw on a 1024 viewport, ~145vw on a 1440.
+     *   col 1 — about hero (portrait + name) + compact contacts.
+     *   col 2 — two work cells side-by-side + writing block.
+     *   col 3 — project hero column.
+     *   col 4 — gallery + map.
+     * Total = 440 + 540 + 600 + 420 + 3*16(gap) + 2*32(padding) = 2112px
+     * (≈ 206vw at 1024, ≈ 147vw at 1440 — well inside the 200–250vw target).
+     * Col 1 widened (was 360) to give the portrait + name room to breathe.
      */
     display: grid;
-    grid-template-columns: 360px 540px 600px 420px;
+    grid-template-columns: 440px 540px 600px 420px;
     grid-template-rows: 1fr;
     grid-auto-flow: column;
     gap: 16px;
@@ -207,8 +209,9 @@ const galleryEntry = gallery[0] ?? null;
     min-width: 0;
     scroll-snap-align: start;
   }
-  /* Column-specific row partitions */
-  .col-1 { grid-template-rows: minmax(0, 1.1fr) minmax(0, 0.9fr); }
+  /* Column-specific row partitions.
+     col-1: about hero gets ~71% of column height; compact contacts ~29%. */
+  .col-1 { grid-template-rows: minmax(0, 2.5fr) minmax(0, 1fr); }
   .col-2 { grid-template-rows: minmax(0, 0.45fr) minmax(0, 0.55fr); }
   .col-3 { grid-template-rows: minmax(0, 0.36fr) minmax(0, 0.36fr) minmax(0, 0.28fr); }
   .col-4 { grid-template-rows: minmax(0, 0.55fr) minmax(0, 0.45fr); }
