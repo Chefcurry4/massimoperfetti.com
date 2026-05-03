@@ -26,7 +26,22 @@ const iconPaths: Record<ContactKind, string> = {
   scholar:
     'M22 10v6M2 10l10-5 10 5-10 5z M6 12v5c3 3 9 3 12 0v-5',
   cv: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8',
+  /* newsletter: envelope with motion lines (sending). */
+  newsletter:
+    'M4 6h12v10H4zM4 6l6 5 6-5M19 9h3M19 12h3M19 15h3',
+  /* leetcode: stylized angle-bracket "<>" — code/algorithm prompt. */
+  leetcode:
+    'M9 6L4 12l5 6M15 6l5 6-5 6M14 4l-4 16',
 };
+
+/**
+ * Bento cell shows only public-audience contacts so the icon row stays
+ * compact (CLAUDE.md §Sidebar will reuse the same `audience` filter).
+ * Academic emails surface on the contact page or the sidebar's overflow.
+ */
+const visibleContacts = contacts.filter(
+  (c) => (c.audience ?? 'public') === 'public',
+);
 ---
 
 <Cell slot="cell-contacts" class="contacts-cell">
@@ -37,7 +52,7 @@ const iconPaths: Record<ContactKind, string> = {
 
   <ul class="row" aria-label="contact channels">
     {
-      contacts.map((c) => (
+      visibleContacts.map((c) => (
         <li>
           <a
             class="icon-link"
@@ -67,7 +82,7 @@ const iconPaths: Record<ContactKind, string> = {
   <div class="expand">
     <ul class="detail-list">
       {
-        contacts.map((c) => (
+        visibleContacts.map((c) => (
           <li class="detail-row">
             <span class="label text-small">{c.label}</span>
             <a class="handle text-mono-small" href={c.url}>
