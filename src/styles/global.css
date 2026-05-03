@@ -10,7 +10,14 @@
  *  6. Minimal reset
  */
 
-@import 'tailwindcss';
+/*
+ * `source(none)` disables Tailwind's automatic content detection. We then
+ * point it at src/ explicitly. Without this, root-level CLAUDE.md / README.md
+ * leak example class names (`mt-[37px]`, `gap-[7px]`, `bg-zinc-900`,
+ * `[file:line]`) into the bundle and trigger esbuild CSS-minify warnings.
+ */
+@import 'tailwindcss' source(none);
+@source '../**/*.{astro,html,js,jsx,ts,tsx,md,mdx}';
 
 @import './tokens.css';
 

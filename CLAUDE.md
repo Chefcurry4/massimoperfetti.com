@@ -22,13 +22,13 @@ The aesthetic reference is editorial print design crossed with iOS 26 Liquid Gla
 
 ## Stack — locked decisions
 
-- **Framework**: Astro (latest, currently 5.x). HTML-first MPA. TypeScript on by default.
-- **Styling**: Tailwind CSS (v4). With **discipline**: see Tailwind Discipline below.
-- **Content**: Markdown / MDX in Astro Content Collections, typed with Zod.
-- **Transitions**: Native browser View Transitions API via Astro's built-in `<ViewTransitions />` directive. No Framer Motion unless we hit a wall the View Transitions API cannot solve.
-- **Hosting**: Netlify. Static output. Netlify Forms for the contact form (no functions, no DB).
+- **Framework**: Astro 6.x (currently 6.2). HTML-first MPA. TypeScript strict, pinned to `^5.7` (Astro's transitive peer dep `tsconfck` does not yet accept TS 6).
+- **Styling**: Tailwind v4 via the `@tailwindcss/vite` plugin (NOT the deprecated `@astrojs/tailwind` integration). CSS-first config — there is **no `tailwind.config.ts`**. Tokens are mapped into Tailwind utilities via the `@theme inline` directive in `src/styles/global.css`. Auto content-detection is disabled (`source(none)`) and re-pointed to `src/` only, so root-level `CLAUDE.md` examples don't leak into the bundle. With **discipline**: see Tailwind Discipline below.
+- **Content**: Markdown / MDX in Astro Content Collections (content-layer API with `glob` loaders), typed with Zod imported from `'zod'` directly (the `astro:content` re-export of `z` is deprecated in v6). Config lives at `src/content.config.ts` — Astro 6 hard-removed the legacy `src/content/config.ts` location.
+- **Transitions**: Native browser View Transitions API via Astro's `<ClientRouter />` from `astro:transitions` (this is the renamed `<ViewTransitions />`; the old name is still exported but deprecated). No Framer Motion unless we hit a wall the API cannot solve.
+- **Hosting**: Netlify. Static output. Netlify Forms for the contact form (no functions, no DB). `NODE_VERSION = "22"` in `netlify.toml` (Astro 6 floor is Node ≥ 22.12).
 - **Interactive islands**: Vanilla JS or a small React component, only where needed (theme toggle, Spotify widget, world map).
-- **Package manager**: pnpm (faster, less disk).
+- **Package manager**: pnpm 10 (faster, less disk).
 
 Do not introduce: Next.js, server components, a database, a CMS, shadcn/ui (would make the site look generic), Three.js, Spline, GSAP, or animation libraries beyond what the View Transitions API gives us natively. If something tempts you to add one of these, push back to Massimo first.
 
@@ -41,14 +41,13 @@ Do not introduce: Next.js, server components, a database, a CMS, shadcn/ui (woul
 ├── CLAUDE.md                       # this file
 ├── .claude/
 │   └── agents/                     # specialized subagents — see below
-├── astro.config.mjs
-├── tailwind.config.ts              # design tokens live here
+├── astro.config.mjs                # registers @tailwindcss/vite + mdx + sitemap
 ├── tsconfig.json
-├── netlify.toml                    # build & deploy config
+├── netlify.toml                    # build & deploy config (NODE_VERSION 22)
 ├── public/                         # static assets, favicon, og images
 ├── src/
+│   ├── content.config.ts           # Zod schemas for all collections (Astro 6 path)
 │   ├── content/
-│   │   ├── config.ts               # Zod schemas for all collections
 │   │   ├── projects/               # *.md / *.mdx — main projects
 │   │   ├── work/                   # *.md — work entries
 │   │   ├── writing/                # *.md / *.mdx — notes & essays
@@ -89,10 +88,12 @@ Do not introduce: Next.js, server components, a database, a CMS, shadcn/ui (woul
 │   │   ├── about.astro             # standalone about page (also used by popup)
 │   │   └── contact.astro           # contact form (Netlify Forms)
 │   └── styles/
-│       ├── tokens.css              # CSS custom properties (theme tokens)
-│       └── global.css              # global resets, font loading
+│       ├── tokens.css              # CSS custom properties (theme tokens, both themes)
+│       └── global.css              # @import 'tailwindcss' source(none); @theme inline; type scale + .glass; reset; font @imports
 └── package.json
 ```
+
+Tokens flow: `tokens.css` declares `--bg`, `--surface`, `--text`, `--font-display`, … on `:root` and inside `[data-theme='dark|light']`. `global.css` re-exposes them to Tailwind via `@theme inline { --color-bg: var(--bg); … }`, so utilities like `bg-bg`, `text-text-muted`, `font-display` flip with the theme attribute without conditional logic. See [Tailwind discipline](#tailwind-discipline).
 
 This layout is the canonical map. If a need arises that doesn't fit, propose a change explicitly rather than silently scattering files.
 
@@ -344,6 +345,8 @@ Singletons (about, contacts) use stable names: `poster-about`, `poster-contacts`
 
 ### Rules
 
+- `<ClientRouter />` (from `astro:transitions`) must be present in the `<head>` of `Base.astro` for any of this to work. The legacy `<ViewTransitions />` import still works but emits a deprecation warning — don't use it.
+- Set `transition:name` in Astro markup; Astro generates the underlying `view-transition-name` CSS rule and a unique `data-astro-transition-scope` attribute for you. Don't write `view-transition-name` declarations by hand.
 - `view-transition-name` values must be **unique on the source page** at the time of navigation. Two visible cards with the same name = transition fails silently.
 - The destination element must be **rendered on first paint**, not lazy-loaded after navigation. Otherwise the morph snaps.
 - Default View Transitions duration: 280ms. Custom override only when justified.
@@ -375,8 +378,8 @@ Style: glass surface, fixed left side on desktop (~280px wide), bottom drawer on
 
 This is the suggested phasing. Work top-down. Don't run ahead.
 
-- [ ] **Phase 0** — `npm create astro@latest`, Tailwind v4 install, design tokens scaffolded, fonts loaded, dark/light toggle works, ViewTransitions enabled in `Base.astro`.
-- [ ] **Phase 1** — Content collections defined in `src/content/config.ts` with schemas above. Add 1 sample entry per collection.
+- [x] **Phase 0** — `pnpm create astro@latest`, Tailwind v4 install, design tokens scaffolded, fonts loaded, dark/light toggle works, `<ClientRouter />` enabled in `Base.astro`. _Done — commit `077bf71`._
+- [x] **Phase 1** — Content collections defined in `src/content.config.ts` with schemas above. One sample entry per collection. _Done — commit `ccddd7f`._
 - [ ] **Phase 2** — Bento grid layout. Static cells with placeholder content. Horizontal scroll on desktop, vertical stack on mobile. No transitions yet.
 - [ ] **Phase 3** — Sidebar built and persisted. Now/contacts/theme toggle wired up. Spotify widget last (least essential).
 - [ ] **Phase 4** — View Transitions. Card-to-detail zoom for projects first. Then writing, then gallery. Places gets its own treatment because of the map.
@@ -465,8 +468,9 @@ pnpm lint
   publish = "dist"
 
 [build.environment]
-  NODE_VERSION = "20"
-  PNPM_VERSION = "9"
+  # Astro 6 requires Node ≥ 22.12. Bump again if Astro raises the floor.
+  NODE_VERSION = "22"
+  PNPM_VERSION = "10"
 
 [[headers]]
   for = "/*"
