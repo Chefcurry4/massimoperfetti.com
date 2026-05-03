@@ -2,10 +2,9 @@
 /**
  * "See all projects" CTA — the third tile in column 3's bottom row.
  *
- * Phase 2: rendered as a non-interactive cell since /projects index page
- * doesn't exist yet. Hover lift comes from `.bento-cell` in Cell.astro;
- * the accent tint on the count + arrow on hover is the local treatment.
- * Phase 4 wraps in <a> with the morph wired.
+ * Phase 4: anchor pointing at /projects index page. Hover lift comes from
+ * `.bento-cell` in Cell.astro; the accent tint on the count + arrow on
+ * hover is the local treatment.
  */
 import Cell from '../ui/Cell.astro';
 
@@ -17,22 +16,36 @@ interface Props {
 const { count, slot } = Astro.props;
 ---
 
-<Cell glass slot={slot} class="see-all">
-  <p class="text-caption muted">all projects</p>
-  <p class="num">{count}</p>
-  <p class="text-small muted">in total</p>
+<a href="/projects" class="card-link" aria-label={`See all ${count} projects`}>
+  <Cell glass slot={slot} class="see-all">
+    <p class="text-caption muted">all projects</p>
+    <p class="num">{count}</p>
+    <p class="text-small muted">in total</p>
 
-  <span class="cta text-caption" aria-hidden="true">→</span>
-</Cell>
+    <span class="cta text-caption" aria-hidden="true">→</span>
+  </Cell>
+</a>
 
 <style>
   .muted {
     color: var(--text-muted);
   }
+  .card-link {
+    display: block;
+    height: 100%;
+    color: inherit;
+    text-decoration: none;
+    border-radius: 18px;
+  }
+  .card-link:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
   .see-all {
     align-items: flex-start;
     justify-content: space-between;
     gap: 0.25rem;
+    cursor: pointer;
   }
 
   .num {
@@ -54,13 +67,12 @@ const { count, slot } = Astro.props;
     transition: color var(--duration-normal) var(--ease-out-expo);
   }
 
-  /* Accent treatment fires off the cell's hover so the lift + tint feel
-     like one gesture. `:focus-within` keeps it accessible for keyboard users
-     once Phase 4 wires the anchor. */
-  .see-all:hover .num,
-  .see-all:focus-within .num,
-  .see-all:hover .cta,
-  .see-all:focus-within .cta {
+  /* Hover/focus tints fire off the anchor so keyboard users see the same
+     accent shift as mouse users. */
+  .card-link:hover .num,
+  .card-link:focus-visible .num,
+  .card-link:hover .cta,
+  .card-link:focus-visible .cta {
     color: var(--accent);
   }
 </style>

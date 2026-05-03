@@ -3,23 +3,30 @@
  * Persistent sidebar.
  *
  * Desktop (≥ 1024px) — rail / panel, collapsed by default.
- *   Collapsed (rail, 64px): only the avatar + a vertical accent bar +
- *     the theme toggle are visible. Reads as a thin column on the left edge.
- *   Expanded (panel, 280px): full content (Identity, Now, Contacts,
+ *   Collapsed (rail, 64px): avatar + a vertical accent edge + a discoverable
+ *     chevron trigger + the theme toggle. Reads as a thin column on the
+ *     left edge with one obvious "expand" affordance.
+ *   Expanded (panel, 280px): full content (Identity, Now, Contacts + Book,
  *     Spotify, Theme toggle).
  *   Triggers:
- *     - Click anywhere on the sidebar → expand.
+ *     - Click the chevron (or anywhere on the rail) → expand.
+ *     - Click the chevron when expanded → collapse immediately.
  *     - Mouseleave → schedule collapse after 1s (cancelled by mouseenter).
  *     - ESC key → collapse immediately.
  *   The wall + /book anchor to the collapsed (64px) width and never reflow.
- *   The expanded sidebar sits at z-index 40 with a soft shadow so it floats
- *   over the leftmost edge of the wall while open.
+ *   The expanded sidebar sits at z-index var(--z-sidebar) with a soft shadow
+ *   so it floats over the leftmost edge of the wall while open.
  *
  * Mobile (< 1024px) — bottom drawer with Identity peek (unchanged).
  *
  * `transition:persist="sidebar"` keeps the entire <aside> mounted across
  * Astro View Transitions. Listener teardown via AbortController; body
  * scroll lock preserves window.scrollY.
+ *
+ * Spacing rhythm uses semantic --space-* tokens throughout. Section
+ * dividers are integrated into each section (border-top + padding-top via
+ * the `.content > * + *` rule) instead of standalone <hr> elements — gives
+ * each section its own breathing room rather than a flat hairline.
  */
 import Identity from './Identity.astro';
 import NowSnippet from './NowSnippet.astro';
@@ -51,19 +58,41 @@ import ThemeToggle from '../ui/ThemeToggle.astro';
   </div>
 
   <div id="sidebar-content" class="content">
-    <hr class="rule" />
     <NowSnippet />
-
-    <hr class="rule" />
     <ContactsCluster />
-
-    <hr class="rule" />
     <SpotifyWidget />
 
     <div class="footer">
       <ThemeToggle />
     </div>
   </div>
+
+  {/* Desktop-only chevron — the discoverable expand/collapse affordance.
+      Sits at bottom-center of the rail when collapsed; rotates 180° and
+      moves to the right edge of the panel when expanded. Click toggles
+      .expanded. */}
+  <button
+    type="button"
+    class="rail-chevron"
+    data-rail-chevron
+    aria-label="Expand sidebar"
+    aria-expanded="false"
+    aria-controls="sidebar-content"
+  >
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M9 6l6 6-6 6" />
+    </svg>
+  </button>
 </aside>
 
 {/* Mobile scrim — clicking it closes the drawer. */}
@@ -77,28 +106,48 @@ import ThemeToggle from '../ui/ThemeToggle.astro';
     bottom: var(--wall-inset);
     left: var(--wall-inset);
     width: var(--sidebar-rail);
-    z-index: 40;
-    border-radius: 18px;
-    padding: clamp(12px, 1vw, 16px);
+    z-index: var(--z-sidebar);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4) var(--space-3);
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    /* Tighter gap so the expanded panel fits common laptop viewports
-       (720-800dvh) without internal scroll. Spotify section flex-fills
-       what's left. */
-    gap: 0.75rem;
-    cursor: pointer;
+    /* Outer rhythm: --space-5 (24px) between top-level pieces (peek, content,
+       chevron). Inner rhythm comes from .content's own gap. */
+    gap: var(--space-5);
     transition:
       width var(--duration-normal) var(--ease-out-expo),
       box-shadow var(--duration-normal) var(--ease-out-expo);
   }
 
+  /* Vertical accent edge on the right of the rail — subtle signal that the
+     column is interactive. Fades out when expanded. */
+  .sidebar::after {
+    content: '';
+    position: absolute;
+    top: 18%;
+    bottom: 18%;
+    right: -1px;
+    width: 2px;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      var(--accent) 35%,
+      var(--accent) 65%,
+      transparent
+    );
+    opacity: 0.32;
+    pointer-events: none;
+    transition: opacity var(--duration-normal) var(--ease-out-expo);
+  }
+  .sidebar.expanded::after {
+    opacity: 0;
+  }
+
   .sidebar.expanded {
     width: var(--sidebar-width);
-    /* No internal scroll — content is sized to fit via NowSnippet clamps
-       and Spotify flex-fill ceiling. */
+    padding: var(--space-5);
     overflow: hidden;
-    cursor: default;
     /* Float over the wall when expanded so the user gets the full panel
        without reflowing the layout. */
     box-shadow:
@@ -110,7 +159,8 @@ import ThemeToggle from '../ui/ThemeToggle.astro';
   .peek {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: var(--space-3);
+    flex-shrink: 0;
   }
   /* Collapsed: show only the avatar (Identity's 1st child); hide the
      name + role text block. Avatar is centered in the rail. */
@@ -134,7 +184,7 @@ import ThemeToggle from '../ui/ThemeToggle.astro';
   .content {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: var(--space-5);
     flex: 1 1 auto;
     /* `min-height: 0` lets the Spotify section's flex-fill actually shrink
        inside this container — without it, flex children default to their
@@ -150,43 +200,89 @@ import ThemeToggle from '../ui/ThemeToggle.astro';
     pointer-events: auto;
   }
 
-  .rule {
-    border: none;
+  /*
+   * Section dividers — each section after the first gets a border-top and
+   * padding-top so the divider has integrated breathing room. Adjacent-
+   * sibling selector means there's no border above the first section
+   * (NowSnippet) or above the footer (which is anchored by margin-top: auto).
+   * The footer-divider exception sits separately because the chevron may
+   * sit between it and the prior section visually.
+   */
+  .content > * + *:not(.footer) {
+    padding-top: var(--space-4);
     border-top: 1px solid var(--border);
-    margin: 0;
   }
-
-  .footer {
+  .content > .footer {
     margin-top: auto;
-    padding-top: 0.5rem;
+    padding-top: var(--space-3);
     display: flex;
     justify-content: flex-end;
   }
+
   /* Collapsed footer: theme toggle is always visible at the bottom of the
      rail (sits outside `.content` visibility gate by being placed in
      .content for desktop expanded, but we override on the rail). */
-  .sidebar:not(.expanded) .footer {
-    /* In rail state, content is hidden (opacity 0). Pull the theme toggle
-       out of that gate by reaching into the content's footer and re-showing
-       it. Achieved here via :not selectors below. */
-  }
-  /* Reach back into hidden content to re-expose the theme toggle. */
-  .sidebar:not(.expanded) .content {
-    /* keep content hidden as a block ... */
-  }
   .sidebar:not(.expanded) .content > .footer {
-    /* ... but float the footer to the bottom of the rail and re-show it. */
+    /* Float the footer to the bottom of the rail and re-show it even though
+       .content's opacity is 0 in rail state. */
     position: absolute;
-    bottom: clamp(12px, 1vw, 16px);
+    bottom: var(--space-4);
     left: 0;
     right: 0;
     justify-content: center;
+    padding-top: 0;
     opacity: 1;
     pointer-events: auto;
   }
-  /* Hide the rule above the footer when collapsed (it'd float weirdly). */
+  /* Hide everything else in the content block when collapsed (would float
+     visually weirdly behind the chevron). */
   .sidebar:not(.expanded) .content > :not(.footer) {
     visibility: hidden;
+  }
+
+  /* === Rail chevron ==================================================== */
+  .rail-chevron {
+    /* Bottom-center of the rail, sitting above the theme toggle footer.
+       Width matches the rail interior; tappable target meets a11y minimum. */
+    position: absolute;
+    bottom: calc(var(--space-4) + var(--control-h-md) + var(--space-3));
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    width: var(--control-h-sm);
+    height: var(--control-h-sm);
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border-strong);
+    background: transparent;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition:
+      color var(--duration-normal) var(--ease-out-expo),
+      border-color var(--duration-normal) var(--ease-out-expo),
+      transform var(--duration-normal) var(--ease-out-expo),
+      background var(--duration-normal) var(--ease-out-expo);
+  }
+  .rail-chevron:hover {
+    color: var(--text);
+    border-color: var(--text-muted);
+  }
+  .rail-chevron:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+  /* When expanded, chevron flips and migrates to top-right of the panel. */
+  .sidebar.expanded .rail-chevron {
+    bottom: auto;
+    top: var(--space-3);
+    left: auto;
+    right: var(--space-3);
+    margin: 0;
+    transform: rotate(180deg);
   }
 
   /* The drawer toggle is mobile-only. */
@@ -211,8 +307,11 @@ import ThemeToggle from '../ui/ThemeToggle.astro';
       max-height: 72px;
       height: auto;
       gap: 0;
-      border-radius: 18px 18px 0 0;
-      padding: 8px clamp(16px, 4vw, 20px) max(env(safe-area-inset-bottom), 12px);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      padding:
+        var(--space-2)
+        clamp(var(--space-4), 4vw, var(--space-5))
+        max(env(safe-area-inset-bottom), var(--space-3));
       cursor: default;
       transition: max-height var(--duration-normal) var(--ease-out-expo);
     }
@@ -225,6 +324,14 @@ import ThemeToggle from '../ui/ThemeToggle.astro';
     .sidebar.expanded {
       width: 100%;
       box-shadow: none;
+      padding: var(--space-2)
+        clamp(var(--space-4), 4vw, var(--space-5))
+        max(env(safe-area-inset-bottom), var(--space-3));
+    }
+    /* Hide the desktop-only rail chevron + accent edge on mobile. */
+    .rail-chevron,
+    .sidebar::after {
+      display: none;
     }
 
     .peek {
@@ -246,7 +353,7 @@ import ThemeToggle from '../ui/ThemeToggle.astro';
       display: flex;
       width: 100%;
       min-height: 24px;
-      padding: 8px 0;
+      padding: var(--space-2) 0;
       align-items: center;
       justify-content: center;
       background: transparent;
@@ -258,13 +365,13 @@ import ThemeToggle from '../ui/ThemeToggle.astro';
     .drawer-toggle:focus-visible {
       outline: 2px solid var(--accent);
       outline-offset: 2px;
-      border-radius: 4px;
+      border-radius: var(--radius-sm);
     }
     .grip {
       display: block;
       width: 36px;
       height: 4px;
-      border-radius: 4px;
+      border-radius: var(--radius-sm);
       background: var(--border-strong);
       transition: background var(--duration-fast) var(--ease-out-expo);
     }
@@ -303,11 +410,11 @@ import ThemeToggle from '../ui/ThemeToggle.astro';
       display: block;
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.5);
+      background: var(--scrim-modal);
       opacity: 0;
       pointer-events: none;
       transition: opacity var(--duration-normal) var(--ease-out-expo);
-      z-index: 39;
+      z-index: calc(var(--z-sidebar) - 1);
     }
     .drawer-scrim.visible {
       opacity: 1;
@@ -319,8 +426,10 @@ import ThemeToggle from '../ui/ThemeToggle.astro';
 <script>
   /**
    * Sidebar interaction:
-   *   Desktop — click expands; mouseleave starts a 1s timer to collapse,
-   *             cancelled by mouseenter; ESC collapses immediately.
+   *   Desktop — chevron click toggles expand/collapse; click-anywhere on
+   *             the rail still expands (cheap discoverability fallback);
+   *             mouseleave starts a 1s timer to collapse, cancelled by
+   *             mouseenter; ESC collapses immediately.
    *   Mobile  — drawer toggle button + scrim (unchanged from prior phase).
    *
    * AbortController + module-scope timer ref ensure clean teardown across
@@ -357,6 +466,7 @@ import ThemeToggle from '../ui/ThemeToggle.astro';
 
   function bindSidebar() {
     const sidebar = document.querySelector<HTMLElement>('[data-sidebar]');
+    const chevron = document.querySelector<HTMLButtonElement>('[data-rail-chevron]');
     const toggle = document.querySelector<HTMLButtonElement>('[data-drawer-toggle]');
     const scrim = document.querySelector<HTMLElement>('[data-drawer-scrim]');
     if (!sidebar) return;
@@ -376,16 +486,22 @@ import ThemeToggle from '../ui/ThemeToggle.astro';
       cancelCollapse();
       collapseTimer = setTimeout(() => {
         sidebar.classList.remove('expanded');
+        chevron?.setAttribute('aria-expanded', 'false');
+        chevron?.setAttribute('aria-label', 'Expand sidebar');
         collapseTimer = null;
       }, COLLAPSE_DELAY_MS);
     };
     const expand = () => {
       cancelCollapse();
       sidebar.classList.add('expanded');
+      chevron?.setAttribute('aria-expanded', 'true');
+      chevron?.setAttribute('aria-label', 'Collapse sidebar');
     };
     const collapseNow = () => {
       cancelCollapse();
       sidebar.classList.remove('expanded');
+      chevron?.setAttribute('aria-expanded', 'false');
+      chevron?.setAttribute('aria-label', 'Expand sidebar');
     };
 
     // Click anywhere on the sidebar expands. Anchors / buttons inside still
@@ -393,7 +509,19 @@ import ThemeToggle from '../ui/ThemeToggle.astro';
     sidebar.addEventListener(
       'click',
       () => {
-        if (isDesktop()) expand();
+        if (isDesktop() && !sidebar.classList.contains('expanded')) expand();
+      },
+      { signal },
+    );
+    // Chevron toggles. Stop propagation so it can collapse without the
+    // sidebar's click-to-expand reopening it on the same click.
+    chevron?.addEventListener(
+      'click',
+      (e) => {
+        if (!isDesktop()) return;
+        e.stopPropagation();
+        if (sidebar.classList.contains('expanded')) collapseNow();
+        else expand();
       },
       { signal },
     );

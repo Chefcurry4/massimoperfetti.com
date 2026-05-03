@@ -1,20 +1,24 @@
 ---
 /**
- * Sidebar contacts — icons-only row with elegant tooltip labels on hover,
- * a click-to-reveal popover for the multiple email addresses, and a
- * "Book a 30-min call" CTA bottom-right that points at Cal.com.
+ * Sidebar contacts + book — two related subsections living under a single
+ * cluster wrapper so they cohabit visually (no divider between contacts
+ * and book) but still read as distinct affordances.
+ *
+ * Structure:
+ *   .cluster
+ *     section.contacts  → eyebrow + icon row
+ *     section.book      → eyebrow + full-width pill linking to /book
+ *     div[popover]      → email-cluster overlay (CSS Anchor Positioned
+ *                         relative to the email icon when supported,
+ *                         falls back to centered modal in older browsers)
  *
  * Filters to public-audience entries so academic emails (MIT, TU Delft) stay
  * out of the always-visible cluster — they're folded into the email popover
  * instead of crowding the sidebar with three identical envelope icons.
  *
- * Email popover uses the native HTML Popover API (`popover` attribute +
- * `popovertarget`). Click-outside-to-close and ESC are handled by the
- * browser; no JS required. If only one email is present the envelope
- * degrades to a plain mailto anchor.
- *
- * Icon paths are duplicated from the (now retired) bento ContactsCell. If a
- * third surface ever needs them they should be hoisted to a shared module.
+ * Tooltips on icon links use `side="right"` because the sidebar sits at the
+ * left edge — tooltips reading outward feel anchored, tooltips reading
+ * upward (the default) collide with the previous section's content.
  */
 import { contacts, type ContactKind } from '../../data/contacts';
 import Tooltip from '../ui/Tooltip.astro';
@@ -39,49 +43,76 @@ const visibleContacts = contacts.filter(
   (c) => (c.audience ?? 'public') === 'public',
 );
 
-// Partition emails from everything else so the email cluster collapses to
-// a single envelope icon (with popover) instead of stacking duplicates.
-// Academic emails (audience: 'academic') are intentionally folded back in
-// here so the popover lists ALL three addresses, not just the public one.
+// Emails partition: collapse to one envelope icon → click opens popover
+// listing all addresses (incl. academic ones folded back in).
 const emails = contacts.filter((c) => c.kind === 'email');
 const nonEmails = visibleContacts.filter((c) => c.kind !== 'email');
 const hasMultipleEmails = emails.length > 1;
 const primaryEmail = emails[0];
 ---
 
-<section class="contacts" aria-label="Contact channels">
-  <p class="text-caption muted">contacts</p>
-  <ul class="row">
-    {/* Email icon: popover trigger if multiple, plain mailto link otherwise. */}
-    {primaryEmail && (
-      <li>
-        <Tooltip label={hasMultipleEmails ? 'Email' : primaryEmail.label} side="top">
-          {hasMultipleEmails ? (
-            <button
-              type="button"
-              class="icon-link"
-              popovertarget="email-popover"
-              aria-label={`Email — ${emails.length} addresses`}
-            >
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width={iconStrokeWidth}
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
+<div class="cluster">
+  <section class="contacts" aria-label="Contact channels">
+    <p class="text-caption muted">contacts</p>
+    <ul class="row">
+      {/* Email icon: popover trigger if multiple, plain mailto link otherwise. */}
+      {primaryEmail && (
+        <li>
+          <Tooltip label={hasMultipleEmails ? 'Email' : primaryEmail.label} side="right">
+            {hasMultipleEmails ? (
+              <button
+                type="button"
+                class="icon-link email-trigger"
+                popovertarget="email-popover"
+                aria-label={`Email — ${emails.length} addresses`}
               >
-                <path d={iconPaths.email} />
-              </svg>
-            </button>
-          ) : (
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width={iconStrokeWidth}
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d={iconPaths.email} />
+                </svg>
+              </button>
+            ) : (
+              <a
+                class="icon-link"
+                href={primaryEmail.url}
+                aria-label={`${primaryEmail.label} — ${primaryEmail.handle}`}
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width={iconStrokeWidth}
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d={iconPaths.email} />
+                </svg>
+              </a>
+            )}
+          </Tooltip>
+        </li>
+      )}
+
+      {nonEmails.map((c) => (
+        <li>
+          <Tooltip label={c.label} side="right">
             <a
               class="icon-link"
-              href={primaryEmail.url}
-              aria-label={`${primaryEmail.label} — ${primaryEmail.handle}`}
+              href={c.url}
+              aria-label={`${c.label} — ${c.handle}`}
+              rel="me noopener"
             >
               <svg
                 width="18"
@@ -94,106 +125,87 @@ const primaryEmail = emails[0];
                 stroke-linejoin="round"
                 aria-hidden="true"
               >
-                <path d={iconPaths.email} />
+                <path d={iconPaths[c.kind]} />
               </svg>
             </a>
-          )}
-        </Tooltip>
-      </li>
-    )}
-
-    {nonEmails.map((c) => (
-      <li>
-        <Tooltip label={c.label} side="top">
-          <a
-            class="icon-link"
-            href={c.url}
-            aria-label={`${c.label} — ${c.handle}`}
-            rel="me noopener"
-          >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width={iconStrokeWidth}
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-            >
-              <path d={iconPaths[c.kind]} />
-            </svg>
-          </a>
-        </Tooltip>
-      </li>
-    ))}
-  </ul>
-
-  {/* Bottom-right CTA. Wrapped in tooltip for label parity with icon row. */}
-  <div class="cta-wrap">
-    <Tooltip label="30-min meeting" side="top">
-      <a class="book-cta" href="/book" data-astro-prefetch>
-        <span>Book a call</span>
-        <svg
-          width="12"
-          height="12"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-        >
-          <path d="M7 17L17 7M9 7h8v8" />
-        </svg>
-      </a>
-    </Tooltip>
-  </div>
-</section>
-
-{/* Email popover — top-layer overlay, native dismiss (click outside / ESC).
-    Rendered outside the .contacts section to avoid being clipped by the
-    sidebar's overflow rules. */}
-{hasMultipleEmails && (
-  <div id="email-popover" popover="auto" class="email-popover glass">
-    <p class="text-caption muted email-popover-head">choose an address</p>
-    <ul class="email-list">
-      {emails.map((e) => (
-        <li class="email-row">
-          <span class="email-label text-small">{e.label}</span>
-          <a class="email-handle text-mono-small" href={e.url}>{e.handle}</a>
+          </Tooltip>
         </li>
       ))}
     </ul>
-  </div>
-)}
+  </section>
+
+  <section class="book" aria-label="Book a meeting">
+    <p class="text-caption muted">book</p>
+    <a class="book-cta text-ui" href="/book" data-astro-prefetch>
+      <span>Book a 30-min call</span>
+      <svg
+        width="12"
+        height="12"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M7 17L17 7M9 7h8v8" />
+      </svg>
+    </a>
+  </section>
+
+  {/* Email popover — anchored to the envelope icon via CSS Anchor
+      Positioning where supported; falls back to centered modal in browsers
+      that don't yet support `anchor-name` (Firefox WIP as of 2026-05). */}
+  {hasMultipleEmails && (
+    <div id="email-popover" popover="auto" class="email-popover glass">
+      <p class="text-caption muted email-popover-head">choose an address</p>
+      <ul class="email-list">
+        {emails.map((e) => (
+          <li class="email-row">
+            <span class="email-label text-small">{e.label}</span>
+            <a class="email-handle text-mono-small" href={e.url}>{e.handle}</a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+</div>
 
 <style>
   .muted {
     color: var(--text-muted);
   }
-  .contacts {
+  .cluster {
+    /* Holds the contacts + book pair. Internal gap is tighter than the
+       sidebar's section rhythm so they read as a related unit. */
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: var(--space-4);
   }
+  .contacts,
+  .book {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  /* === Contacts row === */
   .row {
     list-style: none;
     padding: 0;
     margin: 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 0.4rem;
+    gap: var(--space-2);
   }
   .icon-link {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 999px;
+    width: var(--control-h-sm);
+    height: var(--control-h-sm);
+    border-radius: var(--radius-pill);
     border: 1px solid var(--border-strong);
     color: var(--text);
     background: transparent;
@@ -214,40 +226,39 @@ const primaryEmail = emails[0];
     outline: 2px solid var(--accent);
     outline-offset: 2px;
   }
+  /* Anchor name on the email trigger so the popover can target it. The
+     `--email-trigger` name is intentionally specific so we never accidentally
+     anchor a different element to it. */
+  .email-trigger {
+    anchor-name: --email-trigger;
+  }
 
   /*
-   * Book a call CTA — quiet text + arrow-up-right, right-aligned in the
-   * section. Hover lifts and tints with the accent, matching the icon-link
-   * affordance so the cluster reads as one set.
+   * Book a call CTA — full-width pill with accent border. Earns its weight
+   * by being the only accent-bordered surface in the sidebar. Uses .text-ui
+   * for the type tier (was an ad-hoc 12.5px before Phase A added the class).
    */
-  .cta-wrap {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 0.25rem;
-  }
   .book-cta {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
-    padding: 6px 10px;
-    border-radius: 999px;
-    border: 1px solid var(--border-strong);
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--accent);
     color: var(--text);
-    font-family: var(--font-sans);
-    font-weight: 500;
-    font-size: 12.5px;
-    line-height: 1;
-    letter-spacing: -0.005em;
+    background: transparent;
     cursor: pointer;
+    width: 100%;
     transition:
       color var(--duration-normal) var(--ease-out-expo),
-      border-color var(--duration-normal) var(--ease-out-expo),
+      background var(--duration-normal) var(--ease-out-expo),
       transform var(--duration-normal) var(--ease-out-expo);
   }
   .book-cta:hover,
   .book-cta:focus-visible {
     color: var(--accent);
-    border-color: var(--accent);
+    background: color-mix(in oklab, var(--accent) 8%, transparent);
     transform: translateY(-1px);
   }
   .book-cta:focus-visible {
@@ -265,34 +276,39 @@ const primaryEmail = emails[0];
 
 <style is:global>
   /*
-   * Email popover — top-layer overlay (HTML Popover API). Default browser
-   * positioning is centered; we override to a comfortable mid-screen card.
-   * Backdrop and ESC dismiss are native. Sized to fit three rows + header
-   * without scroll.
+   * Email popover — top-layer overlay (HTML Popover API).
+   *
+   * Default anchored placement: pops UP from the envelope icon (positioned
+   * with bottom anchored to the icon's top, with a gap). Falls back to a
+   * centered modal when CSS Anchor Positioning isn't supported.
    *
    * The popover element renders in the top layer outside any scoped style
    * boundary, so its rules live in :global. ::backdrop is the dimmed scrim
    * the browser draws behind a `popover="auto"` element when open.
    */
   .email-popover {
-    /* Override UA defaults — popover elements are absolutely positioned;
-       margin: auto + inset: 0 centers the card in the viewport. */
-    margin: auto;
-    padding: 1rem 1.1rem;
+    position-anchor: --email-trigger;
+    /* Pop above the icon so the list opens upward into the user's gaze.
+       In the rail (collapsed sidebar) the icon is near the screen's left
+       edge, so anchoring left-aligned with the icon keeps the popover
+       inside the viewport even at narrow widths. */
+    bottom: anchor(top);
+    left: anchor(left);
+    margin: 0 0 var(--space-3) 0;
+    padding: var(--space-4) var(--space-4);
     border: 1px solid var(--border-strong);
-    border-radius: 14px;
+    border-radius: var(--radius-md);
     min-width: min(320px, 90vw);
     max-width: 420px;
     color: var(--text);
-    inset: 0;
   }
   .email-popover::backdrop {
-    background: rgba(0, 0, 0, 0.45);
+    background: var(--scrim-modal);
     backdrop-filter: blur(2px);
   }
   .email-popover-head {
     color: var(--text-muted);
-    margin: 0 0 0.6rem 0;
+    margin: 0 0 var(--space-3) 0;
   }
   .email-list {
     list-style: none;
@@ -306,8 +322,8 @@ const primaryEmail = emails[0];
     display: grid;
     grid-template-columns: auto 1fr;
     align-items: baseline;
-    gap: 0.75rem;
-    padding: 0.55rem 0;
+    gap: var(--space-3);
+    padding: var(--space-2) 0;
     border-top: 1px solid var(--border);
   }
   .email-row:first-child {
@@ -327,5 +343,21 @@ const primaryEmail = emails[0];
   .email-handle:hover,
   .email-handle:focus-visible {
     color: var(--accent);
+  }
+
+  /*
+   * Fallback for browsers without CSS Anchor Positioning (Firefox as of
+   * 2026-05): center the popover in the viewport. The browser handles
+   * dismissal regardless. We intentionally use `:not(@supports)` flow via
+   * a feature query so supported browsers ignore this.
+   */
+  @supports not (anchor-name: --x) {
+    .email-popover {
+      position-anchor: none;
+      inset: 0;
+      margin: auto;
+      bottom: auto;
+      left: auto;
+    }
   }
 </style>

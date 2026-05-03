@@ -22,6 +22,58 @@
   /* Spacing rhythm (theme-invariant) */
   --space-section: clamp(4rem, 3rem + 5vw, 10rem);
 
+  /*
+   * Spacing scale — multiples of 4px from a base of 4. Use these tokens for
+   * `gap`, `padding`, `margin`. Raw rem values in components are a smell;
+   * if a value isn't on this scale, round to the nearest token or extend
+   * the scale here with a justification.
+   */
+  --space-1: 0.25rem;  /*  4px */
+  --space-2: 0.5rem;   /*  8px */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+  --space-5: 1.5rem;   /* 24px */
+  --space-6: 2rem;     /* 32px */
+  --space-7: 3rem;     /* 48px */
+  --space-8: 4rem;     /* 64px */
+
+  /*
+   * Radius scale — four values. Editorial sites should not need more.
+   *  sm   small interactive surfaces (tooltip, status pill)
+   *  md   cards, photo frames, embeds
+   *  lg   large surfaces (cells, sidebar, modal cards)
+   *  pill circles + capsules (icon buttons, avatars, status pills)
+   */
+  --radius-sm: 6px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-pill: 999px;
+
+  /*
+   * Interactive control sizing — keep all icon-buttons on the same grid.
+   *  control-h-sm  contacts icons, secondary actions (32px)
+   *  control-h-md  primary controls (theme toggle, CTAs) (36px)
+   *  icon-sm       SVG inside controls (18px)
+   *  icon-xs       trailing icons (CTA arrows) (12px)
+   */
+  --control-h-sm: 32px;
+  --control-h-md: 36px;
+  --icon-sm: 18px;
+  --icon-xs: 12px;
+
+  /*
+   * Z-index scale — leave 10-unit gaps so future layers can interleave
+   * without reshuffling.
+   *  progress  scroll progress indicator at the bottom of the wall
+   *  sidebar   the persistent left sidebar
+   *  modal     popovers, dialogs, the email cluster overlay
+   *  tooltip   always above everything (it's a label, never a layer)
+   */
+  --z-progress: 30;
+  --z-sidebar: 40;
+  --z-modal: 50;
+  --z-tooltip: 60;
+
   /* Layout (theme-invariant) — used by Sidebar.astro, BentoGrid.astro, and
      the /book page to stay aligned. The sidebar has two desktop states:
        collapsed → 64px rail (avatar + theme toggle visible)
@@ -33,6 +85,29 @@
   --sidebar-width: 280px;
   --sidebar-rail: 64px;
   --sidebar-gap: 16px;
+
+  /*
+   * Cool gradient — used for portrait avatars, photo fallbacks, and any
+   * other "absent media" placeholder. Defined once here, referenced
+   * everywhere; tweaking the brand becomes one edit. The -soft variant is
+   * for backdrops where the avatar gradient would be too saturated.
+   */
+  --gradient-cool:
+    linear-gradient(
+      135deg,
+      oklch(72% 0.12 264 / 0.85),
+      oklch(38% 0.10 295 / 0.95)
+    );
+  --gradient-cool-soft:
+    linear-gradient(
+      135deg,
+      oklch(72% 0.08 264 / 0.5),
+      oklch(38% 0.06 295 / 0.6)
+    );
+
+  /* Backdrop / scrim for modal overlays (popover ::backdrop, mobile drawer
+     scrim). One token, both themes — the alpha keeps it from feeling tinted. */
+  --scrim-modal: rgba(0, 0, 0, 0.45);
 
   /* Motion (theme-invariant) */
   --duration-fast: 150ms;

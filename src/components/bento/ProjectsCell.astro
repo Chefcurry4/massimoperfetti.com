@@ -14,6 +14,7 @@
  */
 import Cell from '../ui/Cell.astro';
 import type { CollectionEntry } from 'astro:content';
+import { coverHueVars } from '../../lib/cover-color';
 
 interface Props {
   entry: CollectionEntry<'projects'>;
@@ -26,61 +27,84 @@ const { title, summary, status, tags } = entry.data;
 
 const initial = title.trim().charAt(0).toUpperCase() || '·';
 
-/**
- * Pick a deterministic gradient pair from the title so the same project
- * always renders with the same placeholder. Uses two hue offsets in
- * polar OKLCH so they stay theme-friendly without hardcoded RGB.
- */
-function hashHue(input: string): number {
-  let h = 0;
-  for (let i = 0; i < input.length; i++) h = (h * 31 + input.charCodeAt(i)) >>> 0;
-  return h % 360;
-}
-const hue = hashHue(title);
-const hueAlt = (hue + 40) % 360;
-const coverStyle = `--hue: ${hue}; --hue-alt: ${hueAlt};`;
+// Deterministic hue pair, shared with /projects/[slug] so the View Transitions
+// morph (Phase 4) interpolates the gradient continuously.
+const coverStyle = coverHueVars(title);
 
 const statusLabel: Record<typeof status, string> = {
   live: 'live',
   archived: 'archived',
   'in-progress': 'in progress',
 };
+
+const detailHref = `/projects/${entry.id}`;
 ---
 
-<Cell slot={slot} class={`projects-cell variant-${variant}`}>
-  {
-    variant === 'lg' && (
-      <div class="cover" style={coverStyle} aria-hidden="true">
-        <span class="cover-initial">{initial}</span>
-      </div>
-    )
-  }
-
-  <div class="meta">
-    <div class="row">
-      <p class="text-caption muted">project</p>
-      <span class:list={['status', 'text-mono-small', `status-${status}`]}>{statusLabel[status]}</span>
-    </div>
-
-    <h3 class:list={['title', variant === 'lg' ? 'text-h2' : 'text-h3']}>{title}</h3>
-
-    {variant === 'lg' && <p class="summary text-small muted">{summary}</p>}
-
+<a
+  href={detailHref}
+  class="card-link"
+  transition:name={`poster-projects-${entry.id}`}
+  aria-label={`Open ${title}`}
+>
+  <Cell slot={slot} class={`projects-cell variant-${variant}`}>
     {
-      tags.length > 0 && variant === 'lg' && (
-        <ul class="tags" aria-label="tags">
-          {tags.slice(0, 3).map((t) => (
-            <li class="tag text-caption">{t}</li>
-          ))}
-        </ul>
+      variant === 'lg' && (
+        <div
+          class="cover"
+          style={coverStyle}
+          aria-hidden="true"
+          transition:name={`poster-projects-${entry.id}-image`}
+        >
+          <span class="cover-initial">{initial}</span>
+        </div>
       )
     }
-  </div>
-</Cell>
+
+    <div class="meta">
+      <div class="row">
+        <p class="text-caption muted">project</p>
+        <span class:list={['status', 'text-mono-small', `status-${status}`]}>{statusLabel[status]}</span>
+      </div>
+
+      <h3
+        class:list={['title', variant === 'lg' ? 'text-h2' : 'text-h3']}
+        transition:name={`poster-projects-${entry.id}-title`}
+      >{title}</h3>
+
+      {variant === 'lg' && <p class="summary text-small muted">{summary}</p>}
+
+      {
+        tags.length > 0 && variant === 'lg' && (
+          <ul class="tags" aria-label="tags">
+            {tags.slice(0, 3).map((t) => (
+              <li class="tag text-caption">{t}</li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </Cell>
+</a>
 
 <style>
   .muted {
     color: var(--text-muted);
+  }
+
+  /* The anchor wraps the cell so the morph (Phase 4) can carry the whole
+     poster across navigation. Keep it transparent — Cell.astro owns the
+     visual chrome. `display: block; height: 100%` so the anchor occupies
+     the same grid slot as the previous <article>. */
+  .card-link {
+    display: block;
+    height: 100%;
+    color: inherit;
+    text-decoration: none;
+    border-radius: 18px;
+  }
+  .card-link:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
 
   .projects-cell {

@@ -1,0 +1,230 @@
+---
+/**
+ * Gallery detail — morph destination from the bento GalleryCell.
+ *
+ * Phase 4: minimal landing page so the morph has somewhere to go. Phase 7
+ * upgrades this to a proper gallery detail / lightbox treatment.
+ *
+ * Hero is the gradient frame (matching the bento source via shared hash),
+ * meta below: title, caption, location, exif.
+ *
+ * View Transitions naming:
+ *   poster-gallery-{slug}        → wrapping <article>
+ *   poster-gallery-{slug}-image  → cover frame
+ */
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { hashHue } from '../../lib/cover-color';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('gallery');
+  return entries.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+interface Props {
+  entry: CollectionEntry<'gallery'>;
+}
+
+const { entry } = Astro.props;
+const { title, image, caption, location, exif, date } = entry.data;
+const { Content } = await render(entry);
+
+const RENDER_IMG = false; // mirror GalleryCell flag — flip true once /public/gallery/* exists
+
+// Same 60° hue spread as GalleryCell so source + destination gradients agree.
+const hue = hashHue(title);
+const hueAlt = (hue + 60) % 360;
+const fallbackStyle = `--hue: ${hue}; --hue-alt: ${hueAlt};`;
+
+const dateLabel = date.toLocaleString('en-US', {
+  month: 'long',
+  day: 'numeric',
+  year: 'numeric',
+});
+---
+
+<Base title={title} description={caption ?? title}>
+  <main class="page">
+    <a href="/" class="back text-caption">← back</a>
+
+    <article
+      class="photograph"
+      transition:name={`poster-gallery-${entry.id}`}
+    >
+      <div
+        class="frame"
+        style={fallbackStyle}
+        transition:name={`poster-gallery-${entry.id}-image`}
+        aria-label={caption ?? title}
+        role="img"
+      >
+        {
+          RENDER_IMG && (
+            <img src={image} alt={caption ?? title} loading="eager" decoding="async" />
+          )
+        }
+      </div>
+
+      <div class="meta">
+        <p class="text-caption muted">photograph</p>
+        <h1 class="title text-h1">{title}</h1>
+        {caption && <p class="caption text-body">{caption}</p>}
+
+        <dl class="exif" aria-label="photo metadata">
+          <div class="row">
+            <dt class="text-caption muted">date</dt>
+            <dd class="text-small">{dateLabel}</dd>
+          </div>
+          {
+            location && (
+              <div class="row">
+                <dt class="text-caption muted">location</dt>
+                <dd class="text-small">{location}</dd>
+              </div>
+            )
+          }
+          {
+            exif?.camera && (
+              <div class="row">
+                <dt class="text-caption muted">camera</dt>
+                <dd class="text-small">{exif.camera}</dd>
+              </div>
+            )
+          }
+          {
+            (exif?.lens || exif?.fStop) && (
+              <div class="row">
+                <dt class="text-caption muted">lens</dt>
+                <dd class="text-small">
+                  {[exif?.lens, exif?.fStop].filter(Boolean).join(' · ')}
+                </dd>
+              </div>
+            )
+          }
+        </dl>
+      </div>
+
+      {
+        Content && (
+          <div class="body">
+            <Content />
+          </div>
+        )
+      }
+    </article>
+  </main>
+</Base>
+
+<style>
+  .page {
+    min-height: calc(100dvh - 2 * var(--wall-inset));
+    margin: var(--wall-inset);
+    margin-left: calc(var(--wall-inset) + var(--sidebar-rail) + var(--sidebar-gap));
+    padding: clamp(1.5rem, 3vw, 2.5rem) clamp(1rem, 3vw, 2rem) 4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-width: 1080px;
+  }
+  .muted {
+    color: var(--text-muted);
+  }
+  .back {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-out-expo);
+    align-self: flex-start;
+  }
+  .back:hover,
+  .back:focus-visible {
+    color: var(--text);
+  }
+
+  .photograph {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .frame {
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    aspect-ratio: 3 / 2;
+    max-height: 70dvh;
+    background:
+      linear-gradient(
+        135deg,
+        oklch(72% 0.16 var(--hue) / 0.9),
+        oklch(40% 0.12 var(--hue-alt) / 0.95)
+      );
+  }
+  .frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    max-width: 720px;
+  }
+  .title {
+    margin: 0;
+    color: var(--text);
+  }
+  .caption {
+    margin: 0;
+    color: var(--text);
+  }
+
+  .exif {
+    margin: 0.5rem 0 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .exif .row {
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    gap: 0.75rem;
+    padding: 0.4rem 0;
+    border-top: 1px solid var(--border);
+    align-items: baseline;
+  }
+  .exif .row:first-child {
+    border-top: 1px solid var(--border-strong);
+  }
+  .exif dt {
+    margin: 0;
+  }
+  .exif dd {
+    margin: 0;
+    color: var(--text);
+  }
+
+  .body {
+    max-width: 64ch;
+    color: var(--text);
+    line-height: 1.65;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+  .body :global(p) {
+    margin: 0;
+  }
+
+  @media (max-width: 1023.98px) {
+    .page {
+      margin: 0;
+      padding: 16px 16px 88px;
+    }
+  }
+</style>

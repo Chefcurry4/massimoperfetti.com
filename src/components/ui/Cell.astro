@@ -41,13 +41,13 @@ const classes = [
 
 <style>
   .bento-cell {
-    padding: clamp(1rem, 2vw, 1.5rem);
-    border-radius: 18px;
+    padding: clamp(var(--space-4), 2vw, var(--space-5));
+    border-radius: var(--radius-lg);
     background: var(--surface);
     border: 1px solid var(--border);
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: var(--space-3);
     height: 100%;
     min-width: 0;
     overflow: hidden;
@@ -107,5 +107,11 @@ const classes = [
     align-items: center;
     justify-content: center;
     box-shadow: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bento-cell {
+      transition-duration: 0.01ms;
+    }
   }
 </style>

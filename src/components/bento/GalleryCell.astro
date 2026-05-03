@@ -12,6 +12,7 @@
  */
 import Cell from '../ui/Cell.astro';
 import type { CollectionEntry } from 'astro:content';
+import { hashHue } from '../../lib/cover-color';
 
 interface Props {
   entry: CollectionEntry<'gallery'>;
@@ -23,39 +24,63 @@ const { title, image, caption, location, exif } = entry.data;
 
 const RENDER_IMG = false; // flip true once /public/gallery/* exists
 
-function hashHue(input: string): number {
-  let h = 0;
-  for (let i = 0; i < input.length; i++) h = (h * 31 + input.charCodeAt(i)) >>> 0;
-  return h % 360;
-}
+// Gallery uses a 60° hue spread for a richer, more photographic feel than
+// projects' tighter 40°. Hashes via the shared helper so source + destination
+// (Phase 4 morph) agree on the primary hue.
 const hue = hashHue(title);
 const hueAlt = (hue + 60) % 360;
 const fallbackStyle = `--hue: ${hue}; --hue-alt: ${hueAlt};`;
 
 const exifLine = [exif?.camera, exif?.lens, exif?.fStop].filter(Boolean).join(' · ');
+
+const detailHref = `/gallery/${entry.id}`;
 ---
 
-<Cell slot={slot} class="gallery-cell">
-  <div class="frame" style={fallbackStyle}>
-    {
-      RENDER_IMG && (
-        <img src={image} alt={caption ?? title} loading="lazy" decoding="async" />
-      )
-    }
-  </div>
+<a
+  href={detailHref}
+  class="card-link"
+  transition:name={`poster-gallery-${entry.id}`}
+  aria-label={`Open ${title}`}
+>
+  <Cell slot={slot} class="gallery-cell">
+    <div
+      class="frame"
+      style={fallbackStyle}
+      transition:name={`poster-gallery-${entry.id}-image`}
+    >
+      {
+        RENDER_IMG && (
+          <img src={image} alt={caption ?? title} loading="lazy" decoding="async" />
+        )
+      }
+    </div>
 
-  <div class="meta">
-    <p class="text-caption muted">photograph</p>
-    <h3 class="text-h3 title">{title}</h3>
-    {caption && <p class="caption text-small muted">{caption}</p>}
-    {location && <p class="exif-line text-caption muted">{location}</p>}
-    {exifLine && <p class="exif-line text-caption muted">{exifLine}</p>}
-  </div>
-</Cell>
+    <div class="meta">
+      <p class="text-caption muted">photograph</p>
+      <h3 class="text-h3 title">{title}</h3>
+      {caption && <p class="caption text-small muted">{caption}</p>}
+      {location && <p class="exif-line text-caption muted">{location}</p>}
+      {exifLine && <p class="exif-line text-caption muted">{exifLine}</p>}
+    </div>
+  </Cell>
+</a>
 
 <style>
   .muted {
     color: var(--text-muted);
+  }
+  /* Anchor wrapper — same pattern as ProjectsCell. Visual chrome stays on
+     the inner Cell; the anchor is just transparent block-level wrap. */
+  .card-link {
+    display: block;
+    height: 100%;
+    color: inherit;
+    text-decoration: none;
+    border-radius: 18px;
+  }
+  .card-link:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
   .gallery-cell {
     padding: 0;

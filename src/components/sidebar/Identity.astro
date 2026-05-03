@@ -3,18 +3,30 @@
  * Sidebar identity block: avatar, name, role.
  *
  * The avatar uses the same /me.jpeg as AboutCell, sized down to a 48px circle.
- * Same gradient fallback (layered background-image) so missing photo shows
- * the gradient, not a broken icon.
+ * Same gradient fallback (--gradient-cool token, hoisted in Phase C) so a
+ * missing photo shows the gradient, not a broken-image icon.
+ *
+ * Availability ring: a 2px colored ring sits OUTSIDE the avatar, colored by
+ * `now.availability`. This is the single most important affordance on the
+ * collapsed rail — it preserves the "real-time context" signal that
+ * NowSnippet otherwise hides until the sidebar expands. The ring is
+ * implemented as a stacked outline (inner gap via --surface, outer ring via
+ * the availability token) so it reads as a halo, not a border.
  */
 import { site } from '../../data/site';
 import { about } from '../../data/about';
+import { now } from '../../data/now';
+
+const ringColor = `var(--availability-${now.availability})`;
+const availabilityLabel = `Currently ${now.availability}`;
 ---
 
 <div class="identity">
   <div
     class="avatar"
     role="img"
-    aria-label={`Portrait of ${site.name}`}
+    aria-label={`Portrait of ${site.name} — ${availabilityLabel}`}
+    style={`--ring: ${ringColor};`}
   ></div>
   <div class="text">
     <p class="name text-body">{site.name}</p>
@@ -30,36 +42,37 @@ import { about } from '../../data/about';
     display: grid;
     grid-template-columns: 48px 1fr;
     align-items: center;
-    gap: 0.75rem;
+    gap: var(--space-3);
   }
   .avatar {
     width: 48px;
     height: 48px;
-    border-radius: 999px;
-    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-pill);
     background-color: var(--surface);
     background-image:
       url('/me.jpeg'),
-      linear-gradient(
-        135deg,
-        oklch(72% 0.12 264 / 0.85),
-        oklch(38% 0.10 295 / 0.95)
-      );
+      var(--gradient-cool);
     background-size: cover, cover;
     background-position: center top, center;
     background-repeat: no-repeat, no-repeat;
     flex-shrink: 0;
+    /* Stacked rings: inner 2px in --surface (the breathing gap), outer 2px
+       in the availability color. Reads as a soft halo around the portrait
+       rather than a flat border. */
+    box-shadow:
+      0 0 0 2px var(--surface),
+      0 0 0 4px var(--ring);
+    transition: box-shadow var(--duration-normal) var(--ease-out-expo);
   }
   .text {
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.15rem;
+    gap: var(--space-1);
   }
   .name {
     margin: 0;
     color: var(--text);
-    font-size: 16px;
     line-height: 1.2;
     overflow: hidden;
     text-overflow: ellipsis;

@@ -325,10 +325,20 @@ const galleryEntry = gallery[0] ?? null;
 
 <script>
   /**
-   * Wire the scroll-progress bar. Re-bind on every page-load event so the
-   * binding survives View Transitions navigations (none yet in Phase 2,
-   * but Phase 4 will rely on this).
+   * Wire the scroll-progress bar AND save/restore the wall's horizontal
+   * scrollLeft across navigations.
+   *
+   * Why save/restore: when the user clicks a project card mid-scroll, navigates
+   * to the detail page via a View Transitions morph, and clicks back, the home
+   * page re-mounts with scrollLeft = 0 by default (browser scroll restoration
+   * only handles the document's own scroll, not a child element's). We persist
+   * to sessionStorage on every scroll and restore on `astro:page-load`, which
+   * fires for both fresh loads and View Transitions back-navigation.
+   *
+   * Re-bind on `astro:page-load` so the binding survives ClientRouter swaps.
    */
+  const SCROLL_KEY = 'bento-wall-scrollLeft';
+
   function bindBentoProgress() {
     const wall = document.querySelector<HTMLElement>('.bento-wall');
     const bar = document.querySelector<HTMLElement>('.bento-progress');
@@ -338,7 +348,24 @@ const galleryEntry = gallery[0] ?? null;
       const max = wall.scrollWidth - wall.clientWidth;
       const ratio = max > 0 ? wall.scrollLeft / max : 0;
       bar.style.transform = `scaleX(${ratio.toFixed(4)})`;
+      try {
+        sessionStorage.setItem(SCROLL_KEY, String(wall.scrollLeft));
+      } catch {
+        /* storage blocked (private mode) — just skip persistence */
+      }
     };
+
+    // Restore previously saved scrollLeft if present. Done before listeners
+    // attach so the first `update()` call already reflects the restored value.
+    try {
+      const stored = sessionStorage.getItem(SCROLL_KEY);
+      if (stored) {
+        const v = parseInt(stored, 10);
+        if (Number.isFinite(v)) wall.scrollLeft = v;
+      }
+    } catch {
+      /* storage blocked — first paint stays at scrollLeft 0 */
+    }
 
     update();
     wall.addEventListener('scroll', update, { passive: true });

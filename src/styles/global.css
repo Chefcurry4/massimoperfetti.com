@@ -119,6 +119,20 @@
   }
 
   /*
+   * UI label — sits between .text-small (14) and .text-mono-small (11).
+   * For interactive controls (CTAs, button labels) where 14px feels heavy
+   * but mono reads as caption. Replaces ad-hoc 12.5px / 13px / 18px
+   * escapes that previously bypassed the type scale.
+   */
+  .text-ui {
+    font-family: var(--font-sans);
+    font-weight: 500;
+    font-size: 13px;
+    line-height: 1.3;
+    letter-spacing: -0.005em;
+  }
+
+  /*
    * Short-viewport type scale.
    *
    * The bento wall is locked to 100dvh (CLAUDE.md §Layout system: "one
@@ -157,11 +171,11 @@
   }
   .tooltip-bubble {
     position: absolute;
-    z-index: 60;
+    z-index: var(--z-tooltip);
     pointer-events: none;
     white-space: nowrap;
-    padding: 4px 8px;
-    border-radius: 6px;
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
     background: var(--surface);
     color: var(--text);
     border: 1px solid var(--border-strong);
