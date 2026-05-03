@@ -1,0 +1,58 @@
+---
+/**
+ * Phase 0 stub /about page.
+ *
+ * Exists only to give View Transitions a destination — the matching
+ * `transition:name="hello"` morphs the index headline into this one.
+ *
+ * Real about content (popup or full page) lands in Phase 7.
+ */
+import Base from '../layouts/Base.astro';
+import { about } from '../data/about';
+---
+
+<Base title="About">
+  <main class="page">
+    <p class="text-caption muted">about — phase 0 stub</p>
+    <h1 class="text-display" transition:name="hello">{about.headline}</h1>
+
+    <div class="body">
+      {about.body.map((paragraph) => <p class="text-body">{paragraph}</p>)}
+    </div>
+
+    <a href="/" class="back text-caption">← back</a>
+  </main>
+</Base>
+
+<style>
+  .page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: clamp(2rem, 4vw, 4rem) clamp(1.25rem, 4vw, 2.5rem) 6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .muted {
+    color: var(--text-muted);
+  }
+
+  .body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    color: var(--text-muted);
+  }
+
+  .back {
+    display: inline-block;
+    margin-top: 2rem;
+    color: var(--text-muted);
+    transition: color var(--duration-fast) var(--ease-out-expo);
+  }
+
+  .back:hover {
+    color: var(--text);
+  }
+</style>

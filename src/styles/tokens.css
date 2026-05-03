@@ -1,0 +1,51 @@
+/*
+ * Design tokens.
+ *
+ * Two themes, both expressed as CSS custom properties on the document root.
+ * Tailwind v4 reads these in `global.css` via the `@theme` directive so that
+ * utilities like `bg-surface`, `text-text-muted`, `border-border-strong` flip
+ * automatically when `data-theme` flips on <html>.
+ *
+ * Accent values are PLACEHOLDERS — see CLAUDE.md §Open questions.
+ */
+
+:root {
+  color-scheme: dark light;
+
+  /* Type families (theme-invariant) */
+  --font-display: 'Lora Variable', 'Lora', ui-serif, Georgia, serif;
+  --font-sans: 'Geist Variable', 'Geist', ui-sans-serif, system-ui, -apple-system,
+    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'Geist Mono Variable', 'Geist Mono', ui-monospace,
+    'SF Mono', 'Menlo', 'Consolas', monospace;
+
+  /* Spacing rhythm (theme-invariant) */
+  --space-section: clamp(4rem, 3rem + 5vw, 10rem);
+
+  /* Motion (theme-invariant) */
+  --duration-fast: 150ms;
+  --duration-normal: 280ms;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme='dark'] {
+  --bg: #0a0a0a;
+  --surface: #141414;
+  --surface-glass: rgba(20, 20, 20, 0.55);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --text: #ededed;
+  --text-muted: #8a8a8a;
+  --accent: #d4ff3a; /* placeholder */
+}
+
+[data-theme='light'] {
+  --bg: #f5f5f3;
+  --surface: #ffffff;
+  --surface-glass: rgba(255, 255, 255, 0.65);
+  --border: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.16);
+  --text: #0a0a0a;
+  --text-muted: #6a6a6a;
+  --accent: #1a4dff; /* placeholder */
+}

@@ -1,0 +1,16 @@
+[build]
+  command = "pnpm build"
+  publish = "dist"
+
+[build.environment]
+  # Astro 6 requires Node >= 22.12. CLAUDE.md spec said Node 20; updated to
+  # match the installed Astro version. Bump again if Astro raises the floor.
+  NODE_VERSION = "22"
+  PNPM_VERSION = "10"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"

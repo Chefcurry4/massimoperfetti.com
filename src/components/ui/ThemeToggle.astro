@@ -1,0 +1,147 @@
+---
+/**
+ * Theme toggle. Flips `data-theme` on <html>, persists to localStorage.
+ *
+ * Phase 0: rendered on the home page as a smoke test.
+ * Phase 3: this exact component will be slotted into the persistent sidebar.
+ *
+ * Re-binds on `astro:page-load` so the button keeps working after
+ * View Transitions navigations.
+ */
+---
+
+<button
+  type="button"
+  class="theme-toggle"
+  data-theme-toggle
+  aria-label="Toggle color theme"
+  aria-pressed="false"
+>
+  <svg
+    class="icon-sun"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.75"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <circle cx="12" cy="12" r="4"></circle>
+    <path
+      d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
+    ></path>
+  </svg>
+
+  <svg
+    class="icon-moon"
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.75"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<style>
+  .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    transition:
+      background var(--duration-fast) var(--ease-out-expo),
+      border-color var(--duration-fast) var(--ease-out-expo),
+      color var(--duration-fast) var(--ease-out-expo);
+  }
+
+  .theme-toggle:hover {
+    border-color: var(--text-muted);
+  }
+
+  .theme-toggle:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .theme-toggle .icon-sun,
+  .theme-toggle .icon-moon {
+    position: absolute;
+  }
+
+  /* Show moon when dark (target = light), sun when light (target = dark) */
+  :global([data-theme='dark']) .theme-toggle .icon-sun {
+    opacity: 0;
+    transform: rotate(-30deg) scale(0.8);
+  }
+  :global([data-theme='dark']) .theme-toggle .icon-moon {
+    opacity: 1;
+    transform: rotate(0) scale(1);
+  }
+  :global([data-theme='light']) .theme-toggle .icon-sun {
+    opacity: 1;
+    transform: rotate(0) scale(1);
+  }
+  :global([data-theme='light']) .theme-toggle .icon-moon {
+    opacity: 0;
+    transform: rotate(30deg) scale(0.8);
+  }
+
+  .theme-toggle .icon-sun,
+  .theme-toggle .icon-moon {
+    transition:
+      opacity var(--duration-normal) var(--ease-out-expo),
+      transform var(--duration-normal) var(--ease-out-expo);
+  }
+</style>
+
+<script>
+  function bindThemeToggle() {
+    const buttons = document.querySelectorAll<HTMLButtonElement>(
+      '[data-theme-toggle]',
+    );
+    const root = document.documentElement;
+
+    const syncPressed = () => {
+      const theme = root.dataset.theme === 'light' ? 'light' : 'dark';
+      buttons.forEach((btn) => {
+        btn.setAttribute('aria-pressed', String(theme === 'light'));
+      });
+    };
+
+    const handler = () => {
+      const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+      root.dataset.theme = next;
+      try {
+        localStorage.setItem('theme', next);
+      } catch {
+        /* private mode / blocked storage — just skip persistence */
+      }
+      syncPressed();
+    };
+
+    buttons.forEach((btn) => {
+      btn.removeEventListener('click', handler);
+      btn.addEventListener('click', handler);
+    });
+
+    syncPressed();
+  }
+
+  bindThemeToggle();
+  document.addEventListener('astro:page-load', bindThemeToggle);
+</script>

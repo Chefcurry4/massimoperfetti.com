@@ -1,0 +1,138 @@
+---
+/**
+ * Phase 0 smoke-test home page.
+ *
+ * Renders the type scale, a .glass card, the theme toggle, and a link to
+ * /about so we can verify View Transitions are firing.
+ *
+ * This file is fully replaced in Phase 2 by the bento grid.
+ */
+import Base from '../layouts/Base.astro';
+import ThemeToggle from '../components/ui/ThemeToggle.astro';
+import { about } from '../data/about';
+import { now } from '../data/now';
+---
+
+<Base>
+  <main class="page">
+    <header class="topbar">
+      <span class="text-caption">phase 0 — scaffold smoke test</span>
+      <ThemeToggle />
+    </header>
+
+    <section class="intro">
+      <p class="text-caption">massimo perfetti</p>
+      <h1 class="text-display" transition:name="hello">{about.headline}</h1>
+      <p class="text-body muted">{about.body[0]}</p>
+    </section>
+
+    <section class="type-scale">
+      <h2 class="text-h2">Type scale</h2>
+      <p class="text-h1">Lora display — h1</p>
+      <p class="text-h2">Lora — h2</p>
+      <p class="text-h3">Geist — h3</p>
+      <p class="text-body">
+        Geist — body. The quick brown fox jumps over the lazy dog. 0123456789.
+      </p>
+      <p class="text-small muted">Geist small — supporting copy.</p>
+      <p class="text-caption muted">Geist mono — caption / numerics</p>
+    </section>
+
+    <section>
+      <h2 class="text-h2">Surfaces</h2>
+      <div class="cards">
+        <article class="card">
+          <p class="text-caption muted">surface</p>
+          <p class="text-body">Solid surface, single border, rests on the page background.</p>
+        </article>
+        <article class="card glass">
+          <p class="text-caption muted">glass</p>
+          <p class="text-body">Backdrop blur, saturation lift, subtle inner highlight.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="text-h2">Now</h2>
+      <p class="text-body">{now.status}</p>
+      <p class="text-small muted">
+        {now.location} · availability: {now.availability} · updated {now.updatedAt}
+      </p>
+    </section>
+
+    <section class="cta">
+      <a href="/about" class="link">
+        <span class="text-caption">→</span>
+        <span class="text-body">Navigate to /about (View Transitions check)</span>
+      </a>
+    </section>
+  </main>
+</Base>
+
+<style>
+  .page {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: clamp(2rem, 4vw, 4rem) clamp(1.25rem, 4vw, 2.5rem) 6rem;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2rem, 4vw, 3rem);
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .intro {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .type-scale {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .muted {
+    color: var(--text-muted);
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .card {
+    padding: 1.25rem 1.25rem 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .cta {
+    margin-top: 1rem;
+  }
+
+  .link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    transition: border-color var(--duration-fast) var(--ease-out-expo);
+  }
+
+  .link:hover {
+    border-color: var(--text);
+  }
+</style>
