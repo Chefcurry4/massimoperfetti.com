@@ -47,5 +47,5 @@ export const site: SiteConfig = {
   defaultOgImage: '/og-default.png',
   locale: 'en',
   spotifyEmbedUrl: 'https://open.spotify.com/embed/playlist/382H8jrG9erCxwOiL6naNd',
-  bookingUrl: 'https://cal.com/massimoperfetti/30min',
+  bookingUrl: 'https://app.cal.com/massimo-perfetti',
 };

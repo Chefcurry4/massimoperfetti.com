@@ -163,18 +163,19 @@ const galleryEntry = gallery[0] ?? null;
 
 <style>
   /* === Desktop wall (>= 1024px) ===
-     The wall sits to the right of the persistent sidebar (Phase 3). Both
-     are inset from the viewport edges by --wall-inset (tokens.css). The
-     wall leaves room on its left for the sidebar + a small gap. Tokens:
+     The wall anchors to the COLLAPSED sidebar rail width (--sidebar-rail
+     = 64px). The expanded sidebar (--sidebar-width = 280) floats over the
+     wall via z-index when open — this avoids the layout reflowing every
+     time the user expands or collapses the sidebar.
        --wall-inset:    page gutter (clamp 16-32 with viewport)
-       --sidebar-width: 280px
+       --sidebar-rail:  64px (collapsed sidebar visible width)
        --sidebar-gap:   16px between sidebar and wall
   */
   .bento-wall {
     height: calc(100dvh - 2 * var(--wall-inset));
     margin: var(--wall-inset);
     margin-left: calc(
-      var(--wall-inset) + var(--sidebar-width) + var(--sidebar-gap)
+      var(--wall-inset) + var(--sidebar-rail) + var(--sidebar-gap)
     );
     overflow-x: auto;
     overflow-y: hidden;

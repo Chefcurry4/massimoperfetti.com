@@ -2,18 +2,24 @@
 /**
  * Persistent sidebar.
  *
- * - Desktop (>= 1024px): fixed left, 280px wide, glass surface, full
- *   viewport height (minus the page inset). Always visible.
- * - Mobile  (<  1024px): pinned to the bottom of the viewport. The
- *   collapsed state shows a 72px-tall peek row containing the Identity
- *   block (avatar + name + role) plus a grip handle, so a visitor can
- *   read who's-who without expanding. Tap the row or the handle to expand
- *   into a sheet that fills the lower 80% of the viewport. Background
- *   scrim closes it.
+ * Desktop (≥ 1024px) — rail / panel, collapsed by default.
+ *   Collapsed (rail, 64px): only the avatar + a vertical accent bar +
+ *     the theme toggle are visible. Reads as a thin column on the left edge.
+ *   Expanded (panel, 280px): full content (Identity, Now, Contacts,
+ *     Spotify, Theme toggle).
+ *   Triggers:
+ *     - Click anywhere on the sidebar → expand.
+ *     - Mouseleave → schedule collapse after 1s (cancelled by mouseenter).
+ *     - ESC key → collapse immediately.
+ *   The wall + /book anchor to the collapsed (64px) width and never reflow.
+ *   The expanded sidebar sits at z-index 40 with a soft shadow so it floats
+ *   over the leftmost edge of the wall while open.
+ *
+ * Mobile (< 1024px) — bottom drawer with Identity peek (unchanged).
  *
  * `transition:persist="sidebar"` keeps the entire <aside> mounted across
- * Astro View Transitions (Phase 4 morphs and Phase 5 detail-page navigation
- * will rely on this — Spotify keeps playing, theme toggle state preserves).
+ * Astro View Transitions. Listener teardown via AbortController; body
+ * scroll lock preserves window.scrollY.
  */
 import Identity from './Identity.astro';
 import NowSnippet from './NowSnippet.astro';
@@ -24,12 +30,12 @@ import ThemeToggle from '../ui/ThemeToggle.astro';
 
 <aside
   class="sidebar glass"
+  data-sidebar
   transition:persist="sidebar"
   aria-label="Site navigation and identity"
 >
-  {/* Mobile-only peek row — Identity stays visible when the drawer is
-      collapsed, so the strip reads as a person, not as decoration. On
-      desktop this row is just laid out in normal flow above the rule. */}
+  {/* Mobile-only peek row — Identity stays visible in the collapsed mobile
+      drawer. Desktop hides everything except the avatar via .rail rules. */}
   <div class="peek">
     <Identity />
     <button
@@ -70,35 +76,70 @@ import ThemeToggle from '../ui/ThemeToggle.astro';
     top: var(--wall-inset);
     bottom: var(--wall-inset);
     left: var(--wall-inset);
-    width: var(--sidebar-width);
+    width: var(--sidebar-rail);
     z-index: 40;
     border-radius: 18px;
-    padding: clamp(16px, 1.5vw, 24px);
-    overflow-y: auto;
-    overflow-x: hidden;
-    scrollbar-width: thin;
+    padding: clamp(12px, 1vw, 16px);
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    cursor: pointer;
+    transition:
+      width var(--duration-normal) var(--ease-out-expo),
+      box-shadow var(--duration-normal) var(--ease-out-expo);
   }
 
+  .sidebar.expanded {
+    width: var(--sidebar-width);
+    overflow-y: auto;
+    overflow-x: hidden;
+    cursor: default;
+    /* Float over the wall when expanded so the user gets the full panel
+       without reflowing the layout. */
+    box-shadow:
+      0 1px 0 0 var(--glass-highlight) inset,
+      0 16px 48px var(--glass-shadow);
+  }
+
+  /* === Identity collapse behavior ====================================== */
   .peek {
-    /* On desktop the peek row is just a normal block — Identity above the
-       first rule. The drawer-toggle button is hidden via the rule below. */
     display: flex;
     align-items: center;
     gap: 0.75rem;
   }
+  /* Collapsed: show only the avatar (Identity's 1st child); hide the
+     name + role text block. Avatar is centered in the rail. */
+  .sidebar:not(.expanded) :global(.identity) {
+    grid-template-columns: 1fr;
+    justify-content: center;
+  }
+  .sidebar:not(.expanded) :global(.identity) > :global(.text) {
+    display: none;
+  }
+  .sidebar:not(.expanded) :global(.identity) > :global(.avatar) {
+    margin: 0 auto;
+  }
+
   .peek :global(.identity) {
     flex: 1 1 auto;
     min-width: 0;
   }
 
+  /* === Content visibility ============================================== */
   .content {
     display: flex;
     flex-direction: column;
     gap: 1rem;
     flex: 1 1 auto;
+    /* Hidden in rail state; faded in when expanded. */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--duration-normal) var(--ease-out-expo);
+  }
+  .sidebar.expanded .content {
+    opacity: 1;
+    pointer-events: auto;
   }
 
   .rule {
@@ -113,9 +154,34 @@ import ThemeToggle from '../ui/ThemeToggle.astro';
     display: flex;
     justify-content: flex-end;
   }
+  /* Collapsed footer: theme toggle is always visible at the bottom of the
+     rail (sits outside `.content` visibility gate by being placed in
+     .content for desktop expanded, but we override on the rail). */
+  .sidebar:not(.expanded) .footer {
+    /* In rail state, content is hidden (opacity 0). Pull the theme toggle
+       out of that gate by reaching into the content's footer and re-showing
+       it. Achieved here via :not selectors below. */
+  }
+  /* Reach back into hidden content to re-expose the theme toggle. */
+  .sidebar:not(.expanded) .content {
+    /* keep content hidden as a block ... */
+  }
+  .sidebar:not(.expanded) .content > .footer {
+    /* ... but float the footer to the bottom of the rail and re-show it. */
+    position: absolute;
+    bottom: clamp(12px, 1vw, 16px);
+    left: 0;
+    right: 0;
+    justify-content: center;
+    opacity: 1;
+    pointer-events: auto;
+  }
+  /* Hide the rule above the footer when collapsed (it'd float weirdly). */
+  .sidebar:not(.expanded) .content > :not(.footer) {
+    visibility: hidden;
+  }
 
-  /* The drag handle is desktop-hidden; on desktop the sidebar has no
-     toggle UI, it's always visible. */
+  /* The drawer toggle is mobile-only. */
   .drawer-toggle {
     display: none;
   }
@@ -126,9 +192,9 @@ import ThemeToggle from '../ui/ThemeToggle.astro';
   /* === Mobile (< 1024px) — bottom drawer ============================== */
   @media (max-width: 1023.98px) {
     .sidebar {
-      /* Pinned to bottom. Collapsed state = peek row only (~72px); expanded
-         = up to 80dvh, scrollable inside. The transition runs on max-height
-         so the closing animation doesn't snap. */
+      /* Pinned to bottom. Collapsed = peek row only (~72px); expanded.open
+         = up to 80dvh, scrollable. The mobile collapsed/expanded model is
+         independent of the desktop rail/.expanded model. */
       top: auto;
       bottom: 0;
       left: 0;
@@ -139,11 +205,18 @@ import ThemeToggle from '../ui/ThemeToggle.astro';
       gap: 0;
       border-radius: 18px 18px 0 0;
       padding: 8px clamp(16px, 4vw, 20px) max(env(safe-area-inset-bottom), 12px);
+      cursor: default;
       transition: max-height var(--duration-normal) var(--ease-out-expo);
     }
     .sidebar.open {
       max-height: 80dvh;
       overflow-y: auto;
+    }
+    /* On mobile, the desktop `.expanded` class is irrelevant; reset its
+       width override so it doesn't fight the full-width drawer. */
+    .sidebar.expanded {
+      width: 100%;
+      box-shadow: none;
     }
 
     .peek {
@@ -151,11 +224,19 @@ import ThemeToggle from '../ui/ThemeToggle.astro';
       gap: 0;
       align-items: stretch;
     }
+    /* Re-show name + role on mobile (always — peek row is the identity card). */
+    .sidebar:not(.expanded) :global(.identity) {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      justify-content: start;
+    }
+    .sidebar:not(.expanded) :global(.identity) > :global(.text) {
+      display: flex;
+    }
 
     .drawer-toggle {
       display: flex;
       width: 100%;
-      /* min 44px tall so the touch target meets iOS HIG / WCAG 2.5.5 */
       min-height: 24px;
       padding: 8px 0;
       align-items: center;
@@ -164,7 +245,7 @@ import ThemeToggle from '../ui/ThemeToggle.astro';
       border: none;
       cursor: pointer;
       flex-shrink: 0;
-      order: -1; /* handle above the identity row */
+      order: -1;
     }
     .drawer-toggle:focus-visible {
       outline: 2px solid var(--accent);
@@ -185,21 +266,29 @@ import ThemeToggle from '../ui/ThemeToggle.astro';
     }
 
     .content {
-      /* Hidden when collapsed; faded in when open. Identity still visible
-         in `.peek` above this. */
-      opacity: 0;
-      pointer-events: none;
       max-height: 0;
       overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
       transition:
         opacity var(--duration-normal) var(--ease-out-expo),
         max-height var(--duration-normal) var(--ease-out-expo);
     }
+    /* Mobile content reveal is gated on .open, NOT .expanded. */
     .sidebar.open .content {
       opacity: 1;
       pointer-events: auto;
       max-height: none;
       overflow: visible;
+    }
+    /* Reset the desktop rail-content tricks on mobile. */
+    .sidebar:not(.expanded) .content > :not(.footer),
+    .sidebar:not(.open) .content > :not(.footer) {
+      visibility: visible;
+    }
+    .sidebar:not(.expanded) .content > .footer,
+    .sidebar:not(.open) .content > .footer {
+      position: static;
     }
 
     .drawer-scrim {
@@ -221,19 +310,25 @@ import ThemeToggle from '../ui/ThemeToggle.astro';
 
 <script>
   /**
-   * Drawer toggle for mobile bottom sheet.
+   * Sidebar interaction:
+   *   Desktop — click expands; mouseleave starts a 1s timer to collapse,
+   *             cancelled by mouseenter; ESC collapses immediately.
+   *   Mobile  — drawer toggle button + scrim (unchanged from prior phase).
    *
-   * Listener management uses AbortController so we can guarantee the
-   * previous binding is fully torn down before the next page-load re-binds.
-   * Without this, the persisted `<aside>` would accumulate listeners on
-   * every navigation (transition:persist preserves the DOM node, not its
-   * listeners — Astro re-runs scripts on each swap).
-   *
-   * Body-scroll lock preserves position via `position: fixed; top: -y`,
-   * restored on close so the page doesn't snap to the top.
+   * AbortController + module-scope timer ref ensure clean teardown across
+   * astro:page-load re-binds (sidebar DOM persists via transition:persist
+   * but Astro re-runs scripts on each swap).
    */
+  const COLLAPSE_DELAY_MS = 1000;
+  const MOBILE_BREAKPOINT = 1024;
+
   let abortController: AbortController | null = null;
+  let collapseTimer: ReturnType<typeof setTimeout> | null = null;
   let lockedScrollY = 0;
+
+  function isDesktop(): boolean {
+    return window.matchMedia(`(min-width: ${MOBILE_BREAKPOINT}px)`).matches;
+  }
 
   function lockBodyScroll() {
     lockedScrollY = window.scrollY;
@@ -243,7 +338,6 @@ import ThemeToggle from '../ui/ThemeToggle.astro';
     document.body.style.right = '0';
     document.body.classList.add('drawer-open');
   }
-
   function unlockBodyScroll() {
     document.body.style.position = '';
     document.body.style.top = '';
@@ -253,44 +347,104 @@ import ThemeToggle from '../ui/ThemeToggle.astro';
     window.scrollTo(0, lockedScrollY);
   }
 
-  function bindDrawer() {
-    const sidebar = document.querySelector<HTMLElement>('.sidebar');
+  function bindSidebar() {
+    const sidebar = document.querySelector<HTMLElement>('[data-sidebar]');
     const toggle = document.querySelector<HTMLButtonElement>('[data-drawer-toggle]');
     const scrim = document.querySelector<HTMLElement>('[data-drawer-scrim]');
-    if (!sidebar || !toggle || !scrim) return;
+    if (!sidebar) return;
 
-    // Tear down any previous binding before re-attaching.
     abortController?.abort();
     abortController = new AbortController();
     const { signal } = abortController;
 
-    const setOpen = (open: boolean) => {
-      const isOpen = sidebar.classList.contains('open');
-      if (open === isOpen) return;
-      sidebar.classList.toggle('open', open);
-      scrim.classList.toggle('visible', open);
-      toggle.setAttribute('aria-expanded', String(open));
-      if (open) lockBodyScroll();
-      else unlockBodyScroll();
+    // ----- Desktop: rail / panel ---------------------------------------
+    const cancelCollapse = () => {
+      if (collapseTimer !== null) {
+        clearTimeout(collapseTimer);
+        collapseTimer = null;
+      }
+    };
+    const scheduleCollapse = () => {
+      cancelCollapse();
+      collapseTimer = setTimeout(() => {
+        sidebar.classList.remove('expanded');
+        collapseTimer = null;
+      }, COLLAPSE_DELAY_MS);
+    };
+    const expand = () => {
+      cancelCollapse();
+      sidebar.classList.add('expanded');
+    };
+    const collapseNow = () => {
+      cancelCollapse();
+      sidebar.classList.remove('expanded');
     };
 
-    toggle.addEventListener(
+    // Click anywhere on the sidebar expands. Anchors / buttons inside still
+    // work because click bubbles up after their default action runs.
+    sidebar.addEventListener(
       'click',
-      () => setOpen(!sidebar.classList.contains('open')),
+      () => {
+        if (isDesktop()) expand();
+      },
       { signal },
     );
-    scrim.addEventListener('click', () => setOpen(false), { signal });
+    sidebar.addEventListener('mouseenter', () => {
+      if (isDesktop()) cancelCollapse();
+    }, { signal });
+    sidebar.addEventListener('mouseleave', () => {
+      if (isDesktop() && sidebar.classList.contains('expanded')) {
+        scheduleCollapse();
+      }
+    }, { signal });
+
     document.addEventListener(
       'keydown',
       (e) => {
-        if (e.key === 'Escape' && sidebar.classList.contains('open')) {
-          setOpen(false);
+        if (e.key !== 'Escape') return;
+        if (isDesktop() && sidebar.classList.contains('expanded')) {
+          collapseNow();
         }
       },
       { signal },
     );
+
+    // ----- Mobile: bottom drawer (unchanged) ---------------------------
+    if (toggle && scrim) {
+      const setOpen = (open: boolean) => {
+        const isOpen = sidebar.classList.contains('open');
+        if (open === isOpen) return;
+        sidebar.classList.toggle('open', open);
+        scrim.classList.toggle('visible', open);
+        toggle.setAttribute('aria-expanded', String(open));
+        if (open) lockBodyScroll();
+        else unlockBodyScroll();
+      };
+
+      toggle.addEventListener(
+        'click',
+        (e) => {
+          // On desktop the toggle button is hidden via CSS, but guard anyway.
+          if (isDesktop()) return;
+          // Don't bubble up to the sidebar's own click-to-expand.
+          e.stopPropagation();
+          setOpen(!sidebar.classList.contains('open'));
+        },
+        { signal },
+      );
+      scrim.addEventListener('click', () => setOpen(false), { signal });
+      document.addEventListener(
+        'keydown',
+        (e) => {
+          if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+            setOpen(false);
+          }
+        },
+        { signal },
+      );
+    }
   }
 
-  bindDrawer();
-  document.addEventListener('astro:page-load', bindDrawer);
+  bindSidebar();
+  document.addEventListener('astro:page-load', bindSidebar);
 </script>

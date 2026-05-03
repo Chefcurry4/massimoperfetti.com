@@ -54,12 +54,12 @@ const fallbackEmail = 'massimoperfetti4@gmail.com';
 </Base>
 
 <style>
-  /* Sidebar-aware page container: leave room for the persistent sidebar on
-     desktop, full bleed on mobile (sidebar collapses to a bottom drawer).
-     Mirrors BentoGrid.astro's offset math so /book sits in the same gutter
-     as the wall. */
+  /* Sidebar-aware page container: leave room for the collapsed sidebar
+     rail on desktop, full bleed on mobile. Mirrors BentoGrid.astro's offset
+     math — anchored to --sidebar-rail (64px) so the expanded sidebar floats
+     over without reflowing the page. */
   .page {
-    margin-left: calc(var(--wall-inset) + var(--sidebar-width) + var(--sidebar-gap));
+    margin-left: calc(var(--wall-inset) + var(--sidebar-rail) + var(--sidebar-gap));
     margin-right: var(--wall-inset);
     padding: clamp(2.5rem, 6vw, 5rem) clamp(1rem, 3vw, 2rem) 5rem;
     display: flex;

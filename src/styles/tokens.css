@@ -22,11 +22,16 @@
   /* Spacing rhythm (theme-invariant) */
   --space-section: clamp(4rem, 3rem + 5vw, 10rem);
 
-  /* Layout (theme-invariant) — used by Sidebar.astro and BentoGrid.astro to
-     stay aligned. Keep the page inset small enough that the wall stays
-     readable on 1024 viewports but generous on 1920+. */
+  /* Layout (theme-invariant) — used by Sidebar.astro, BentoGrid.astro, and
+     the /book page to stay aligned. The sidebar has two desktop states:
+       collapsed → 64px rail (avatar + theme toggle visible)
+       expanded  → 280px panel (full content)
+     The wall + /book content anchor to the COLLAPSED width so they don't
+     reflow when the sidebar expands; the expanded sidebar floats over the
+     wall via z-index when needed. */
   --wall-inset: clamp(16px, 2vw, 32px);
   --sidebar-width: 280px;
+  --sidebar-rail: 64px;
   --sidebar-gap: 16px;
 
   /* Motion (theme-invariant) */
