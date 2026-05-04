@@ -105,9 +105,23 @@
       oklch(38% 0.06 295 / 0.6)
     );
 
-  /* Backdrop / scrim for modal overlays (popover ::backdrop, mobile drawer
-     scrim). One token, both themes — the alpha keeps it from feeling tinted. */
+  /* Backdrop / scrim for modal overlays. Three opacities cover the use
+     cases the design needs:
+       --scrim-modal: popover ::backdrop, mobile drawer scrim (medium dim)
+       --scrim-soft:  hover/focus tint over media (Lightbox close button rest)
+       --scrim-medium: stronger tint (Lightbox close button hover)
+       --scrim-strong: full lightbox/blackout overlays (Lightbox ::backdrop)
+     All theme-invariant — they sit on top of arbitrary content. */
+  --scrim-soft: rgba(0, 0, 0, 0.4);
   --scrim-modal: rgba(0, 0, 0, 0.45);
+  --scrim-medium: rgba(0, 0, 0, 0.6);
+  --scrim-strong: rgba(0, 0, 0, 0.92);
+
+  /* Theme-invariant chrome token: thin border for elements sitting on top
+     of `--scrim-strong` (e.g. Lightbox close button). Mirrors `--on-cover`
+     for the "white-on-dark-medium" pattern — same value in both themes
+     because the surface underneath is theme-invariant. */
+  --on-scrim-border: rgba(255, 255, 255, 0.32);
 
   /* Motion (theme-invariant) */
   --duration-fast: 150ms;

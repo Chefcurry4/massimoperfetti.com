@@ -15,6 +15,7 @@
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import { hashHue } from '../../lib/cover-color';
+import Lightbox from '../../components/gallery/Lightbox.astro';
 
 export async function getStaticPaths() {
   const entries = await getCollection('gallery');
@@ -32,9 +33,9 @@ const { entry } = Astro.props;
 const { title, image, caption, location, exif, date } = entry.data;
 const { Content } = await render(entry);
 
-const RENDER_IMG = false; // mirror GalleryCell flag — flip true once /public/gallery/* exists
-
 // Same 60° hue spread as GalleryCell so source + destination gradients agree.
+// The gradient sits behind the <img>; if the file 404s, the gradient stays
+// visible (no broken-icon, no flag-flipping — same pattern as AboutCell).
 const hue = hashHue(title);
 const hueAlt = (hue + 60) % 360;
 const fallbackStyle = `--hue: ${hue}; --hue-alt: ${hueAlt};`;
@@ -54,19 +55,27 @@ const dateLabel = date.toLocaleString('en-US', {
       class="photograph"
       transition:name={`poster-gallery-${entry.id}`}
     >
-      <div
-        class="frame"
-        style={fallbackStyle}
-        transition:name={`poster-gallery-${entry.id}-image`}
-        aria-label={caption ?? title}
-        role="img"
+      <button
+        type="button"
+        class="frame-button"
+        popovertarget="photo-lightbox"
+        aria-label={`Open ${title} at full size`}
       >
-        {
-          RENDER_IMG && (
-            <img src={image} alt={caption ?? title} loading="eager" decoding="async" />
-          )
-        }
-      </div>
+        <div
+          class="frame"
+          style={fallbackStyle}
+          transition:name={`poster-gallery-${entry.id}-image`}
+        >
+          <img
+            src={image}
+            alt={caption ?? title}
+            width="1600"
+            height="1067"
+            loading="eager"
+            decoding="async"
+          />
+        </div>
+      </button>
 
       <div class="meta">
         <p class="text-caption muted">photograph</p>
@@ -116,6 +125,8 @@ const dateLabel = date.toLocaleString('en-US', {
       }
     </article>
   </main>
+
+  <Lightbox src={image} alt={caption ?? title} caption={caption} />
 </Base>
 
 <style>
@@ -134,18 +145,49 @@ const dateLabel = date.toLocaleString('en-US', {
     gap: var(--space-5);
   }
 
+  /* Click-to-zoom — the photo wraps in a transparent <button> that triggers
+     the Lightbox popover. Reset native button chrome so the only visual is
+     the inner .frame. */
+  .frame-button {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    cursor: zoom-in;
+    border-radius: var(--radius-md);
+  }
+  .frame-button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
   .frame {
     border-radius: var(--radius-md);
     border: 1px solid var(--border);
     overflow: hidden;
     aspect-ratio: 3 / 2;
-    max-height: 70dvh;
+    max-height: 75dvh;
+    /* Layered: gradient sits below the image so a missing /public/gallery/*
+       file shows the gradient, not a broken-icon. Same pattern as AboutCell. */
     background:
       linear-gradient(
         135deg,
         oklch(72% 0.16 var(--hue) / 0.9),
         oklch(40% 0.12 var(--hue-alt) / 0.95)
       );
+    transition: transform var(--duration-normal) var(--ease-out-expo);
+  }
+  .frame-button:hover .frame,
+  .frame-button:focus-visible .frame {
+    transform: scale(1.005);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .frame-button:hover .frame,
+    .frame-button:focus-visible .frame {
+      transform: none;
+    }
   }
   .frame img {
     width: 100%;

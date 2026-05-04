@@ -1,17 +1,16 @@
 ---
 /**
- * Sidebar identity block: avatar, name, role.
+ * Sidebar identity block: gradient avatar, name, role.
  *
- * The avatar uses the same /me.jpeg as AboutCell, sized down to a 48px circle.
- * Same gradient fallback (--gradient-cool token, hoisted in Phase C) so a
- * missing photo shows the gradient, not a broken-image icon.
+ * The avatar is a 36px circle filled with `--gradient-cool` (no photo).
+ * The colored ring around it signals real-time availability via
+ * `now.availability` — green/amber/red. This is the single most important
+ * affordance on the collapsed rail: it preserves the "real-time context"
+ * signal that NowSnippet otherwise hides until the sidebar expands.
  *
- * Availability ring: a 2px colored ring sits OUTSIDE the avatar, colored by
- * `now.availability`. This is the single most important affordance on the
- * collapsed rail — it preserves the "real-time context" signal that
- * NowSnippet otherwise hides until the sidebar expands. The ring is
- * implemented as a stacked outline (inner gap via --surface, outer ring via
- * the availability token) so it reads as a halo, not a border.
+ * The ring is implemented as a stacked outline (inner gap via --surface,
+ * outer ring via the availability token) so it reads as a halo, not a
+ * border.
  */
 import { site } from '../../data/site';
 import { about } from '../../data/about';
@@ -25,7 +24,7 @@ const availabilityLabel = `Currently ${now.availability}`;
   <div
     class="avatar"
     role="img"
-    aria-label={`Portrait of ${site.name} — ${availabilityLabel}`}
+    aria-label={`${site.name} — ${availabilityLabel}`}
     style={`--ring: ${ringColor};`}
   ></div>
   <div class="text">
@@ -40,24 +39,18 @@ const availabilityLabel = `Currently ${now.availability}`;
   }
   .identity {
     display: grid;
-    grid-template-columns: 48px 1fr;
+    grid-template-columns: 36px 1fr;
     align-items: center;
     gap: var(--space-3);
   }
   .avatar {
-    width: 48px;
-    height: 48px;
+    width: 36px;
+    height: 36px;
     border-radius: var(--radius-pill);
-    background-color: var(--surface);
-    background-image:
-      url('/me.jpeg'),
-      var(--gradient-cool);
-    background-size: cover, cover;
-    background-position: center top, center;
-    background-repeat: no-repeat, no-repeat;
+    background-image: var(--gradient-cool);
     flex-shrink: 0;
     /* Stacked rings: inner 2px in --surface (the breathing gap), outer 2px
-       in the availability color. Reads as a soft halo around the portrait
+       in the availability color. Reads as a soft halo around the avatar
        rather than a flat border. */
     box-shadow:
       0 0 0 2px var(--surface),

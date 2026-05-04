@@ -36,10 +36,15 @@ import { site } from '../../data/site';
     <p class="role text-small">{about.role}</p>
     <p class="body text-small muted">{about.body[0]}</p>
 
-    <a class="cta text-caption" href="/about">
+    <button
+      type="button"
+      class="cta text-caption"
+      popovertarget="about-popover"
+      aria-label="Open about"
+    >
       <span aria-hidden="true">→</span>
       <span>read more</span>
-    </a>
+    </button>
   </div>
 </Cell>
 
@@ -119,12 +124,19 @@ import { site } from '../../data/site';
   }
 
   .cta {
-    /* Same eyebrow caption sizing, but transitions to accent on hover. */
+    /* Same eyebrow caption sizing, but transitions to accent on hover.
+       The element is a <button> in Phase 7 (popovertarget); reset native
+       button chrome so it matches the visual treatment of the prior <a>. */
     margin-top: auto;
     display: inline-flex;
     align-items: center;
     gap: var(--space-1);
     color: var(--text-muted);
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font: inherit;
     transition: color var(--duration-normal) var(--ease-out-expo);
     width: fit-content;
   }

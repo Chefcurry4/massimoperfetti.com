@@ -152,6 +152,12 @@ const primaryEmail = emails[0];
         <path d="M7 17L17 7M9 7h8v8" />
       </svg>
     </a>
+
+    {/* Secondary CTA — quieter, points at the message form. */}
+    <a class="message-link text-caption" href="/contact" data-astro-prefetch>
+      <span aria-hidden="true">→</span>
+      <span>Send a message</span>
+    </a>
   </section>
 
   {/* Email popover — anchored to the envelope icon via CSS Anchor
@@ -271,6 +277,27 @@ const primaryEmail = emails[0];
   .book-cta:hover svg,
   .book-cta:focus-visible svg {
     transform: translate(1px, -1px);
+  }
+
+  /* Secondary CTA below the Book pill — quieter, no border, accent on hover. */
+  .message-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    margin-top: var(--space-2);
+    color: var(--text-muted);
+    text-decoration: none;
+    width: fit-content;
+    transition: color var(--duration-fast) var(--ease-out-expo);
+  }
+  .message-link:hover,
+  .message-link:focus-visible {
+    color: var(--accent);
+  }
+  .message-link:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
   }
 </style>
 

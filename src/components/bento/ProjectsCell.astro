@@ -86,6 +86,35 @@ const detailHref = `/projects/${entry.id}`;
   </Cell>
 </a>
 
+<style is:global>
+  /* These rules target the .bento-cell element (which lives in Cell.astro's
+     scope, not ProjectsCell's), so they're declared :global. The class
+     names .projects-cell + .variant-{sm,lg} are unique enough that this
+     doesn't risk colliding with other components.
+
+     This file's other styles (cover, meta, cover-initial — elements
+     ProjectsCell directly renders) stay scoped in the second <style> block. */
+  .projects-cell {
+    padding: 0;
+    overflow: hidden;
+  }
+  .projects-cell.variant-sm {
+    padding: clamp(var(--space-4), 2vw, var(--space-5));
+    gap: var(--space-2);
+  }
+  /* Lg variant — editorial row layout: small square thumbnail on the left,
+     stacked meta on the right. Replaces the previous vertical stack (cover
+     top / meta bottom) which gave the giant letter too much visual weight
+     and starved the title. The cell becomes flex-row; cover is a fixed-
+     width thumbnail; meta absorbs the rest of the width. */
+  .projects-cell.variant-lg {
+    flex-direction: row;
+    align-items: center;
+    padding: clamp(var(--space-3), 1.5vw, var(--space-4));
+    gap: var(--space-4);
+  }
+</style>
+
 <style>
   .muted {
     color: var(--text-muted);
@@ -107,21 +136,12 @@ const detailHref = `/projects/${entry.id}`;
     outline-offset: 2px;
   }
 
-  .projects-cell {
-    padding: 0;
-    overflow: hidden;
-  }
-  .projects-cell.variant-sm {
-    padding: clamp(var(--space-4), 2vw, var(--space-5));
-    gap: var(--space-2);
-  }
-
   .cover {
-    /* fixed-basis (no shrink) + own overflow:hidden: the meta block below
-       can't squeeze the cover and the giant initial can't escape the cell
-       even if Lora's vertical metrics over-reach the line-box. */
+    /* Shared chrome (gradient + centered initial). lg variant sizing rules
+       below target the cover via the :global parent .variant-lg — we can't
+       use a normal `.variant-lg .cover` selector because the .variant-lg
+       class lives on a different scope (Cell.astro). */
     position: relative;
-    flex: 0 0 56%;
     min-height: 0;
     overflow: hidden;
     display: flex;
@@ -134,12 +154,20 @@ const detailHref = `/projects/${entry.id}`;
         oklch(35% 0.14 var(--hue-alt) / 0.95) 70%
       );
     color: var(--on-cover);
-    border-bottom: 1px solid var(--border);
+  }
+  /* Square thumbnail in lg variant. :global on the parent ancestor so we
+     can navigate the scope boundary (Cell vs ProjectsCell scopes). */
+  :global(.projects-cell.variant-lg) .cover {
+    flex: 0 0 auto;
+    width: clamp(110px, 22%, 160px);
+    height: auto;
+    aspect-ratio: 1 / 1;
+    border-radius: var(--radius-md);
+    align-self: center;
   }
   .cover-initial {
     /* Decorative typography — sits outside the body type scale on purpose:
-       this is graphic-display, not text-display. Capped lower than before
-       (was 120) to leave headroom inside the fixed-basis cover region. */
+       this is graphic-display, not text-display. */
     font-family: var(--font-display);
     font-weight: 500;
     font-size: clamp(64px, 9vw, 96px);
@@ -151,6 +179,9 @@ const detailHref = `/projects/${entry.id}`;
     pointer-events: none;
     user-select: none;
   }
+  :global(.projects-cell.variant-lg) .cover-initial {
+    font-size: clamp(44px, 5vw, 64px);
+  }
 
   .meta {
     padding: clamp(var(--space-4), 2vw, var(--space-5));
@@ -158,8 +189,17 @@ const detailHref = `/projects/${entry.id}`;
     flex-direction: column;
     gap: var(--space-2);
   }
-  .variant-sm .meta {
+  :global(.projects-cell.variant-sm) .meta {
     padding: 0;
+  }
+  :global(.projects-cell.variant-lg) .meta {
+    /* Cell padding handles inset; meta sits flush against cover with the
+       parent's gap providing horizontal breathing room. min-width: 0 so
+       the title can ellipsis-wrap in narrow cell widths. */
+    padding: 0;
+    flex: 1 1 auto;
+    min-width: 0;
+    justify-content: center;
   }
 
   .row {

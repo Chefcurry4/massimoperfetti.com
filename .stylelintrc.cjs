@@ -24,13 +24,13 @@ module.exports = {
     // reference --color-* / --bg / --surface / --text* tokens.
     'color-no-hex': true,
 
-    // Border-radius must come from the radius scale (or be 0 / 50%).
+    // Border-radius must be composed entirely of scale values: a
+    // var(--radius-*) token, 0 / 0px, or 50%. Allows the 4-value shorthand
+    // (e.g. `0 var(--radius-sm) var(--radius-sm) 0` for asymmetric corners)
+    // by matching space-separated runs of allowed atoms.
     'declaration-property-value-allowed-list': {
       'border-radius': [
-        '/^var\\(--radius-/',
-        '/^0$/',
-        '/^0px$/',
-        '50%',
+        '/^(?:(?:0|0px|50%|var\\(--radius-[a-z]+\\))\\s*){1,4}$/',
       ],
     },
 

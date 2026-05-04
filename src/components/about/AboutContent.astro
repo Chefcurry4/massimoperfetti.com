@@ -1,0 +1,70 @@
+---
+/**
+ * Shared about content — centered editorial reading column.
+ * Used in two places:
+ *
+ *   1. /about (full page, deep-linkable URL)
+ *   2. <AboutPopover /> (popup overlay on the home bento)
+ *
+ * The host page/popup provides the page chrome (margin, sidebar offset,
+ * close button, footer); this component owns only the editorial content.
+ *
+ * Photos previously interleaved between paragraphs were retired — the page
+ * now reads as a focused essay rather than a magazine spread. The
+ * `photos` array on `src/data/about.ts` is no longer rendered (kept in
+ * the schema for future use).
+ */
+import { about } from '../../data/about';
+---
+
+<header class="head">
+  <p class="text-caption muted">about</p>
+  <h1 class="text-display headline">{about.headline}</h1>
+</header>
+
+<article class="essay">
+  {about.body.map((paragraph) => (
+    <p class="text-body">{paragraph}</p>
+  ))}
+</article>
+
+<style>
+  .muted {
+    color: var(--text-muted);
+  }
+
+  .head {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+    text-align: center;
+    max-width: 720px;
+    /* Center the head block within the host's flex column */
+    margin-inline: auto;
+  }
+  .headline {
+    margin: 0;
+    color: var(--text);
+  }
+
+  .essay {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    margin-top: var(--space-5);
+    text-align: center;
+    /* Reading column — keep it tight enough to scan, centered in the host. */
+    max-width: 60ch;
+    margin-inline: auto;
+  }
+  .essay p {
+    margin: 0;
+    color: var(--text);
+  }
+  /* Middle paragraphs muted for visual rhythm — first (intro) and last
+     (closing) sit at full --text emphasis. */
+  .essay p:not(:first-child):not(:last-child) {
+    color: var(--text-muted);
+  }
+</style>

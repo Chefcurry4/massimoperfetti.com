@@ -1,14 +1,18 @@
 ---
 /**
- * Home page — the bento wall.
+ * Home page — the bento wall + the About popup overlay.
  *
- * Phase 2: layout only. No View Transitions on cells (Phase 4),
- * no sidebar (Phase 3).
+ * `<AboutPopover />` lives at the page level (not inside the wall) so the
+ * native [popover] element sits in the top layer regardless of the wall's
+ * overflow / scroll-snap context. Trigger lives in AboutCell as a
+ * <button popovertarget="about-popover">.
  */
 import Base from '../layouts/Base.astro';
 import BentoGrid from '../components/bento/BentoGrid.astro';
+import AboutPopover from '../components/about/AboutPopover.astro';
 ---
 
 <Base>
   <BentoGrid />
+  <AboutPopover />
 </Base>

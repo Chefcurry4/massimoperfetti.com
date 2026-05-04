@@ -32,7 +32,6 @@ import Identity from './Identity.astro';
 import NowSnippet from './NowSnippet.astro';
 import ContactsCluster from './ContactsCluster.astro';
 import SpotifyWidget from './SpotifyWidget.astro';
-import ThemeToggle from '../ui/ThemeToggle.astro';
 ---
 
 <aside
@@ -61,10 +60,6 @@ import ThemeToggle from '../ui/ThemeToggle.astro';
     <NowSnippet />
     <ContactsCluster />
     <SpotifyWidget />
-
-    <div class="footer">
-      <ThemeToggle />
-    </div>
   </div>
 
   {/* Desktop-only chevron — the discoverable expand/collapse affordance.
@@ -342,7 +337,7 @@ import ThemeToggle from '../ui/ThemeToggle.astro';
     /* Re-show name + role on mobile (always — peek row is the identity card). */
     .sidebar:not(.expanded) :global(.identity) {
       display: grid;
-      grid-template-columns: 48px 1fr;
+      grid-template-columns: 36px 1fr;
       justify-content: start;
     }
     .sidebar:not(.expanded) :global(.identity) > :global(.text) {

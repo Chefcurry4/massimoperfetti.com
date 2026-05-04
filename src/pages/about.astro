@@ -1,85 +1,23 @@
 ---
 /**
- * /about — standalone page.
+ * /about — standalone, deep-linkable page rendering the editorial about content.
  *
- * Editorial reading column with three small photos interleaved between
- * body paragraphs. Photos alternate sides on desktop (right / left / right)
- * and stack inline on mobile. Each photo has a graceful CSS fallback
- * (gradient + caption) so a missing file doesn't show a broken-image icon —
- * mirrors the AboutCell portrait pattern.
+ * Page-only chrome: a dynamic grainy gradient backdrop (two soft radials
+ * drifting across the viewport, plus an SVG fractal-noise overlay for film
+ * grain). Both the drift and the noise honor `prefers-reduced-motion`.
  *
- * Phase 7 will rebuild this as a popup that shares a transition with the
- * bento About cell. For now it's a regular page so the read-more link works.
+ * Body markup lives in `<AboutContent />` (shared with the bento About popup
+ * — see <AboutPopover />). This file owns only the page chrome (sidebar-aware
+ * margin, padding, footer, backdrop) so /about and the popup never drift.
  */
 import Base from '../layouts/Base.astro';
-import { about } from '../data/about';
+import AboutContent from '../components/about/AboutContent.astro';
 import { site } from '../data/site';
-
-const [photoMountain, photoOrcas, photoCurry] = about.photos;
 ---
 
 <Base title="About">
   <main class="page">
-    <header class="head">
-      <p class="text-caption muted">about</p>
-      <h1 class="text-display headline">{about.headline}</h1>
-    </header>
-
-    <article class="essay">
-      {/* Paragraph 1 — intro. */}
-      <p class="text-body">{about.body[0]}</p>
-
-      {/* Paragraph 2 — academic / research. Mountain photo to the right. */}
-      <div class="row row-right">
-        <p class="text-body muted">{about.body[1]}</p>
-        {photoMountain && (
-          <figure class={`photo ${photoMountain.aspect}`}>
-            <img
-              src={photoMountain.src}
-              alt={photoMountain.alt}
-              loading="lazy"
-              decoding="async"
-            />
-            <figcaption class="text-mono-small">{photoMountain.caption}</figcaption>
-          </figure>
-        )}
-      </div>
-
-      {/* Paragraph 3 — Dual Energy. Orcas photo to the left. */}
-      <div class="row row-left">
-        <p class="text-body muted">{about.body[2]}</p>
-        {photoOrcas && (
-          <figure class={`photo ${photoOrcas.aspect}`}>
-            <img
-              src={photoOrcas.src}
-              alt={photoOrcas.alt}
-              loading="lazy"
-              decoding="async"
-            />
-            <figcaption class="text-mono-small">{photoOrcas.caption}</figcaption>
-          </figure>
-        )}
-      </div>
-
-      {/* Paragraph 4 — interests. Basketball photo to the right (portrait). */}
-      <div class="row row-right">
-        <p class="text-body muted">{about.body[3]}</p>
-        {photoCurry && (
-          <figure class={`photo ${photoCurry.aspect}`}>
-            <img
-              src={photoCurry.src}
-              alt={photoCurry.alt}
-              loading="lazy"
-              decoding="async"
-            />
-            <figcaption class="text-mono-small">{photoCurry.caption}</figcaption>
-          </figure>
-        )}
-      </div>
-
-      {/* Paragraph 5 — closing. */}
-      <p class="text-body muted closing">{about.body[4]}</p>
-    </article>
+    <AboutContent />
 
     <footer class="meta">
       <span class="text-caption">{site.name}</span>
@@ -89,114 +27,77 @@ const [photoMountain, photoOrcas, photoCurry] = about.photos;
 </Base>
 
 <style>
-  /* Sidebar-aware page container. /about's vertical rhythm differs from the
-     other detail pages (longer-form essay, deeper top padding) so it keeps a
-     custom .page rule rather than using `.detail-page`. Back link uses the
-     global `.back-link` class via markup. */
+  /* Sidebar-aware page chrome. Centered text + max-width comes from
+     AboutContent; this rule only positions the column relative to the
+     viewport and provides the grainy backdrop. */
   .page {
+    position: relative;
     margin-left: calc(var(--wall-inset) + var(--sidebar-rail) + var(--sidebar-gap));
     margin-right: var(--wall-inset);
     padding:
-      clamp(var(--space-6), 6vw, var(--space-8))
-      clamp(var(--space-4), 3vw, var(--space-6))
-      var(--space-8);
+      clamp(var(--space-7), 10vh, var(--space-8))
+      clamp(var(--space-4), 5vw, var(--space-6))
+      var(--space-7);
     display: flex;
     flex-direction: column;
     gap: var(--space-6);
-    max-width: 880px;
-  }
-  .muted {
-    color: var(--text-muted);
+    min-height: calc(100dvh - 2 * var(--wall-inset));
   }
 
-  .head {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
+  /*
+   * Grainy gradient backdrop — two fixed-position layers behind everything.
+   * ::before is the colored gradient (drifts slowly via animated
+   * background-position); ::after is the SVG fractal-noise overlay.
+   * Both are pointer-events: none and z-index -1 so they sit cleanly behind
+   * the reading column without intercepting clicks. Sidebar's glass surface
+   * lets the gradient show through subtly — that's intentional.
+   */
+  .page::before,
+  .page::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
   }
-  .headline {
-    margin: 0;
-    color: var(--text);
+  .page::before {
+    background:
+      radial-gradient(
+        ellipse 60% 50% at 30% 25%,
+        oklch(72% 0.12 264 / 0.38),
+        transparent 70%
+      ),
+      radial-gradient(
+        ellipse 55% 60% at 70% 75%,
+        oklch(60% 0.18 295 / 0.32),
+        transparent 70%
+      ),
+      var(--bg);
+    background-size: 200% 200%, 200% 200%, auto;
+    background-position: 0% 0%, 100% 100%, 0 0;
+    animation: page-drift 32s ease-in-out infinite alternate;
   }
-
-  .essay {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-5);
-  }
-  .essay p {
-    margin: 0;
-    max-width: 56ch; /* readable measure for body text */
-  }
-  .closing {
-    color: var(--text);
-  }
-
-  /* Photo + paragraph rows.
-     Two-column grid: text on one side, photo on the other. The .row-left /
-     .row-right modifier swaps the photo position and which side the text
-     occupies. Gap is generous so the photo feels like marginalia, not an
-     inline figure. */
-  .row {
-    display: grid;
-    align-items: center;
-    gap: clamp(var(--space-4), 3vw, var(--space-6));
-  }
-  .row-right {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 220px);
-  }
-  .row-right .photo {
-    justify-self: end;
-  }
-  .row-left {
-    grid-template-columns: minmax(0, 220px) minmax(0, 1fr);
-  }
-  .row-left .photo {
-    grid-column: 1;
-    grid-row: 1;
-    justify-self: start;
-  }
-  .row-left p {
-    grid-column: 2;
-    grid-row: 1;
+  .page::after {
+    /* SVG fractal noise — film-grain texture so the gradient doesn't read
+       as a flat color blob. Overlay blend keeps the grain subtle on light
+       areas, visible on dark. */
+    background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    opacity: 0.45;
+    mix-blend-mode: overlay;
   }
 
-  /* Photo treatment — small, framed, with a thin caption underneath.
-     Editorial print feel without being kitsch (no rotation, no filter). */
-  .photo {
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-    width: 100%;
+  @keyframes page-drift {
+    0% {
+      background-position: 0% 0%, 100% 100%, 0 0;
+    }
+    100% {
+      background-position: 100% 100%, 0% 0%, 0 0;
+    }
   }
-  .photo img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border);
-    /* Layered fallback: if the image 404s, the gradient below stays visible
-       so the page never shows a broken-image icon. Mirrors AboutCell — the
-       soft variant of --gradient-cool reads as a backdrop, not a portrait. */
-    background-color: var(--surface);
-    background-image: var(--gradient-cool-soft);
-    background-size: cover;
-    box-shadow: 0 8px 24px var(--glass-shadow);
-  }
-  .photo.landscape img {
-    aspect-ratio: 4 / 3;
-  }
-  .photo.portrait img {
-    aspect-ratio: 3 / 4;
-  }
-  .photo figcaption {
-    color: var(--text-muted);
-    text-align: right;
-  }
-  .row-left .photo figcaption {
-    text-align: left;
+  @media (prefers-reduced-motion: reduce) {
+    .page::before {
+      animation: none;
+    }
   }
 
   .meta {
@@ -207,12 +108,11 @@ const [photoMountain, photoOrcas, photoCurry] = about.photos;
     justify-content: space-between;
     align-items: center;
     color: var(--text-muted);
+    width: 100%;
+    max-width: 720px;
+    margin-inline: auto;
   }
 
-  /* Mobile — collapse to single column. Photos stack inline below their
-     paragraph (the row order in DOM puts text first for row-right, which
-     reads naturally; row-left also reads paragraph-then-photo on mobile
-     since the explicit grid-column rules are reset). */
   @media (max-width: 720px) {
     .page {
       margin-left: 0;
@@ -221,30 +121,6 @@ const [photoMountain, photoOrcas, photoCurry] = about.photos;
         clamp(var(--space-6), 8vw, var(--space-7))
         clamp(var(--space-4), 5vw, var(--space-5))
         calc(var(--space-7) + var(--space-5));
-    }
-    .row,
-    .row-right,
-    .row-left {
-      grid-template-columns: 1fr;
-      gap: var(--space-4);
-    }
-    .row-left .photo,
-    .row-left p {
-      grid-column: 1;
-      grid-row: auto;
-    }
-    .photo {
-      max-width: 320px;
-    }
-    .row-left .photo {
-      align-self: start;
-    }
-    .row-right .photo {
-      align-self: end;
-    }
-    .photo figcaption,
-    .row-left .photo figcaption {
-      text-align: left;
     }
   }
 </style>
