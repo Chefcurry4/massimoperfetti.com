@@ -31,10 +31,9 @@ const work = (await getCollection('work')).sort(
   (a, b) => b.data.period.start.getTime() - a.data.period.start.getTime(),
 );
 
-const writing = (await getCollection('writing', ({ data }) => !data.draft)).sort(
-  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
-);
-
+// Writing collection still drives /writing/[slug] + /writing/rss.xml, but
+// the bento writing slot is now a pinned newsletter announcement (no
+// dynamic data), so we don't load it here.
 const gallery = (await getCollection('gallery')).sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime(),
 );
@@ -61,7 +60,6 @@ const projSm: ReadonlyArray<typeof allProjects[number] | null> = [
   featuredProjects[3] ?? null,
 ];
 
-const writingEntry = writing[0] ?? null;
 ---
 
 <div
@@ -97,13 +95,7 @@ const writingEntry = writing[0] ?? null;
           )
         }
       </div>
-      {
-        writingEntry ? (
-          <WritingCell entry={writingEntry} slot="cell-writing" />
-        ) : (
-          <StubCell label="writing" slot="cell-writing" />
-        )
-      }
+      <WritingCell slot="cell-writing" />
     </div>
 
     {/* -------- COLUMN 3: project-1 / project-2 / [P3 | P4 | see-all] -------- */}
@@ -157,10 +149,43 @@ const writingEntry = writing[0] ?? null;
   </div>
 </div>
 
+{/* Scroll hint — shimmer cue prompting horizontal exploration on first
+    visit. Auto-hides once the user has scrolled, mobile-hidden via media
+    query (the wall flattens to a vertical stack there). */}
+<div class="bento-hint" aria-hidden="true">
+  <span class="bento-hint__text">scroll right</span>
+  <span class="bento-hint__arrow">→</span>
+</div>
+
 {/* Scroll progress indicator — desktop only (hidden via media query). */}
 <div class="bento-progress" aria-hidden="true"></div>
 
 <style>
+  /* Lock the home page to exactly the viewport on desktop. The bento wall
+     is meant to fit in 100dvh — if anything inside it (a tall cell, a
+     specific browser's rounding, an off-by-one margin calculation) tries
+     to push the body taller, this hard-clips it. Scoped to the bento-wall
+     component's CSS file means this rule only fires on /, where the wall
+     exists; other pages keep their natural scroll behaviour. Mobile is
+     excluded because the bento flattens to a vertical stack and is
+     supposed to scroll. */
+  @media (min-width: 1024px) {
+    :global(html),
+    :global(body) {
+      overflow: hidden;
+      /* svh (small viewport height) is constant — it ignores any dynamic
+         browser chrome (mobile address bar, Safari toolbar, etc.). dvh
+         fluctuates as that chrome shows/hides, which on this layout (main
+         flex-centers a fixed-height wall) would re-centre the wall mid-
+         scroll and read visually as the wall sliding down then back up.
+         svh nails the height in place. */
+      height: 100svh;
+      /* Prevent any wheel event the wall's handler doesn't intercept from
+         leaking into the parent scroll chain (rubber-band, bounce). */
+      overscroll-behavior: none;
+    }
+  }
+
   /* === Desktop wall (>= 1024px) ===
      The wall anchors to the COLLAPSED sidebar rail width (--sidebar-rail
      = 64px). The expanded sidebar (--sidebar-width = 280) floats over the
@@ -171,11 +196,24 @@ const writingEntry = writing[0] ?? null;
        --sidebar-gap:   16px between sidebar and wall
   */
   .bento-wall {
-    height: calc(100dvh - 2 * var(--wall-inset));
-    margin: var(--wall-inset);
+    /* Fill the viewport (svh, not dvh — see comment on html/body above for
+       why) minus a page gutter at top + bottom. Vertical centering is
+       handled by the parent <main> on the home page; with this rule the
+       flex-center leaves exactly --wall-inset above and below as breathing
+       room. The 560px floor keeps the wall usable on tiny laptop screens.
+       Earlier iterations capped the wall at 720px to read as a "central
+       strip", but that under-fed the densest cells (PlacesCell map,
+       GalleryCell meta block, WritingCell anchored meta-row) and clipped
+       their bottoms via the .bento-cell overflow:hidden. No upper cap. */
+    height: calc(100svh - 2 * var(--wall-inset));
+    min-height: 560px;
+    overscroll-behavior: contain;
+    margin-top: 0;
+    margin-bottom: 0;
     margin-left: calc(
       var(--wall-inset) + var(--sidebar-rail) + var(--sidebar-gap)
     );
+    margin-right: var(--wall-inset);
     overflow-x: auto;
     overflow-y: hidden;
     /* Proximity snap — soft alignment to column boundaries when the user
@@ -187,44 +225,13 @@ const writingEntry = writing[0] ?? null;
     scroll-snap-type: x proximity;
     scroll-padding-inline: var(--space-5);
     scrollbar-width: none; /* Firefox */
-    /* Soft fade on ALL four edges so any cell meeting the wall's bound
-       (horizontally during scroll, vertically when col content meets the
-       wall's height limit) reads as intentional rather than abruptly
-       clipped. Two stacked linear gradients combined via mask-composite:
-       intersect — a pixel is visible only where BOTH gradients are opaque.
-       Content stays fully sharp 24px past every edge. */
-    -webkit-mask-image:
-      linear-gradient(
-        to right,
-        transparent 0,
-        black 24px,
-        black calc(100% - 24px),
-        transparent 100%
-      ),
-      linear-gradient(
-        to bottom,
-        transparent 0,
-        black 24px,
-        black calc(100% - 24px),
-        transparent 100%
-      );
-    -webkit-mask-composite: source-in;
-    mask-image:
-      linear-gradient(
-        to right,
-        transparent 0,
-        black 24px,
-        black calc(100% - 24px),
-        transparent 100%
-      ),
-      linear-gradient(
-        to bottom,
-        transparent 0,
-        black 24px,
-        black calc(100% - 24px),
-        transparent 100%
-      );
-    mask-composite: intersect;
+    /* No mask-image. Earlier iterations faded content at the left/right
+       edges, but mask-image with a linear-gradient creates a stacking
+       context and forces the wall onto its own compositor layer — that
+       layer gets re-rasterized on every scroll position change, and on
+       weaker GPUs the re-raster produces sub-pixel artifacts that read
+       as cards stretching/squashing. Hard cuts at the wall edges via
+       overflow: hidden are visually clean and free of paint cost. */
     /* focus-visible outline below — the wall itself receives keyboard focus
        so arrow keys can scroll horizontally. */
   }
@@ -244,11 +251,11 @@ const writingEntry = writing[0] ?? null;
      *   col 2 — two work cells side-by-side + writing block.
      *   col 3 — project hero column.
      *   col 4 — gallery + map.
-     * Total = 440 + 540 + 600 + 420 + 3*16(gap) + 2*32(padding) = 2112px
-     * (≈ 206vw at 1024, ≈ 147vw at 1440 — well inside the 200–250vw target).
+     * Sized at ~85% of the original Phase-2 widths so the wall reads as a
+     * balanced central band paired with generous top + bottom gutters.
      */
     display: grid;
-    grid-template-columns: 440px 540px 600px 420px;
+    grid-template-columns: 380px 460px 520px 360px;
     grid-template-rows: 1fr;
     grid-auto-flow: column;
     gap: var(--space-4);
@@ -269,7 +276,7 @@ const writingEntry = writing[0] ?? null;
      col-1: about hero now occupies the full column (contacts moved to the
      persistent sidebar in Phase 3). */
   .col-1 { grid-template-rows: minmax(0, 1fr); }
-  .col-2 { grid-template-rows: minmax(0, 0.45fr) minmax(0, 0.55fr); }
+  .col-2 { grid-template-rows: minmax(0, 0.58fr) minmax(0, 0.42fr); }
   .col-3 { grid-template-rows: minmax(0, 0.36fr) minmax(0, 0.36fr) minmax(0, 0.28fr); }
   .col-4 { grid-template-rows: minmax(0, 0.55fr) minmax(0, 0.45fr); }
 
@@ -283,6 +290,85 @@ const writingEntry = writing[0] ?? null;
   }
   .project-row {
     grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  /* === Scroll hint (desktop only) ===
+     Shimmer caption at the bottom of the wall. The text uses a moving
+     gradient masked through the glyphs (background-clip: text) — same
+     technique as Claude's "thinking..." indicator — so a brighter band
+     sweeps left to right across muted base text. Sits 24px off the bottom
+     edge so it clears the 2px progress bar without overlap. */
+  .bento-hint {
+    position: fixed;
+    bottom: var(--space-5);
+    left: 50%;
+    transform: translateX(-50%);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-mono);
+    /* Off-scale 11px caption matches .text-mono-small; defined inline to
+       avoid pulling .text-mono-small classes into a fixed-position element
+       that lives outside the typographic flow. */
+    font-size: 11px;
+    line-height: 1;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    pointer-events: none;
+    z-index: var(--z-progress);
+    opacity: 1;
+    transition: opacity 600ms var(--ease-out-expo);
+  }
+  .bento-hint.is-hidden {
+    opacity: 0;
+  }
+
+  .bento-hint__text {
+    background: linear-gradient(
+      90deg,
+      var(--text-muted) 0%,
+      var(--text-muted) 38%,
+      var(--text) 50%,
+      var(--text-muted) 62%,
+      var(--text-muted) 100%
+    );
+    background-size: 220% 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    animation: bento-hint-shimmer 2.6s linear infinite;
+  }
+
+  .bento-hint__arrow {
+    display: inline-block;
+    color: var(--text-muted);
+    animation: bento-hint-arrow 2.6s var(--ease-out-expo) infinite;
+  }
+
+  @keyframes bento-hint-shimmer {
+    from { background-position: 220% 0; }
+    to   { background-position: -220% 0; }
+  }
+  @keyframes bento-hint-arrow {
+    0%,
+    100% { transform: translateX(0); opacity: 0.55; }
+    50%  { transform: translateX(4px); opacity: 1; }
+  }
+
+  /* Honour reduced motion: drop both animations and use a flat muted
+     caption. The hint still appears (and still auto-hides on scroll); it
+     just doesn't shimmer or nudge. */
+  @media (prefers-reduced-motion: reduce) {
+    .bento-hint { transition: none; }
+    .bento-hint__text {
+      animation: none;
+      background: none;
+      color: var(--text-muted);
+      -webkit-text-fill-color: var(--text-muted);
+    }
+    .bento-hint__arrow { animation: none; opacity: 0.8; }
   }
 
   /* === Scroll progress (desktop only) === */
@@ -364,6 +450,7 @@ const writingEntry = writing[0] ?? null;
     :global(.bento-cell.stub) { min-height: 120px; }
 
     .bento-progress { display: none; }
+    .bento-hint { display: none; }
   }
 </style>
 
@@ -398,6 +485,7 @@ const writingEntry = writing[0] ?? null;
   function bindBentoProgress() {
     const wall = document.querySelector<HTMLElement>('.bento-wall');
     const bar = document.querySelector<HTMLElement>('.bento-progress');
+    const hint = document.querySelector<HTMLElement>('.bento-hint');
     if (!wall || !bar) return;
 
     // Tear down the previous run's listeners before binding fresh. Mirrors
@@ -407,6 +495,11 @@ const writingEntry = writing[0] ?? null;
     const { signal } = abortController;
 
     let storageDebounce: ReturnType<typeof setTimeout> | null = null;
+    // Hide-once latch: once the user has scrolled past the threshold the
+    // hint stays gone for the rest of the session, even if they scroll
+    // back to the start. Re-showing it would read as nagging.
+    let hintDismissed = false;
+    const HINT_HIDE_PX = 80;
 
     signal.addEventListener('abort', () => {
       if (storageDebounce !== null) {
@@ -419,6 +512,17 @@ const writingEntry = writing[0] ?? null;
       const max = wall.scrollWidth - wall.clientWidth;
       const ratio = max > 0 ? wall.scrollLeft / max : 0;
       bar.style.transform = `scaleX(${ratio.toFixed(4)})`;
+
+      // Hide the hint on first meaningful scroll, or immediately if there
+      // is no horizontal overflow at all (small-screen edge case where the
+      // wall fits the viewport without panning).
+      if (hint && !hintDismissed) {
+        if (max <= 8 || wall.scrollLeft > HINT_HIDE_PX) {
+          hint.classList.add('is-hidden');
+          hintDismissed = true;
+        }
+      }
+
       // Debounced sessionStorage write — only the last position matters for
       // restore-on-back-nav, so writing 200ms after motion stops is fine.
       if (storageDebounce !== null) clearTimeout(storageDebounce);
@@ -438,7 +542,16 @@ const writingEntry = writing[0] ?? null;
       const stored = sessionStorage.getItem(SCROLL_KEY);
       if (stored) {
         const v = parseInt(stored, 10);
-        if (Number.isFinite(v)) wall.scrollLeft = v;
+        if (Number.isFinite(v)) {
+          wall.scrollLeft = v;
+          // Returning visitor — kill the hint without the fade so it
+          // doesn't flash in for one frame before update() sees the
+          // restored scroll position.
+          if (hint && v > HINT_HIDE_PX) {
+            hint.classList.add('is-hidden');
+            hintDismissed = true;
+          }
+        }
       }
     } catch {
       /* storage blocked — first paint stays at scrollLeft 0 */
@@ -448,51 +561,17 @@ const writingEntry = writing[0] ?? null;
     wall.addEventListener('scroll', update, { passive: true, signal });
     window.addEventListener('resize', update, { passive: true, signal });
 
-    // Vertical wheel input → horizontal wall scroll, smoothed by the
-    // browser's native scroll-animator. The wall is the only scrollable
-    // surface on desktop (page is 100dvh-locked), so claiming deltaY for
-    // horizontal motion is what visitors expect. SCROLL_FACTOR < 1 keeps
-    // the scroll slow enough that one wheel-tick doesn't fly past a column.
+    // No wheel-to-horizontal handler. Earlier iterations intercepted
+    // vertical wheel deltaY and translated it into wall.scrollBy(left, ...)
+    // so a normal mouse wheel could pan the bento horizontally. That
+    // handler is the "algorithm that adjusts card position on user input"
+    // and was the source of repeated visual regressions (scroll lag,
+    // shadow-bloom waves, stretch/squash, slide-down). It is now gone.
     //
-    // Why scrollBy({ behavior: 'smooth' }) instead of a JS RAF lerp:
-    //   – Animation runs on the compositor, not the main thread → no
-    //     contention with the wall's mask-image paint work.
-    //   – No browser-rounding stall (sub-pixel deltas can't break the loop
-    //     because there's no JS-side loop).
-    //   – Subsequent wheel events while a smooth scroll is in flight
-    //     re-target the active animation in Chromium/Firefox — exactly the
-    //     continuous-gesture feel the previous JS lerp was emulating.
-    //
-    // Skipped on mobile (< 1024px) where the wall flattens to a vertical
-    // stack and natural vertical scroll must keep working. Horizontal
-    // trackpad gestures (deltaX-dominant) pass through untouched.
-    const SCROLL_FACTOR = 0.5;
-
-    wall.addEventListener('wheel', (e) => {
-      if (window.innerWidth < 1024) return;
-      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
-      e.preventDefault();
-      wall.scrollBy({ left: e.deltaY * SCROLL_FACTOR, behavior: 'smooth' });
-    }, { passive: false, signal });
-
-    // Keyboard arrow scrolling — improves a11y on a horizontal scroll view
-    // when the user has focused the wall via tab.
-    wall.addEventListener('keydown', (e) => {
-      const STEP = wall.clientWidth * 0.6;
-      if (e.key === 'ArrowRight') {
-        wall.scrollBy({ left: STEP, behavior: 'smooth' });
-        e.preventDefault();
-      } else if (e.key === 'ArrowLeft') {
-        wall.scrollBy({ left: -STEP, behavior: 'smooth' });
-        e.preventDefault();
-      } else if (e.key === 'Home') {
-        wall.scrollTo({ left: 0, behavior: 'smooth' });
-        e.preventDefault();
-      } else if (e.key === 'End') {
-        wall.scrollTo({ left: wall.scrollWidth, behavior: 'smooth' });
-        e.preventDefault();
-      }
-    }, { signal });
+    // Horizontal scroll on desktop is therefore native-only:
+    //   – horizontal trackpad gesture (deltaX) → native overflow-x scroll
+    //   – Shift+wheel → native horizontal scroll (browser default)
+    // Mobile flattens to a vertical stack and scrolls naturally.
   }
 
   bindBentoProgress();

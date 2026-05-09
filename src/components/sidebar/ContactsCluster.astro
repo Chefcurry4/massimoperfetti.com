@@ -202,9 +202,18 @@ const primaryEmail = emails[0];
     margin: 0;
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-2);
+    /* Bumped --space-2 → --space-3 (8 → 12) so adjacent .icon-link::before
+       hit regions (which extend 6px past each button) don't overlap. With a
+       12px gap, two adjacent extended regions just touch with no ambiguous
+       routing. Visual density loss is negligible at 32px buttons. */
+    gap: var(--space-3);
   }
   .icon-link {
+    /* `position: relative` so the ::before hit-pad anchors to the visible
+       button. The visible UI stays 32×32 (--control-h-sm) for editorial
+       density; ::before extends the *click target* to 44×44 (Apple HIG
+       floor). Math: 32 + 2 * --tap-pad (6) = 44. */
+    position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -220,6 +229,17 @@ const primaryEmail = emails[0];
       color var(--duration-normal) var(--ease-out-expo),
       border-color var(--duration-normal) var(--ease-out-expo),
       transform var(--duration-normal) var(--ease-out-expo);
+  }
+  .icon-link::before {
+    /* Invisible hit-pad. Sits under the visible button (negative z lifts
+       the button above so its border still draws crisply); inset of
+       -tap-pad on every side widens the pointer-event region without
+       touching layout. Pill radius matches the parent so the click area
+       is the same shape as the visible button. */
+    content: '';
+    position: absolute;
+    inset: calc(var(--tap-pad) * -1);
+    border-radius: var(--radius-pill);
   }
   .icon-link:hover,
   .icon-link:focus-visible {
@@ -249,6 +269,9 @@ const primaryEmail = emails[0];
     justify-content: space-between;
     gap: var(--space-2);
     padding: var(--space-2) var(--space-4);
+    /* Pin to the 44px tap floor — the prior height was ~33px (13px text +
+       ~17px line × leading + 16px vertical padding), failing on touch. */
+    min-height: var(--tap-min);
     border-radius: var(--radius-pill);
     border: 1px solid var(--accent);
     color: var(--text);
@@ -278,12 +301,33 @@ const primaryEmail = emails[0];
     transform: translate(1px, -1px);
   }
 
+  /* Reduced-motion: hold position, keep color affordance. */
+  @media (prefers-reduced-motion: reduce) {
+    .icon-link:hover,
+    .icon-link:focus-visible {
+      transform: none;
+    }
+    .book-cta:hover,
+    .book-cta:focus-visible {
+      transform: none;
+    }
+    .book-cta:hover svg,
+    .book-cta:focus-visible svg {
+      transform: none;
+    }
+  }
+
   /* Secondary CTA below the Book pill — quieter, no border, accent on hover. */
   .message-link {
     display: inline-flex;
     align-items: center;
     gap: var(--space-1);
     margin-top: var(--space-2);
+    /* 44px tap floor without changing visible weight: vertical padding
+       (--space-2 / 2 effectively via line-height + min-height) lifts the
+       hit area to spec. */
+    min-height: var(--tap-min);
+    padding: var(--space-2) 0;
     color: var(--text-muted);
     text-decoration: none;
     width: fit-content;
@@ -324,7 +368,10 @@ const primaryEmail = emails[0];
     padding: var(--space-4) var(--space-4);
     border: 1px solid var(--border-strong);
     border-radius: var(--radius-md);
-    min-width: min(320px, 90vw);
+    /* Tightened from `min(320px, 90vw)`: at 320px viewport the prior rule
+       collapsed to 288px, leaving only 16px breathing room each side. The
+       calc form keeps a fixed 24px (--space-5) inset regardless of width. */
+    min-width: min(300px, calc(100vw - var(--space-5)));
     max-width: 420px;
     color: var(--text);
   }

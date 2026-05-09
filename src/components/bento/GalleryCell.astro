@@ -22,6 +22,7 @@
  */
 import Cell from '../ui/Cell.astro';
 import type { CollectionEntry } from 'astro:content';
+import { Image, getImage } from 'astro:assets';
 import { hashHue } from '../../lib/cover-color';
 
 interface Props {
@@ -31,14 +32,29 @@ interface Props {
 
 const { entries, slot } = Astro.props;
 
+// Pre-compute one optimized URL per cycle entry. The first render uses the
+// <Image> component (full srcset/AVIF support) — only swapped-in entries
+// need plain URLs since the cycle script just writes img.src. Losing srcset
+// on swapped images is acceptable: the LCP is the first image, and Astro's
+// `getImage` already serves a sensibly-sized webp at the default width.
+const optimizedSwaps = await Promise.all(
+  entries.map((e) =>
+    getImage({
+      src: e.data.image,
+      width: 900, // ~2× the cell's rendered width on mobile (95vw of ~430)
+      format: 'webp',
+    }),
+  ),
+);
+
 // Payload for the cycle script. SSR renders entries[0]; the script swaps in
 // the rest at runtime. Hues precomputed here so the gradient fallback stays
 // in lockstep with the active photo across cycles.
-const cycleData = entries.map((e) => {
+const cycleData = entries.map((e, i) => {
   const hue = hashHue(e.data.title);
   return {
     slug: e.id,
-    image: e.data.image,
+    image: optimizedSwaps[i].src,
     alt: e.data.caption ?? e.data.title,
     title: e.data.title,
     caption: e.data.caption ?? '',
@@ -69,11 +85,18 @@ const shouldCycle = entries.length > 1;
 >
   <Cell slot={slot} class="gallery-cell">
     <div class="frame" style={frameStyle} data-gallery-frame>
-      <img
+      {/* First-render image: <Image> renders a single <img> with srcset,
+          which the cycle script can update by swapping src + clearing
+          srcset. <Picture> would need source-element manipulation — not
+          worth the complexity for a 540px-wide bento cell. WebP is the
+          default format; source files are already webp so this is mostly
+          a width-ladder transformation. The page LCP is the AboutCell
+          portrait, not this — `loading="lazy"` is fine. */}
+      <Image
         src={image}
         alt={caption ?? title}
-        width="1600"
-        height="1067"
+        widths={[400, 600, 900]}
+        sizes="(max-width: 1023.98px) 95vw, 540px"
         loading="lazy"
         decoding="async"
         data-gallery-img
@@ -82,7 +105,7 @@ const shouldCycle = entries.length > 1;
 
     <div class="meta">
       <p class="text-caption muted">photograph</p>
-      <h3 class="text-h3 title" data-gallery-title>{title}</h3>
+      <h2 class="text-h3 title" data-gallery-title>{title}</h2>
       {/* Caption + location always render — never `hidden` — so the cycle
           can't change the meta block height when a photo without one swaps
           in. CSS min-height reserves the space; empty text just renders blank. */}
@@ -137,10 +160,17 @@ const shouldCycle = entries.length > 1;
     transition: opacity 400ms var(--ease-out-expo);
   }
   .meta {
-    padding: clamp(var(--space-3), 1.6vw, var(--space-4));
+    /* Lock the meta block's vertical footprint so the .frame above it
+       can't shift when the cycle swaps content of varying length. 132 px
+       is the sum of: eyebrow (~17) + title (~26) + 2-line caption (~42)
+       + exif-line (~17) + 3 × gap (12) + 2 × padding (~16) ≈ 130 px,
+       with a hair of headroom. flex: 0 0 fixes the basis. */
+    flex: 0 0 132px;
+    padding: clamp(var(--space-2), 1.2vw, var(--space-3));
     display: flex;
     flex-direction: column;
     gap: var(--space-1);
+    overflow: hidden;
   }
   .title {
     margin: 0;
@@ -244,6 +274,13 @@ const shouldCycle = entries.length > 1;
       img.style.opacity = '0';
       window.setTimeout(() => {
         if (signal.aborted) return;
+        // Clear srcset/sizes so the new single-resolution swap URL takes
+        // effect — without this the browser would pick from the prior
+        // srcset and ignore our `src` change. The first <Image>-rendered
+        // photo carries full srcset; subsequent cycle entries are
+        // single-resolution webp via getImage().
+        img.removeAttribute('srcset');
+        img.removeAttribute('sizes');
         img.src = e.image;
         img.alt = e.alt;
         link.href = `/gallery/${e.slug}`;
@@ -276,6 +313,12 @@ const shouldCycle = entries.length > 1;
     link.addEventListener('mouseleave', () => { paused = false; }, { signal });
     link.addEventListener('focusin', () => { paused = true; }, { signal });
     link.addEventListener('focusout', () => { paused = false; }, { signal });
+    // Touch pause — focus events fire briefly on a tap and don't reliably
+    // hold; pointerdown/up give us actual finger-on-element semantics. A
+    // visitor reading the meta on mobile shouldn't get yanked mid-thought.
+    link.addEventListener('pointerdown', () => { paused = true; }, { signal });
+    link.addEventListener('pointerup', () => { paused = false; }, { signal });
+    link.addEventListener('pointercancel', () => { paused = false; }, { signal });
 
     signal.addEventListener('abort', () => window.clearInterval(timer));
   }

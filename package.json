@@ -35,6 +35,11 @@
     "@astrojs/sitemap": "^3.7.2",
     "@fontsource/geist-sans": "^5.2.5",
     "@fontsource/lora": "^5.2.8",
+    "@types/d3-geo": "^3.1.0",
+    "@types/geojson": "^7946.0.16",
+    "@types/topojson-client": "^3.1.5",
+    "@types/topojson-specification": "^1.0.5",
+    "d3-geo": "^3.1.1",
     "postcss-html": "^1.8.1",
     "prettier": "^3.8.3",
     "prettier-plugin-astro": "^0.14.1",
@@ -42,6 +47,8 @@
     "sharp": "^0.34.5",
     "stylelint": "^17.10.0",
     "stylelint-config-standard": "^40.0.0",
-    "typescript": "^5.9.3"
+    "topojson-client": "^3.1.0",
+    "typescript": "^5.9.3",
+    "world-atlas": "^2.0.2"
   }
 }

@@ -16,14 +16,14 @@
  * leak example class names (`mt-[37px]`, `gap-[7px]`, `bg-zinc-900`,
  * `[file:line]`) into the bundle and trigger esbuild CSS-minify warnings.
  */
-@import 'tailwindcss' source(none);
+@import "tailwindcss" source(none);
 @source '../**/*.{astro,html,js,jsx,ts,tsx,md,mdx}';
 
-@import './tokens.css';
+@import "./tokens.css";
 
-@import '@fontsource-variable/lora';
-@import '@fontsource-variable/geist';
-@import '@fontsource-variable/geist-mono';
+@import "@fontsource-variable/lora";
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
 
 /*
  * Map runtime CSS variables (theme-aware) into Tailwind utilities.
@@ -190,22 +190,22 @@
       transform var(--duration-fast) var(--ease-out-expo);
   }
   /* Side-specific anchor + initial offset (animates in toward the host). */
-  .tooltip-host[data-tooltip-side='top'] .tooltip-bubble {
+  .tooltip-host[data-tooltip-side="top"] .tooltip-bubble {
     bottom: calc(100% + 8px);
     left: 50%;
     transform: translate(-50%, 2px);
   }
-  .tooltip-host[data-tooltip-side='bottom'] .tooltip-bubble {
+  .tooltip-host[data-tooltip-side="bottom"] .tooltip-bubble {
     top: calc(100% + 8px);
     left: 50%;
     transform: translate(-50%, -2px);
   }
-  .tooltip-host[data-tooltip-side='left'] .tooltip-bubble {
+  .tooltip-host[data-tooltip-side="left"] .tooltip-bubble {
     right: calc(100% + 8px);
     top: 50%;
     transform: translate(2px, -50%);
   }
-  .tooltip-host[data-tooltip-side='right'] .tooltip-bubble {
+  .tooltip-host[data-tooltip-side="right"] .tooltip-bubble {
     left: calc(100% + 8px);
     top: 50%;
     transform: translate(-2px, -50%);
@@ -215,20 +215,20 @@
     .tooltip-host:focus-within .tooltip-bubble {
       opacity: 1;
     }
-    .tooltip-host[data-tooltip-side='top']:hover .tooltip-bubble,
-    .tooltip-host[data-tooltip-side='top']:focus-within .tooltip-bubble {
+    .tooltip-host[data-tooltip-side="top"]:hover .tooltip-bubble,
+    .tooltip-host[data-tooltip-side="top"]:focus-within .tooltip-bubble {
       transform: translate(-50%, 0);
     }
-    .tooltip-host[data-tooltip-side='bottom']:hover .tooltip-bubble,
-    .tooltip-host[data-tooltip-side='bottom']:focus-within .tooltip-bubble {
+    .tooltip-host[data-tooltip-side="bottom"]:hover .tooltip-bubble,
+    .tooltip-host[data-tooltip-side="bottom"]:focus-within .tooltip-bubble {
       transform: translate(-50%, 0);
     }
-    .tooltip-host[data-tooltip-side='left']:hover .tooltip-bubble,
-    .tooltip-host[data-tooltip-side='left']:focus-within .tooltip-bubble {
+    .tooltip-host[data-tooltip-side="left"]:hover .tooltip-bubble,
+    .tooltip-host[data-tooltip-side="left"]:focus-within .tooltip-bubble {
       transform: translate(0, -50%);
     }
-    .tooltip-host[data-tooltip-side='right']:hover .tooltip-bubble,
-    .tooltip-host[data-tooltip-side='right']:focus-within .tooltip-bubble {
+    .tooltip-host[data-tooltip-side="right"]:hover .tooltip-bubble,
+    .tooltip-host[data-tooltip-side="right"]:focus-within .tooltip-bubble {
       transform: translate(0, -50%);
     }
   }
@@ -271,10 +271,8 @@
     margin-left: calc(
       var(--wall-inset) + var(--sidebar-rail) + var(--sidebar-gap)
     );
-    padding:
-      clamp(var(--space-5), 3vw, var(--space-6))
-      clamp(var(--space-4), 3vw, var(--space-6))
-      var(--space-8);
+    padding: clamp(var(--space-5), 3vw, var(--space-6))
+      clamp(var(--space-4), 3vw, var(--space-6)) var(--space-8);
     display: flex;
     flex-direction: column;
     gap: var(--space-5);
@@ -282,10 +280,16 @@
   @media (max-width: 1023.98px) {
     .detail-page {
       margin: 0;
-      padding:
-        var(--space-4)
-        var(--space-4)
-        calc(var(--space-7) + var(--space-5)); /* clear ~72px drawer + breathing */
+      /* Safe-area envelope on every side so notched iPhones (Dynamic Island
+         on top, home-indicator on bottom, slim bezels left/right in
+         landscape) don't clip content. The bottom padding *adds* the
+         safe-area to the existing drawer clearance rather than max(): the
+         drawer already lives in the safe area, so its 72px figure plus
+         breathing room plus any extra notch is what the user actually needs. */
+      padding: max(var(--space-4), var(--safe-top))
+        max(var(--space-4), var(--safe-right))
+        calc(var(--space-7) + var(--space-5) + var(--safe-bottom))
+        max(var(--space-4), var(--safe-left));
     }
   }
 
@@ -559,6 +563,17 @@ body {
   line-height: 1.55;
   min-height: 100vh;
   min-height: 100dvh;
+}
+
+/*
+ * While the mobile drawer is open, suppress overscroll bubbling on the
+ * body so iOS rubber-band doesn't show through the scrim and pull-to-
+ * refresh doesn't fire when the drawer is at its scroll limits. The
+ * sidebar itself uses overscroll-behavior: contain for the same reason.
+ * Sidebar.astro toggles `body.drawer-open` via lock/unlockBodyScroll().
+ */
+body.drawer-open {
+  overscroll-behavior: none;
 }
 
 a {

@@ -41,21 +41,19 @@ const classes = [
 
 <style>
   .bento-cell {
-    padding: clamp(var(--space-4), 2vw, var(--space-5));
+    /* Compact padding + gap — the wall is now a central strip with a
+       hard height ceiling, so cells need to fit content inside a smaller
+       envelope than they did when the wall filled the viewport. */
+    padding: clamp(var(--space-3), 1.5vw, var(--space-4));
     border-radius: var(--radius-lg);
     background: var(--surface);
     border: 1px solid var(--border);
     display: flex;
     flex-direction: column;
-    gap: var(--space-3);
+    gap: var(--space-2);
     height: 100%;
     min-width: 0;
     overflow: hidden;
-    transition:
-      transform var(--duration-normal) var(--ease-out-expo),
-      border-color var(--duration-normal) var(--ease-out-expo),
-      box-shadow var(--duration-normal) var(--ease-out-expo);
-    will-change: transform;
   }
 
   /* `.glass` is defined globally in styles/global.css; redeclaring background
@@ -65,36 +63,14 @@ const classes = [
   }
 
   /*
-   * Hover affordance — applies to every real cell (incl. glass), excludes
-   * the stub modifier (stubs are not interactive content). Honors
-   * prefers-reduced-motion: only the transform is suppressed; border + shadow
-   * still telegraph hover.
+   * No hover or focus-within paint state on bento cells — every prior
+   * variant of the affordance (translateY lift, then border+shadow swap,
+   * then border+shadow swap with pointer-events suppressed during scroll)
+   * caused a visible cascade as the wall scrolled past the cursor. The
+   * cells are entirely static. Interaction feedback is handled by the
+   * inner `<a class="card-link">` (cursor: pointer) and the cell's
+   * focus-visible outline at the link level.
    */
-  .bento-cell:not(.stub):hover,
-  .bento-cell:not(.stub):focus-within {
-    transform: translateY(-2px);
-    border-color: var(--border-hover);
-    box-shadow: var(--hover-shadow);
-  }
-
-  /* Glass cells need the inset highlight composed with the hover shadow,
-     otherwise the top-edge sheen disappears for the duration of the hover. */
-  .bento-cell.glass:not(.stub):hover,
-  .bento-cell.glass:not(.stub):focus-within {
-    box-shadow:
-      0 1px 0 0 var(--glass-highlight) inset,
-      var(--hover-shadow);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .bento-cell {
-      transition-duration: 0.01ms;
-    }
-    .bento-cell:not(.stub):hover,
-    .bento-cell:not(.stub):focus-within {
-      transform: none;
-    }
-  }
 
   /*
    * Stub modifier — empty slots styled as dashed-border placeholders.

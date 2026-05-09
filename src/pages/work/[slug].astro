@@ -1,0 +1,272 @@
+---
+/**
+ * Work detail page — the morph destination from the bento WorkCell.
+ *
+ * Mirrors src/pages/projects/[slug].astro structure: full-bleed two-column
+ * hero (cover left, meta right), prose body, related strip, prev/next nav,
+ * top-edge reading-progress bar.
+ *
+ * Cover slot:
+ *   - When `entry.data.logo` is set, render the matching inline-SVG logo in
+ *     its color variant against the surface — the brand mark is the
+ *     centerpiece, not a stand-in letter.
+ *   - When no logo is present, fall back to the gradient + first-letter of
+ *     `org` (same recipe ProjectsCell uses for unset cover paths) so the
+ *     hero still feels intentional and the morph from the bento is
+ *     continuous.
+ *
+ * View Transitions naming (CLAUDE.md §View Transitions convention):
+ *   poster-work-{slug}        → wrapping <article>
+ *   poster-work-{slug}-image  → cover container (logo or gradient)
+ *   poster-work-{slug}-title  → <h1>
+ */
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { coverHueVars } from '../../lib/cover-color';
+import ReadingProgress from '../../components/detail/ReadingProgress.astro';
+import RelatedWork from '../../components/detail/RelatedWork.astro';
+import WorkNextPrev from '../../components/detail/WorkNextPrev.astro';
+import WorkLogo from '../../components/work/WorkLogo.astro';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('work', ({ data }) => !data.draft);
+  return entries.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+interface Props {
+  entry: CollectionEntry<'work'>;
+}
+
+const { entry } = Astro.props;
+const { title, org, period, location, summary, links, logo } = entry.data;
+const { Content } = await render(entry);
+
+const hasLogo = Boolean(logo);
+const initial = org.trim().charAt(0).toUpperCase() || '·';
+const coverStyle = coverHueVars(org);
+
+function fmt(d: Date): string {
+  return d.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+}
+const periodLabel = `${fmt(period.start)} — ${period.end ? fmt(period.end) : 'Present'}`;
+---
+
+<Base
+  title={`${title} — ${org}`}
+  description={summary}
+  ogImage={`/og/work/${entry.id}.png`}
+  ogImageAlt={`${title} at ${org}`}
+>
+  <ReadingProgress />
+  <main id="main" class="detail-page page">
+    <a href="/" class="back-link text-caption">← back</a>
+
+    <article
+      class="work"
+      transition:name={`poster-work-${entry.id}`}
+    >
+      <div class="hero">
+        <div
+          class:list={['cover', hasLogo && 'cover--logo']}
+          style={hasLogo ? undefined : coverStyle}
+          aria-hidden="true"
+          transition:name={`poster-work-${entry.id}-image`}
+        >
+          {hasLogo ? (
+            <div class="logo-wrap">
+              <WorkLogo entry={entry} variant="color" height={64} ariaLabel={org} />
+            </div>
+          ) : (
+            <span class="cover-initial">{initial}</span>
+          )}
+        </div>
+
+        <div class="hero-meta">
+          <p class="text-caption muted eyebrow">work</p>
+
+          <h1
+            class="title text-display"
+            transition:name={`poster-work-${entry.id}-title`}
+          >{title}</h1>
+
+          <p class="org text-h3">{org}</p>
+
+          <p class="period text-mono-small muted">
+            <span>{periodLabel}</span>
+            {location && <span class="dot" aria-hidden="true">·</span>}
+            {location && <span>{location}</span>}
+          </p>
+
+          <p class="summary text-body">{summary}</p>
+
+          {
+            links && links.length > 0 && (
+              <ul class="links" aria-label="links">
+                {links.map((l) => (
+                  <li>
+                    <a class="link text-small" href={l.url} rel="noopener">
+                      {l.label}
+                      <span aria-hidden="true">↗</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )
+          }
+        </div>
+      </div>
+
+      <div class="prose">
+        <Content />
+      </div>
+    </article>
+
+    <RelatedWork current={entry} />
+    <WorkNextPrev current={entry} />
+  </main>
+</Base>
+
+<style>
+  /* Page chrome (margin-left for sidebar, mobile bleed, padding, gap) comes
+     from `.detail-page` in global.css. Local rules cover only what's
+     specific to this page: hero split, cover, hero-meta, links. */
+  .page {
+    max-width: 1080px;
+    gap: var(--space-4);
+  }
+  .muted {
+    color: var(--text-muted);
+  }
+
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: clamp(var(--space-4), 2.5vw, var(--space-6));
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    min-height: clamp(320px, 50dvh, 520px);
+  }
+
+  .cover {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background:
+      radial-gradient(
+        circle at 30% 30%,
+        oklch(70% 0.18 var(--hue) / 0.85),
+        oklch(35% 0.14 var(--hue-alt) / 0.95) 70%
+      );
+    color: var(--on-cover);
+  }
+  .cover--logo {
+    /* Brand mark on a quiet surface — no gradient tinting the wordmark. */
+    background: var(--surface);
+    color: var(--text);
+    padding: clamp(var(--space-4), 4vw, var(--space-7));
+  }
+  .logo-wrap {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .logo-wrap :global(svg) {
+    width: 100%;
+    height: auto;
+    /* Cap the logo's apparent size so it never feels balloon-y on tall heros. */
+    max-height: clamp(96px, 18vh, 180px);
+  }
+  .cover-initial {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(96px, 14vw, 200px);
+    line-height: 1;
+    letter-spacing: -0.04em;
+    text-align: center;
+    opacity: 0.95;
+    mix-blend-mode: screen;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .hero-meta {
+    padding: clamp(var(--space-4), 2.5vw, var(--space-6));
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+  .eyebrow {
+    margin: 0;
+  }
+
+  .title {
+    margin: 0;
+    color: var(--text);
+  }
+  .org {
+    margin: 0;
+    color: var(--text);
+  }
+  .period {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    align-items: center;
+  }
+  .dot {
+    opacity: 0.6;
+  }
+  .summary {
+    margin: 0;
+    color: var(--text);
+  }
+
+  .links {
+    list-style: none;
+    padding: 0;
+    margin: auto 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+  .link {
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    color: var(--text);
+    text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-out-expo);
+  }
+  .link:hover,
+  .link:focus-visible {
+    color: var(--accent);
+  }
+
+  @media (max-width: 767px) {
+    .hero {
+      grid-template-columns: 1fr;
+      min-height: 0;
+    }
+    .cover {
+      aspect-ratio: 4 / 3;
+      max-height: 40dvh;
+    }
+    .cover-initial {
+      font-size: clamp(72px, 18vw, 120px);
+    }
+    .logo-wrap :global(svg) {
+      max-height: clamp(64px, 16vh, 120px);
+    }
+  }
+</style>

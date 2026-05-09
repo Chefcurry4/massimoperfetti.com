@@ -45,9 +45,9 @@ import SpotifyWidget from './SpotifyWidget.astro';
     <Identity />
     <button
       type="button"
-      class="drawer-toggle"
+      class="drawer-toggle grip--unseen"
       data-drawer-toggle
-      aria-label="Toggle sidebar drawer"
+      aria-label="Open sidebar drawer"
       aria-expanded="false"
       aria-controls="sidebar-content"
     >
@@ -280,13 +280,25 @@ import SpotifyWidget from './SpotifyWidget.astro';
       padding:
         var(--space-2)
         clamp(var(--space-4), 4vw, var(--space-5))
-        max(env(safe-area-inset-bottom), var(--space-3));
+        max(var(--safe-bottom), var(--space-3));
       cursor: default;
       transition: max-height var(--duration-normal) var(--ease-out-expo);
+      /* Lighter blur on mobile — 20px is heavy on low-end GPUs and shows up
+         as jank during drag/scroll. The recipe still reads as glass. */
+      backdrop-filter: blur(var(--glass-blur-mobile)) saturate(var(--glass-saturate-mobile));
+      -webkit-backdrop-filter: blur(var(--glass-blur-mobile)) saturate(var(--glass-saturate-mobile));
+      /* Contain rubber-band so internal scroll doesn't bubble up to body. */
+      overscroll-behavior: contain;
     }
     .sidebar.open {
       max-height: 80dvh;
       overflow-y: auto;
+    }
+    /* While the user is actively dragging the grip, suppress the
+       max-height transition so the panel tracks the finger 1:1. The script
+       toggles .dragging on pointerdown and removes it on pointerup. */
+    .sidebar.dragging {
+      transition: none;
     }
     /* On mobile, the desktop `.expanded` class is irrelevant; reset its
        width override so it doesn't fight the full-width drawer. */
@@ -295,7 +307,7 @@ import SpotifyWidget from './SpotifyWidget.astro';
       box-shadow: none;
       padding: var(--space-2)
         clamp(var(--space-4), 4vw, var(--space-5))
-        max(env(safe-area-inset-bottom), var(--space-3));
+        max(var(--safe-bottom), var(--space-3));
     }
     /* Hide the desktop-only rail chevron + accent edge on mobile. */
     .rail-chevron,
@@ -321,15 +333,27 @@ import SpotifyWidget from './SpotifyWidget.astro';
     .drawer-toggle {
       display: flex;
       width: 100%;
-      min-height: 24px;
+      /* Bumped from 24 to --tap-min so the grip's tap region passes the
+         44×44 floor on its own — the visible 5×40 grip stays small but
+         the parent button absorbs all stray finger taps. */
+      min-height: var(--tap-min);
       padding: var(--space-2) 0;
       align-items: center;
       justify-content: center;
       background: transparent;
       border: none;
-      cursor: pointer;
+      cursor: grab;
       flex-shrink: 0;
       order: -1;
+      /* touch-action: pan-x lets the browser handle horizontal swipes
+         (page-level back/forward gestures) while we own the vertical axis
+         for drag-to-expand. Without this, native scroll would fight the
+         pointer handler. */
+      touch-action: pan-x;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .drawer-toggle:active {
+      cursor: grabbing;
     }
     .drawer-toggle:focus-visible {
       outline: 2px solid var(--accent);
@@ -338,15 +362,37 @@ import SpotifyWidget from './SpotifyWidget.astro';
     }
     .grip {
       display: block;
-      width: 36px;
-      height: 4px;
+      /* Bumped 36×4 → 40×5 and re-toned for actual visibility — the prior
+         --border-strong (~8% white on dark) was nearly invisible. */
+      width: 40px;
+      height: 5px;
       border-radius: var(--radius-sm);
-      background: var(--border-strong);
+      background: var(--text-muted);
       transition: background var(--duration-fast) var(--ease-out-expo);
     }
     .drawer-toggle:hover .grip,
     .drawer-toggle:focus-visible .grip {
-      background: var(--text-muted);
+      background: var(--text);
+    }
+    /* First-visit pulse — subtle two-cycle attention nudge. The script
+       clears `.grip--unseen` on the toggle's first interaction (or after
+       any open) so this only ever runs once per device.
+       Gated under `prefers-reduced-motion: no-preference` so users with
+       motion sensitivity never see it. */
+    @media (prefers-reduced-motion: no-preference) {
+      .grip--unseen .grip {
+        animation: grip-pulse 1.6s var(--ease-out-expo) 600ms 2;
+      }
+      @keyframes grip-pulse {
+        0%, 100% {
+          transform: scaleX(1);
+          opacity: 1;
+        }
+        50% {
+          transform: scaleX(1.25);
+          opacity: 0.75;
+        }
+      }
     }
 
     .content {
@@ -357,6 +403,9 @@ import SpotifyWidget from './SpotifyWidget.astro';
       transition:
         opacity var(--duration-normal) var(--ease-out-expo),
         max-height var(--duration-normal) var(--ease-out-expo);
+    }
+    .sidebar.dragging .content {
+      transition: none;
     }
     /* Mobile content reveal is gated on .open, NOT .expanded. */
     .sidebar.open .content {
@@ -522,15 +571,163 @@ import SpotifyWidget from './SpotifyWidget.astro';
         '[tabindex]:not([tabindex="-1"])',
       ].join(',');
 
+      const GRIP_SEEN_KEY = 'sidebar-grip-seen';
+      const markGripSeen = () => {
+        toggle.classList.remove('grip--unseen');
+        try {
+          localStorage.setItem(GRIP_SEEN_KEY, '1');
+        } catch {
+          /* private mode — pulse just runs every visit, harmless */
+        }
+      };
+      // If the user has already seen the pulse on this device, clear the
+      // class on bind so it never plays again.
+      try {
+        if (localStorage.getItem(GRIP_SEEN_KEY) === '1') {
+          toggle.classList.remove('grip--unseen');
+        }
+      } catch {
+        /* ignore */
+      }
+
       const setOpen = (open: boolean) => {
         const isOpen = sidebar.classList.contains('open');
         if (open === isOpen) return;
         sidebar.classList.toggle('open', open);
         scrim.classList.toggle('visible', open);
         toggle.setAttribute('aria-expanded', String(open));
-        if (open) lockBodyScroll();
-        else unlockBodyScroll();
+        toggle.setAttribute(
+          'aria-label',
+          open ? 'Close sidebar drawer' : 'Open sidebar drawer',
+        );
+        if (open) {
+          lockBodyScroll();
+          markGripSeen();
+        } else {
+          unlockBodyScroll();
+        }
       };
+
+      // ---- Drag-to-expand gesture ------------------------------------
+      // Vertical-only gesture on the grip handle. Reduced-motion users get
+      // the tap-only path via the click handler below (we still bind the
+      // pointer events but exit early if the user prefers reduced motion).
+      const reduceMotion = window.matchMedia(
+        '(prefers-reduced-motion: reduce)',
+      );
+      // Drag commits if travel > 30% of available range OR velocity is high.
+      const COMMIT_RATIO = 0.3;
+      const COMMIT_VELOCITY = 0.5; // px/ms
+      const PEEK_PX = 72;
+
+      type DragState = {
+        startY: number;
+        startTime: number;
+        startedOpen: boolean;
+        rangePx: number;
+        lastY: number;
+        lastTime: number;
+        moved: boolean;
+      };
+      let drag: DragState | null = null;
+      // After a real drag (movement > 4px), the browser fires a synthetic
+      // `click` on pointerup. Without this guard, that click would re-toggle
+      // the drawer and undo whatever the drag committed. Set on every
+      // moved-drag pointerup, consumed by the click handler.
+      let suppressNextClick = false;
+
+      const onPointerDown = (e: PointerEvent) => {
+        if (isDesktop() || reduceMotion.matches) return;
+        // Only react to primary button / touch / pen, not e.g. middle click.
+        if (e.button !== undefined && e.button !== 0) return;
+        const startedOpen = sidebar.classList.contains('open');
+        // Available travel = drawer's open height − peek. Use the live
+        // measurement for the open case, dvh for the closed case.
+        const openHeight = startedOpen
+          ? sidebar.getBoundingClientRect().height
+          : Math.round(window.innerHeight * 0.8);
+        const rangePx = Math.max(0, openHeight - PEEK_PX);
+        drag = {
+          startY: e.clientY,
+          startTime: e.timeStamp,
+          startedOpen,
+          rangePx,
+          lastY: e.clientY,
+          lastTime: e.timeStamp,
+          moved: false,
+        };
+        toggle.setPointerCapture(e.pointerId);
+        sidebar.classList.add('dragging');
+      };
+
+      const onPointerMove = (e: PointerEvent) => {
+        if (!drag) return;
+        const dy = e.clientY - drag.startY;
+        // When closed, only upward drag (negative dy) opens; clamp positive.
+        // When open, only downward drag (positive dy) closes; clamp negative.
+        const effective = drag.startedOpen ? Math.max(0, dy) : Math.min(0, dy);
+        if (Math.abs(effective) > 4) drag.moved = true;
+        if (drag.rangePx > 0) {
+          const progress = drag.startedOpen
+            ? 1 - effective / drag.rangePx
+            : -effective / drag.rangePx;
+          const clamped = Math.max(0, Math.min(1, progress));
+          const px = PEEK_PX + clamped * drag.rangePx;
+          sidebar.style.maxHeight = `${px}px`;
+          // Fade scrim in proportionally so the tactile feedback is honest.
+          scrim.style.opacity = String(clamped);
+          scrim.classList.toggle('visible', clamped > 0.02);
+        }
+        drag.lastY = e.clientY;
+        drag.lastTime = e.timeStamp;
+      };
+
+      const finishDrag = (e: PointerEvent | null) => {
+        if (!drag) return;
+        const dy = (e?.clientY ?? drag.lastY) - drag.startY;
+        const dt = Math.max(1, (e?.timeStamp ?? drag.lastTime) - drag.startTime);
+        const velocity = Math.abs(dy) / dt;
+        const effective = drag.startedOpen ? Math.max(0, dy) : Math.min(0, dy);
+        const traveled = Math.abs(effective);
+        const passedThreshold =
+          traveled / Math.max(1, drag.rangePx) > COMMIT_RATIO ||
+          velocity > COMMIT_VELOCITY;
+
+        // Clear inline overrides so CSS takes back control of the animation.
+        sidebar.style.maxHeight = '';
+        scrim.style.opacity = '';
+        sidebar.classList.remove('dragging');
+        try {
+          if (e) toggle.releasePointerCapture(e.pointerId);
+        } catch {
+          /* pointer was already released */
+        }
+
+        const wasMoved = drag.moved;
+        const startedOpen = drag.startedOpen;
+        drag = null;
+        // Suppress the synthetic click that follows any real drag, even a
+        // sub-threshold one — otherwise a snap-back drag would still
+        // re-toggle via the click handler.
+        if (wasMoved) suppressNextClick = true;
+        // Only commit a state change if the user actually moved past
+        // threshold; otherwise fall through to the click handler so a tap
+        // still toggles. `wasMoved` guards against ghost taps where
+        // pointermove never fired.
+        if (wasMoved && passedThreshold) {
+          setOpen(!startedOpen);
+        } else if (wasMoved) {
+          // Snap back — explicitly re-assert current state so transition fires.
+          scrim.classList.toggle('visible', startedOpen);
+        }
+      };
+
+      toggle.addEventListener('pointerdown', onPointerDown, { signal });
+      toggle.addEventListener('pointermove', onPointerMove, { signal });
+      toggle.addEventListener('pointerup', finishDrag, { signal });
+      toggle.addEventListener('pointercancel', () => finishDrag(null), {
+        signal,
+      });
 
       toggle.addEventListener(
         'click',
@@ -539,11 +736,24 @@ import SpotifyWidget from './SpotifyWidget.astro';
           if (isDesktop()) return;
           // Don't bubble up to the sidebar's own click-to-expand.
           e.stopPropagation();
+          if (suppressNextClick) {
+            suppressNextClick = false;
+            return;
+          }
           setOpen(!sidebar.classList.contains('open'));
         },
         { signal },
       );
-      scrim.addEventListener('click', () => setOpen(false), { signal });
+      scrim.addEventListener(
+        'click',
+        () => {
+          setOpen(false);
+          // Return focus to the toggle so keyboard users land somewhere
+          // sensible after dismissing via the scrim.
+          toggle.focus();
+        },
+        { signal },
+      );
       document.addEventListener(
         'keydown',
         (e) => {

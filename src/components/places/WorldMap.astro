@@ -1,0 +1,158 @@
+---
+/**
+ * WorldMap — SSR-rendered SVG world with markers for each visited place.
+ *
+ * Server-side only:
+ *   – `world-atlas/countries-110m.json` (TopoJSON, ~110 KB raw / ~30 KB gzipped)
+ *     supplies country shapes at 110-meter resolution. No province lines —
+ *     editorial detail level, not a Mapbox tile.
+ *   – `topojson-client.feature()` converts TopoJSON to a GeoJSON
+ *     FeatureCollection so d3-geo can consume it.
+ *   – `d3-geo.geoNaturalEarth1()` projects lng/lat onto a 2D canvas with
+ *     less polar distortion than Mercator and a softer silhouette than
+ *     Robinson. `fitSize` scales to the SVG viewBox.
+ *
+ * Output is plain SVG embedded in the page HTML — no client-side map
+ * library, no React, zero bundle impact (Astro tree-shakes server-only
+ * imports). Tooltips use native `<title>` elements (browser-rendered,
+ * accessible, no extra JS).
+ */
+import type { CollectionEntry } from 'astro:content';
+import { geoNaturalEarth1, geoPath } from 'd3-geo';
+import { feature } from 'topojson-client';
+import worldData from 'world-atlas/countries-110m.json';
+import type { Topology, GeometryCollection } from 'topojson-specification';
+import type { FeatureCollection, MultiPolygon, Polygon } from 'geojson';
+
+interface Props {
+  entries: CollectionEntry<'places'>[];
+  /** 'mini' shrinks marker radii for the bento cell; 'full' is the /places page. */
+  variant?: 'mini' | 'full';
+}
+
+const { entries, variant = 'full' } = Astro.props;
+
+// TopoJSON → GeoJSON FeatureCollection of country polygons. The
+// countries-110m.json bundle exposes `countries` as a GeometryCollection
+// of MultiPolygons; we cast to the right shape so topojson-client picks
+// the FeatureCollection-returning overload of `feature()`.
+const topology = worldData as unknown as Topology;
+const countriesCollection = topology.objects.countries as GeometryCollection<{ name: string }>;
+const countries = feature(
+  topology,
+  countriesCollection,
+) as unknown as FeatureCollection<Polygon | MultiPolygon>;
+
+// NaturalEarth1's natural width:height is roughly 1.95:1. 800×410 keeps the
+// numbers round and `fitSize` scales the projection accordingly.
+const WIDTH = 800;
+const HEIGHT = 410;
+
+const projection = geoNaturalEarth1().fitSize([WIDTH, HEIGHT], countries);
+const pathGen = geoPath(projection);
+
+// Build the static country path strings at build time.
+const countryPaths: readonly string[] = countries.features
+  .map((f) => pathGen(f))
+  .filter((d): d is string => d !== null);
+
+interface Marker {
+  readonly id: string;
+  readonly x: number;
+  readonly y: number;
+  readonly country: string;
+  readonly date: string;
+}
+
+const dateFmt = new Intl.DateTimeFormat('en-US', {
+  month: 'short',
+  year: 'numeric',
+});
+
+const markers: readonly Marker[] = entries
+  .map((e): Marker | null => {
+    const xy = projection([e.data.coordinates.lng, e.data.coordinates.lat]);
+    if (!xy) return null;
+    return {
+      id: e.id,
+      x: xy[0],
+      y: xy[1],
+      country: e.data.country,
+      date: dateFmt.format(e.data.visitedOn),
+    };
+  })
+  .filter((m): m is Marker => m !== null);
+
+const isMini = variant === 'mini';
+const HALO_R = isMini ? 4 : 8;
+const DOT_R = isMini ? 1.8 : 3.5;
+---
+
+<svg
+  class:list={['world-map', `variant-${variant}`]}
+  viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
+  preserveAspectRatio="xMidYMid meet"
+  role="img"
+  aria-label={`World map showing ${markers.length} place${markers.length === 1 ? '' : 's'} visited`}
+>
+  <g class="land">
+    {countryPaths.map((d) => <path d={d} />)}
+  </g>
+
+  <g class="markers">
+    {
+      markers.map((m) => (
+        <g class="pin" transform={`translate(${m.x} ${m.y})`}>
+          <circle class="pin-halo" r={HALO_R} />
+          <circle class="pin-dot" r={DOT_R} />
+          {/* Native browser tooltip — no JS, accessible by default. */}
+          <title>{`${m.country} — ${m.date}`}</title>
+        </g>
+      ))
+    }
+  </g>
+</svg>
+
+<style>
+  .world-map {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .land path {
+    fill: var(--text-muted);
+    fill-opacity: 0.1;
+    stroke: var(--border-strong);
+    /* `non-scaling-stroke` keeps the stroke-width visually constant when the
+       SVG scales down. Without it, a 0.4 stroke at viewBox=800px renders as
+       0.18 on a 360px mobile viewport — borders effectively disappear. */
+    stroke-width: 0.4;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+    pointer-events: none;
+  }
+
+  .pin-halo {
+    fill: var(--accent);
+    fill-opacity: 0.18;
+    transition: fill-opacity var(--duration-fast) var(--ease-out-expo);
+  }
+  .pin-dot {
+    fill: var(--accent);
+  }
+  .variant-full .pin {
+    cursor: default;
+  }
+  .variant-full .pin:hover .pin-halo {
+    fill-opacity: 0.4;
+  }
+  .variant-mini .pin {
+    pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pin-halo {
+      transition: none;
+    }
+  }
+</style>

@@ -5,8 +5,20 @@
  * Renders one work entry. Period formats as "Sep 2025 — Present" or
  * "Jan 2024 — Aug 2025" (Astro 6 content-layer Date coercion gives us a
  * real Date object).
+ *
+ * The cell is a clickable card that morphs into /work/{slug} via the
+ * View Transitions naming scheme:
+ *   poster-work-{id}        → anchor wrapper
+ *   poster-work-{id}-image  → logo / cover slot (always present, even when
+ *                             the entry has no logo, so the morph still has
+ *                             a target on the destination side)
+ *   poster-work-{id}-title  → <h2>
+ *
+ * When `entry.data.logo` is set, a small mono wordmark renders inline beside
+ * the org line via <WorkLogo>. Without a logo, the layout stays text-only.
  */
 import Cell from '../ui/Cell.astro';
+import WorkLogo from '../work/WorkLogo.astro';
 import type { CollectionEntry } from 'astro:content';
 
 interface Props {
@@ -15,35 +27,81 @@ interface Props {
 }
 
 const { entry, slot } = Astro.props;
-const { title, org, period, location, summary } = entry.data;
+const { title, org, period, location, summary, logo } = entry.data;
 
 function fmt(d: Date): string {
   return d.toLocaleString('en-US', { month: 'short', year: 'numeric' });
 }
 
 const periodLabel = `${fmt(period.start)} — ${period.end ? fmt(period.end) : 'Present'}`;
+
+const detailHref = `/work/${entry.id}`;
 ---
 
-<Cell slot={slot}>
-  <p class="text-caption muted">work</p>
+<a
+  href={detailHref}
+  class="card-link"
+  transition:name={`poster-work-${entry.id}`}
+>
+  <Cell slot={slot}>
+    <p class="text-caption muted">work</p>
 
-  <div class="title-block">
-    <h3 class="text-h3 title">{title}</h3>
-    <p class="org text-small">{org}</p>
-  </div>
+    <div class="title-block">
+      <h2
+        class="text-h2 title"
+        transition:name={`poster-work-${entry.id}-title`}
+      >{title}</h2>
+      <p class="org text-body">
+        {
+          logo ? (
+            <span
+              class="logo-slot"
+              transition:name={`poster-work-${entry.id}-image`}
+              aria-label={org}
+              role="img"
+            >
+              <WorkLogo entry={entry} variant="mono" height={18} />
+            </span>
+          ) : (
+            <>
+              <span
+                class="logo-slot empty"
+                transition:name={`poster-work-${entry.id}-image`}
+                aria-hidden="true"
+              />
+              <span>{org}</span>
+            </>
+          )
+        }
+      </p>
+    </div>
 
-  <p class="meta text-caption muted">
-    <span>{periodLabel}</span>
-    {location && <span class="dot" aria-hidden="true">·</span>}
-    {location && <span>{location}</span>}
-  </p>
+    <p class="meta text-caption muted">
+      <span>{periodLabel}</span>
+      {location && <span class="dot" aria-hidden="true">·</span>}
+      {location && <span>{location}</span>}
+    </p>
 
-  <p class="summary text-small muted">{summary}</p>
-</Cell>
+    <p class="summary text-small muted">{summary}</p>
+  </Cell>
+</a>
 
 <style>
   .muted {
     color: var(--text-muted);
+  }
+  /* The anchor wraps the cell so the morph carries the whole poster across
+     navigation. Same pattern as ProjectsCell. */
+  .card-link {
+    display: block;
+    height: 100%;
+    color: inherit;
+    text-decoration: none;
+    border-radius: var(--radius-lg);
+  }
+  .card-link:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
   .title-block {
     display: flex;
@@ -52,11 +110,28 @@ const periodLabel = `${fmt(period.start)} — ${period.end ? fmt(period.end) : '
   }
   .title {
     margin: 0;
-    line-height: 1.25;
+    /* Inherit text-h2's 1.2 line-height — earlier override at 1.25 was
+       tuned for h3 and softens the display-serif wrap. */
   }
   .org {
     margin: 0;
     color: var(--text);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+  .logo-slot {
+    display: inline-flex;
+    align-items: center;
+    /* `vertical-align: middle` on the inline-flex span keeps the wordmark
+       baseline-aligned with the org text. */
+    vertical-align: middle;
+  }
+  .logo-slot.empty {
+    /* Zero-size when there's no logo, but the element still exists so the
+       View Transitions morph has a stable target on the destination. */
+    width: 0;
+    height: 0;
   }
   .meta {
     display: flex;
@@ -69,19 +144,25 @@ const periodLabel = `${fmt(period.start)} — ${period.end ? fmt(period.end) : '
   }
   .summary {
     margin: 0;
-    /* clamp so two work cells side-by-side never push the column taller.
-       3 lines fits the col-2 work-row at viewport heights down to ~720dvh;
-       step down to 2 on shorter viewports. */
+    /* Work-row got a vertical bump (BentoGrid col-2 0.45→0.58fr), so the
+       summary can absorb the extra space rather than leaving a dead band
+       at the bottom. 5 lines on tall viewports, step down progressively. */
     display: -webkit-box;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
+    -webkit-line-clamp: 5;
+    line-clamp: 5;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-  @media (max-height: 800px) {
+  @media (max-height: 900px) {
     .summary {
-      -webkit-line-clamp: 2;
-      line-clamp: 2;
+      -webkit-line-clamp: 4;
+      line-clamp: 4;
+    }
+  }
+  @media (max-height: 760px) {
+    .summary {
+      -webkit-line-clamp: 3;
+      line-clamp: 3;
     }
   }
 </style>

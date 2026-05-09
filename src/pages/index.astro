@@ -1,6 +1,10 @@
 ---
 /**
  * Home page — the bento wall.
+ *
+ * Main is a vertically-centering flex container on desktop so the bento
+ * wall sits as a horizontal strip in the middle of the viewport with
+ * fixed top + bottom whitespace the wall cannot step over.
  */
 import Base from '../layouts/Base.astro';
 import BentoGrid from '../components/bento/BentoGrid.astro';
@@ -11,3 +15,19 @@ import BentoGrid from '../components/bento/BentoGrid.astro';
     <BentoGrid />
   </main>
 </Base>
+
+<style>
+  @media (min-width: 1024px) {
+    main#main {
+      /* svh (not dvh) so the height is constant across the browser's
+         dynamic-chrome animations — a dvh-based height re-flexes the
+         wall's vertical position every time the chrome size changes,
+         which during scroll reads visually as the cards "sliding down"
+         then snapping back. */
+      height: 100svh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+  }
+</style>

@@ -11,6 +11,7 @@
  * shared `poster-gallery-{slug}` / `-image` names never collide.
  */
 import { getCollection, type CollectionEntry } from 'astro:content';
+import { Picture } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import { hashHue } from '../../lib/cover-color';
 
@@ -59,12 +60,19 @@ const fallbackStyle = `--hue: ${hue}; --hue-alt: ${hueAlt};`;
       style={fallbackStyle}
       transition:name={`poster-gallery-${entry.id}-image`}
     >
-      <img
+      {/* LCP element on /gallery/[slug] — eager + high fetchpriority.
+          <Picture> emits a <picture> with AVIF + WebP <source> elements
+          plus a fallback <img>; browser negotiates format natively. On a
+          360px phone the picked candidate is ~600px wide instead of the
+          source's ~1400, cutting bytes substantially. */}
+      <Picture
         src={image}
         alt={caption ?? title}
-        width="1600"
-        height="1067"
+        widths={[600, 1000, 1600]}
+        sizes="(max-width: 1023.98px) 95vw, min(95vw, 1280px)"
+        formats={['avif', 'webp']}
         loading="eager"
+        fetchpriority="high"
         decoding="async"
       />
       {caption && <figcaption class="caption text-caption">{caption}</figcaption>}
@@ -103,7 +111,16 @@ const fallbackStyle = `--hue: ${hue}; --hue-alt: ${hueAlt};`;
 
   .corner {
     position: absolute;
-    top: max(var(--space-4), env(safe-area-inset-top));
+    top: max(var(--space-4), var(--safe-top));
+    /* 44×44 hit floor — text-only anchor was ~17px tall and ambiguous to
+       tap. Padding + min-height + min-width + inline-flex centering gives
+       a real tap region without changing the visible label position much
+       (a few px of padding around the text). */
+    min-height: var(--tap-min);
+    min-width: var(--tap-min);
+    padding: var(--space-2) var(--space-3);
+    display: inline-flex;
+    align-items: center;
     color: var(--on-cover);
     text-decoration: none;
     z-index: 1;
@@ -122,10 +139,18 @@ const fallbackStyle = `--hue: ${hue}; --hue-alt: ${hueAlt};`;
     border-radius: var(--radius-sm);
   }
   .back {
-    left: max(var(--space-5), env(safe-area-inset-left));
+    /* Compensate for the new horizontal padding so the visible label still
+       sits at the prior optical position (--space-5 from the safe-area edge). */
+    left: max(
+      calc(var(--space-5) - var(--space-3)),
+      calc(var(--safe-left) - var(--space-3))
+    );
   }
   .show-all {
-    right: max(var(--space-5), env(safe-area-inset-right));
+    right: max(
+      calc(var(--space-5) - var(--space-3)),
+      calc(var(--safe-right) - var(--space-3))
+    );
   }
 
   .frame {

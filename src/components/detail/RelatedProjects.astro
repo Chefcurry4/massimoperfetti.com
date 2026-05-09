@@ -101,8 +101,22 @@ const statusLabel: Record<CollectionEntry<'projects'>['data']['status'], string>
     padding: 0;
     margin: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    /* The previous `auto-fit minmax(220px, 1fr)` only reflows when the
+       *available* width drops below 220 — at 320px viewports you got one
+       squashed 320px card (or worse, two 160px cards depending on padding).
+       Explicit breakpoints give a deterministic ladder. */
+    grid-template-columns: 1fr;
     gap: var(--space-4);
+  }
+  @media (min-width: 520px) {
+    .grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 900px) {
+    .grid {
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
   }
   .card {
     display: flex;

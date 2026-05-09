@@ -15,6 +15,7 @@
 import Cell from '../ui/Cell.astro';
 import type { CollectionEntry } from 'astro:content';
 import { coverHueVars } from '../../lib/cover-color';
+import PandaIcon from '../projects/icons/PandaIcon.astro';
 
 interface Props {
   entry: CollectionEntry<'projects'>;
@@ -26,6 +27,7 @@ const { entry, variant = 'lg', slot } = Astro.props;
 const { title, summary, status, tags } = entry.data;
 
 const initial = title.trim().charAt(0).toUpperCase() || '·';
+const hasIcon = entry.id === 'unidiary';
 
 // Deterministic hue pair, shared with /projects/[slug] so the View Transitions
 // morph (Phase 4) interpolates the gradient continuously.
@@ -49,12 +51,12 @@ const detailHref = `/projects/${entry.id}`;
     {
       variant === 'lg' && (
         <div
-          class="cover"
-          style={coverStyle}
+          class:list={['cover', { 'cover-bare': hasIcon }]}
+          style={hasIcon ? undefined : coverStyle}
           aria-hidden="true"
           transition:name={`poster-projects-${entry.id}-image`}
         >
-          <span class="cover-initial">{initial}</span>
+          {hasIcon ? <PandaIcon class="cover-icon" /> : <span class="cover-initial">{initial}</span>}
         </div>
       )
     }
@@ -65,10 +67,10 @@ const detailHref = `/projects/${entry.id}`;
         <span class:list={['status-pill', 'text-mono-small', `status-${status}`]}>{statusLabel[status]}</span>
       </div>
 
-      <h3
+      <h2
         class:list={['title', variant === 'lg' ? 'text-h2' : 'text-h3']}
         transition:name={`poster-projects-${entry.id}-title`}
-      >{title}</h3>
+      >{title}</h2>
 
       {variant === 'lg' && <p class="summary text-small muted">{summary}</p>}
 
@@ -154,11 +156,21 @@ const detailHref = `/projects/${entry.id}`;
       );
     color: var(--on-cover);
   }
+  /* Bare variant: drop the gradient + frame so a project mark sits on the
+     cell's own surface (Unidiary panda). Color stays at --text so the
+     icon reads as a neutral mono glyph instead of the on-cover white. */
+  .cover.cover-bare {
+    background: transparent;
+    color: var(--text);
+  }
   /* Square thumbnail in lg variant. :global on the parent ancestor so we
      can navigate the scope boundary (Cell vs ProjectsCell scopes). */
   :global(.projects-cell.variant-lg) .cover {
     flex: 0 0 auto;
-    width: clamp(110px, 22%, 160px);
+    /* Tighter than the original 22% clamp so the cover thumbnail leaves
+       more horizontal breathing room for the title + summary on the
+       compact central-strip wall. */
+    width: clamp(96px, 18%, 132px);
     height: auto;
     aspect-ratio: 1 / 1;
     border-radius: var(--radius-md);
@@ -180,6 +192,19 @@ const detailHref = `/projects/${entry.id}`;
   }
   :global(.projects-cell.variant-lg) .cover-initial {
     font-size: clamp(44px, 5vw, 64px);
+  }
+  /* Project icon variant: replaces the giant initial for entries that have
+     a dedicated mark (Unidiary → panda). Mono via currentColor inheriting
+     from --on-cover; mix-blend-mode kept off so the strokes stay crisp. */
+  .cover-icon {
+    width: clamp(48px, 7vw, 72px);
+    height: auto;
+    opacity: 0.95;
+    pointer-events: none;
+    user-select: none;
+  }
+  :global(.projects-cell.variant-lg) .cover-icon {
+    width: clamp(40px, 4.5vw, 56px);
   }
 
   .meta {

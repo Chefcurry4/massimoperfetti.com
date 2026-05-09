@@ -1,0 +1,44 @@
+---
+/**
+ * WorkLogo — dispatches a work entry to its inline-SVG logo component.
+ *
+ * Each logo lives in src/components/work/logos/* as an Astro component with
+ * mono + color variants (using currentColor for mono). This dispatcher
+ * keeps the per-org switch in one place; new logos slot in by adding a
+ * sibling component and one line here.
+ *
+ * Returns nothing if the entry has no logo (or the slug isn't mapped) — the
+ * caller is responsible for the no-logo fallback.
+ */
+import type { CollectionEntry } from 'astro:content';
+import DualEnergyLogo from './logos/DualEnergyLogo.astro';
+
+interface Props {
+  entry: CollectionEntry<'work'>;
+  variant?: 'mono' | 'color';
+  height?: number;
+  ariaLabel?: string;
+  class?: string;
+}
+
+const {
+  entry,
+  variant = 'mono',
+  height = 14,
+  ariaLabel,
+  class: className,
+} = Astro.props;
+
+const slug = entry.id;
+---
+
+{
+  slug === 'dualenergy' && (
+    <DualEnergyLogo
+      variant={variant}
+      height={height}
+      ariaLabel={ariaLabel}
+      class={className}
+    />
+  )
+}

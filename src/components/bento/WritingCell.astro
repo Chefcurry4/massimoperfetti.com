@@ -2,103 +2,75 @@
 /**
  * Writing cell — bottom of column 2.
  *
- * Renders the most recent writing entry: title, date, summary, reading time.
- * Tags rendered as small chips at the bottom.
+ * Pinned newsletter announcement. The cell *body* is deliberately
+ * non-interactive (no <a> wrapper around the cell, no detail page). The
+ * one clickable element is the newsletter icon in the bottom-right corner,
+ * which opens https://perfettis-notes.beehiiv.com/ in a new tab — same
+ * destination the sidebar newsletter icon points at.
+ *
+ * Edit the body copy directly here when the announcement changes.
  */
 import Cell from '../ui/Cell.astro';
-import type { CollectionEntry } from 'astro:content';
+import { site } from '../../data/site';
 
 interface Props {
-  entry: CollectionEntry<'writing'>;
   slot?: string;
 }
 
-const { entry, slot } = Astro.props;
-const { title, date, summary, tags, readingTime } = entry.data;
+const { slot } = Astro.props;
 
-const dateLabel = date.toLocaleString('en-US', {
-  month: 'short',
-  day: 'numeric',
-  year: 'numeric',
-});
-
-const detailHref = `/writing/${entry.id}`;
+const newsletterUrl = 'https://perfettis-notes.beehiiv.com/';
 ---
 
-<a
-  href={detailHref}
-  class="card-link"
-  transition:name={`poster-writing-${entry.id}`}
->
-  <Cell slot={slot}>
-    <p class="text-caption muted">writing</p>
-
-    <h3 class="text-h3 title" transition:name={`poster-writing-${entry.id}-title`}>{title}</h3>
-
-  <p class="meta text-caption muted">
-    <span>{dateLabel}</span>
-    {readingTime && <span class="dot" aria-hidden="true">·</span>}
-    {readingTime && <span>{readingTime} min read</span>}
+<Cell slot={slot}>
+  <p class="text-caption muted">newsletter</p>
+  <h2 class="text-h3 title">Perfettis' Notes</h2>
+  <p class="lede text-body muted">
+    My brother Matteo and I launched a newsletter — free, in Italian. We
+    write about academic choices, engineering, AI and ML, motivation, work
+    experience, and the advice we wish we'd had along the way.
   </p>
-
-  <p class="summary text-body muted">{summary}</p>
-
-    {
-      tags.length > 0 && (
-        <ul class="tags" aria-label="tags">
-          {tags.slice(0, 3).map((t) => (
-            <li class="tag-chip text-caption">{t}</li>
-          ))}
-        </ul>
-      )
-    }
-  </Cell>
-</a>
+  <p class="closer text-small">
+    If it helps a few Italian students find their way a bit better, that's
+    already a win.
+  </p>
+  <div class="meta-row">
+    <p class="meta text-caption muted">free · in italian</p>
+    <a
+      class="subscribe"
+      href={newsletterUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`Subscribe to Perfettis' Notes — opens ${site.name === 'Massimo Perfetti' ? 'beehiiv' : 'newsletter'} in a new tab`}
+    >
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.7"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M4 6h12v10H4zM4 6l6 5 6-5M19 9h3M19 12h3M19 15h3" />
+      </svg>
+    </a>
+  </div>
+</Cell>
 
 <style>
   .muted {
     color: var(--text-muted);
   }
-  .card-link {
-    display: block;
-    height: 100%;
-    color: inherit;
-    text-decoration: none;
-    border-radius: var(--radius-lg);
-  }
-  .card-link:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
   .title {
     margin: 0;
     color: var(--text);
-    /* h3 sized × 2 lines fits the col-2 writing row at typical viewports;
-       step to 1 line on short ones. Demoted from h2 → h3 since h2 is a
-       structural tier reserved for page sections, not card titles. */
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
   }
-  @media (max-height: 800px) {
-    .title {
-      -webkit-line-clamp: 1;
-      line-clamp: 1;
-    }
-  }
-  .meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-2);
-    align-items: center;
-  }
-  .dot {
-    opacity: 0.6;
-  }
-  .summary {
+  .lede {
     margin: 0;
+    /* Clamp so the cell stays bounded at typical viewports. */
     display: -webkit-box;
     -webkit-line-clamp: 3;
     line-clamp: 3;
@@ -106,18 +78,59 @@ const detailHref = `/writing/${entry.id}`;
     overflow: hidden;
   }
   @media (max-height: 800px) {
-    .summary {
+    .lede {
       -webkit-line-clamp: 2;
       line-clamp: 2;
     }
   }
-  .tags {
-    list-style: none;
-    padding: 0;
+  .closer {
+    margin: 0;
+    color: var(--text);
+  }
+
+  .meta-row {
+    /* margin-top: auto pushes the meta line + subscribe icon to the bottom
+       of the cell so the announcement reads as anchored editorial copy. */
     margin: auto 0 0;
     display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-1);
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
   }
-  /* .tag-chip lives in global.css. */
+  .meta {
+    margin: 0;
+  }
+
+  .subscribe {
+    /* Icon-only link — same visual language as the sidebar contacts row. */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--control-h-sm);
+    height: var(--control-h-sm);
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border-strong);
+    color: var(--text-muted);
+    text-decoration: none;
+    transition:
+      color var(--duration-fast) var(--ease-out-expo),
+      border-color var(--duration-fast) var(--ease-out-expo),
+      transform var(--duration-fast) var(--ease-out-expo);
+  }
+  .subscribe:hover,
+  .subscribe:focus-visible {
+    color: var(--accent);
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+  .subscribe:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .subscribe:hover,
+    .subscribe:focus-visible {
+      transform: none;
+    }
+  }
 </style>

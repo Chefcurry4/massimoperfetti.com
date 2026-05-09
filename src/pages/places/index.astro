@@ -1,0 +1,138 @@
+---
+/**
+ * /places — full world-map view of every visited city.
+ *
+ * Sidebar-aware page chrome via `.detail-page`. The map sits at full width
+ * with sidebar offset; below it, a grid of place cards (city · country ·
+ * `visitedOn` formatted · optional notes) sorted date-desc.
+ *
+ * View Transitions: the page's <main> carries `transition:name="poster-places"`
+ * which matches the bento PlacesCell's link, so the bento → page morph works
+ * (singletons use stable names per CLAUDE.md §View Transitions).
+ */
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import WorldMap from '../../components/places/WorldMap.astro';
+
+const places = (await getCollection('places')).sort(
+  (a, b) => b.data.visitedOn.getTime() - a.data.visitedOn.getTime(),
+);
+
+const dateFmt = new Intl.DateTimeFormat('en-US', {
+  month: 'long',
+  year: 'numeric',
+});
+---
+
+<Base
+  title="Places"
+  description={`${places.length} places visited.`}
+  ogImage="/og/places.png"
+  ogImageAlt="Places visited by Massimo Perfetti"
+>
+  <main id="main" class="detail-page page" transition:name="poster-places">
+    <a href="/" class="back-link text-caption">← back</a>
+
+    <header class="head">
+      <p class="text-caption muted">places</p>
+      <h1 class="text-h1 headline">Places visited</h1>
+      <p class="text-body muted lede">
+        {places.length} cities across {new Set(places.map((p) => p.data.country)).size} countries.
+      </p>
+    </header>
+
+    <section class="map" aria-label="World map">
+      <WorldMap entries={places} variant="full" />
+    </section>
+
+    {
+      places.length > 0 && (
+        <section class="list" aria-label="All places">
+          <ul class="grid">
+            {places.map((entry) => (
+              <li class="card">
+                <p class="country text-h3">{entry.data.country}</p>
+                <p class="date text-mono-small muted">
+                  {dateFmt.format(entry.data.visitedOn)}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+  </main>
+</Base>
+
+<style>
+  /* .detail-page provides sidebar-aware margin + padding; we just widen the
+     reading max-width so the map has room to breathe. */
+  .page {
+    max-width: 1080px;
+    width: 100%;
+  }
+  .muted {
+    color: var(--text-muted);
+  }
+
+  .head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  .headline {
+    margin: 0;
+    color: var(--text);
+  }
+  .lede {
+    margin: 0;
+    max-width: 56ch;
+  }
+
+  .map {
+    /* Soft glass surround — same recipe as .glass but understated. The map
+       sits inside it like a print figure, not a fullscreen canvas. */
+    padding: clamp(var(--space-3), 2vw, var(--space-5));
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: color-mix(in oklab, var(--surface) 60%, transparent);
+  }
+
+  .grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    /* Deterministic mobile ladder (same rationale as RelatedProjects):
+       auto-fit only kicks in once available width passes the 220 floor,
+       which never happens on 320–520px viewports with sidebar gutter. */
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+  @media (min-width: 520px) {
+    .grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 900px) {
+    .grid {
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+  }
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-4) 0 0;
+    border-top: 1px solid var(--border-strong);
+  }
+  .country {
+    margin: 0;
+    color: var(--text);
+  }
+  .date {
+    margin: var(--space-1) 0 0;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+</style>

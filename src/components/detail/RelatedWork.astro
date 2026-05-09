@@ -1,0 +1,183 @@
+---
+/**
+ * RelatedWork — strip of 1–2 sibling work entries at the bottom of
+ * /work/[slug]. Empty-state hides the section. Mirrors RelatedProjects.
+ *
+ * Each card carries `transition:name="poster-work-{id}"` so clicking through
+ * morphs into the next detail page's hero. When the entry has a logo we
+ * render it in mono variant against the surface; without a logo we fall back
+ * to the same gradient + initial recipe used by projects so logoless work
+ * entries still look intentional.
+ */
+import { getCollection, type CollectionEntry } from 'astro:content';
+import { relatedWork } from '../../lib/related-work';
+import { coverHueVars } from '../../lib/cover-color';
+import WorkLogo from '../work/WorkLogo.astro';
+
+interface Props {
+  current: CollectionEntry<'work'>;
+  /** Optional cap; default 3. */
+  max?: number;
+}
+
+const { current, max = 3 } = Astro.props;
+
+const all = await getCollection('work', ({ data }) => !data.draft);
+const related = relatedWork(current, all, max);
+---
+
+{
+  related.length > 0 && (
+    <section class="related" aria-label="Related work">
+      <h2 class="text-caption muted heading">related</h2>
+
+      <ul class="grid">
+        {related.map((entry) => {
+          const initial = entry.data.org.trim().charAt(0).toUpperCase() || '·';
+          const coverStyle = coverHueVars(entry.data.org);
+          const hasLogo = Boolean(entry.data.logo);
+          return (
+            <li>
+              <a
+                href={`/work/${entry.id}`}
+                class="card"
+                transition:name={`poster-work-${entry.id}`}
+              >
+                <div
+                  class:list={['cover', hasLogo && 'cover--logo']}
+                  style={hasLogo ? undefined : coverStyle}
+                  aria-hidden="true"
+                  transition:name={`poster-work-${entry.id}-image`}
+                >
+                  {hasLogo ? (
+                    <WorkLogo entry={entry} variant="mono" height={20} />
+                  ) : (
+                    <span class="initial">{initial}</span>
+                  )}
+                </div>
+                <div class="meta">
+                  <p class="text-caption muted">work</p>
+                  <h3
+                    class="title text-h3"
+                    transition:name={`poster-work-${entry.id}-title`}
+                  >
+                    {entry.data.title}
+                  </h3>
+                  <p class="org text-small muted">{entry.data.org}</p>
+                </div>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  )
+}
+
+<style>
+  .muted {
+    color: var(--text-muted);
+  }
+  .related {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding-top: var(--space-6);
+    border-top: 1px solid var(--border);
+  }
+  .heading {
+    margin: 0;
+  }
+  .grid {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--space-4);
+  }
+  .card {
+    display: flex;
+    flex-direction: column;
+    color: inherit;
+    text-decoration: none;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    overflow: hidden;
+    transition:
+      transform var(--duration-normal) var(--ease-out-expo),
+      border-color var(--duration-normal) var(--ease-out-expo),
+      box-shadow var(--duration-normal) var(--ease-out-expo);
+  }
+  .card:hover,
+  .card:focus-visible {
+    transform: translateY(-2px);
+    border-color: var(--border-hover);
+    box-shadow: var(--hover-shadow);
+  }
+  .card:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .card:hover,
+    .card:focus-visible {
+      transform: none;
+    }
+  }
+
+  .cover {
+    flex: 0 0 auto;
+    height: 96px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background:
+      radial-gradient(
+        circle at 30% 30%,
+        oklch(70% 0.18 var(--hue) / 0.85),
+        oklch(35% 0.14 var(--hue-alt) / 0.95) 70%
+      );
+    color: var(--on-cover);
+    border-bottom: 1px solid var(--border);
+  }
+  .cover--logo {
+    /* Logo cards drop the gradient: a quiet surface with the wordmark
+       in --text reads cleaner than tinting the brand mark. */
+    background: var(--surface);
+    color: var(--text);
+  }
+  .initial {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 56px;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    text-align: center;
+    opacity: 0.95;
+    mix-blend-mode: screen;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .meta {
+    padding: var(--space-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+  .title {
+    margin: 0;
+    color: var(--text);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .org {
+    margin: 0;
+  }
+</style>

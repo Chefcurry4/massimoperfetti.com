@@ -25,19 +25,32 @@ const fallbackEmail = 'massimoperfetti4@gmail.com';
   title="Book a call"
   description="Pick a 30-minute slot. Synced to Massimo's Google Calendar."
 >
-  <main id="main" class="page">
+  {/* Outer wrapper is <section>, not <main> — the embedded Cal.com iframe
+      contains its own <main> landmark for the booking flow. Two <main>s on
+      the same page violates axe's `landmark-unique` rule (and confuses
+      assistive tech with multiple "main" announcements). The booking iframe
+      is the user's actual primary content here; our header + footer are
+      page chrome around it. */}
+  <section id="main" class="page" aria-labelledby="book-heading">
     <header class="head">
       <p class="text-caption muted">book</p>
-      <h1 class="text-h1 headline">Book a call</h1>
+      <h1 id="book-heading" class="text-h1 headline">Book a call</h1>
       <p class="text-body muted intro">
         30 minutes. Pick a time that works.
       </p>
     </header>
 
     <div class="embed-wrap">
+      {/* Explicit width/height attributes give the browser intrinsic
+          dimensions BEFORE the iframe loads, eliminating CLS on slow
+          mobile networks. CSS still flex-fills on desktop and clamps to
+          80dvh on mobile (`.embed-wrap iframe` rule below). The numbers
+          are placeholders the browser uses for layout reservation only. */}
       <iframe
         src={embedSrc}
         title="Book a 30-min call with Massimo Perfetti"
+        width="800"
+        height="800"
         loading="lazy"
         referrerpolicy="strict-origin-when-cross-origin"
         allow="clipboard-write; payment"
@@ -50,7 +63,7 @@ const fallbackEmail = 'massimoperfetti4@gmail.com';
       </span>
       <a href="/" class="back-link text-caption">← back</a>
     </footer>
-  </main>
+  </section>
 </Base>
 
 <style>
@@ -135,11 +148,14 @@ const fallbackEmail = 'massimoperfetti4@gmail.com';
     .page {
       /* Mobile: full-bleed, content-sized height (the bento page already
          scrolls vertically as a long stack, so /book can flow the same way).
-         Drawer handle clearance via padding-bottom. */
+         Drawer handle clearance + safe-area envelope per detail-page rule. */
       height: auto;
       min-height: calc(100dvh - calc(var(--space-7) + var(--space-5)));
       margin: 0;
-      padding: var(--space-4) var(--space-4) calc(var(--space-7) + var(--space-5));
+      padding: max(var(--space-4), var(--safe-top))
+        max(var(--space-4), var(--safe-right))
+        calc(var(--space-7) + var(--space-5) + var(--safe-bottom))
+        max(var(--space-4), var(--safe-left));
     }
     .embed-wrap {
       /* Give the embed a real height target on mobile (no flex-fill — the

@@ -56,6 +56,10 @@ import Tooltip from './Tooltip.astro';
 
 <style>
   .theme-toggle {
+    /* `position: relative` does double duty: anchors the absolutely-
+       positioned sun/moon icons (they were previously walking up to a
+       distant offsetParent), and anchors the ::before hit-pad below. */
+    position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -70,6 +74,17 @@ import Tooltip from './Tooltip.astro';
       background var(--duration-fast) var(--ease-out-expo),
       border-color var(--duration-fast) var(--ease-out-expo),
       color var(--duration-fast) var(--ease-out-expo);
+  }
+  .theme-toggle::before {
+    /* Invisible hit-pad: 36 + 2 * --tap-pad (6) = 48 click region for a
+       36px visible button. Above the 44px Apple HIG floor; the extra
+       breathing room is fine since the toggle sits alone (not in a row
+       of siblings competing for hit-space). Pill radius matches the
+       parent so the click region is the same circular shape. */
+    content: '';
+    position: absolute;
+    inset: calc(var(--tap-pad) * -1);
+    border-radius: var(--radius-pill);
   }
 
   .theme-toggle:hover {
@@ -110,6 +125,20 @@ import Tooltip from './Tooltip.astro';
       opacity var(--duration-normal) var(--ease-out-expo),
       transform var(--duration-normal) var(--ease-out-expo);
   }
+
+  /* Reduced-motion: cross-fade only, no rotate/scale spin. The hidden icon
+     stays opacity 0 and the visible one stays at scale(1) without the
+     30deg theatrical entry. */
+  @media (prefers-reduced-motion: reduce) {
+    :global([data-theme='dark']) .theme-toggle .icon-sun,
+    :global([data-theme='light']) .theme-toggle .icon-moon {
+      transform: none;
+    }
+    :global([data-theme='dark']) .theme-toggle .icon-moon,
+    :global([data-theme='light']) .theme-toggle .icon-sun {
+      transform: none;
+    }
+  }
 </style>
 
 <script>
@@ -134,6 +163,12 @@ import Tooltip from './Tooltip.astro';
       } catch {
         /* private mode / blocked storage — just skip persistence */
       }
+      // Keep <meta name="theme-color"> in sync so the mobile browser
+      // chrome flips with the theme. Values mirror --bg in tokens.css.
+      const meta = document.querySelector<HTMLMetaElement>(
+        'meta[name="theme-color"]',
+      );
+      if (meta) meta.content = next === 'light' ? '#f5f5f3' : '#0a0a0a';
       syncPressed();
     };
 

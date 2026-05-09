@@ -43,9 +43,10 @@ const projects = defineCollection({
 });
 
 const work = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/work' }),
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/work' }),
   schema: z.object({
     title: z.string().min(1),
+    slug: z.string().optional(),
     org: z.string().min(1),
     period: z.object({
       start: z.coerce.date(),
@@ -53,7 +54,12 @@ const work = defineCollection({
     }),
     location: z.string().optional(),
     summary: z.string().min(1),
+    tags: z.array(z.string()).default([]),
+    cover: z.string().optional(),
+    logo: z.string().optional(),
+    featured: z.boolean().default(false),
     links: z.array(linkSchema).optional(),
+    draft: z.boolean().default(false),
   }),
 });
 
@@ -87,20 +93,26 @@ const places = defineCollection({
 
 const gallery = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/gallery' }),
-  schema: z.object({
-    title: z.string().min(1),
-    date: z.coerce.date(),
-    image: z.string(),
-    caption: z.string().optional(),
-    location: z.string().optional(),
-    exif: z
-      .object({
-        camera: z.string().optional(),
-        lens: z.string().optional(),
-        fStop: z.string().optional(),
-      })
-      .optional(),
-  }),
+  // Schema-as-function so Astro injects the `image()` helper. `image()`
+  // validates the path *and* returns ImageMetadata (src + dimensions +
+  // format) for downstream <Image> consumers, unlocking AVIF/WebP/srcset
+  // emission at build time. Files live in `src/assets/gallery/` because
+  // /public is passthrough-only and never goes through the asset pipeline.
+  schema: ({ image }) =>
+    z.object({
+      title: z.string().min(1),
+      date: z.coerce.date(),
+      image: image(),
+      caption: z.string().optional(),
+      location: z.string().optional(),
+      exif: z
+        .object({
+          camera: z.string().optional(),
+          lens: z.string().optional(),
+          fStop: z.string().optional(),
+        })
+        .optional(),
+    }),
 });
 
 export const collections = {

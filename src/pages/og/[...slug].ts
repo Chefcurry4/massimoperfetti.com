@@ -7,6 +7,7 @@
  *   /og/projects/{slug}.png
  *   /og/writing/{slug}.png
  *   /og/gallery/{slug}.png
+ *   /og/work/{slug}.png
  *
  * Style: dark editorial — Lora display title left-aligned, Geist Sans
  * description below, accent rule at the block-end edge. No logo blob.
@@ -28,6 +29,10 @@ interface OGPage {
 const projects = await getCollection('projects', ({ data }) => !data.draft);
 const writing = await getCollection('writing', ({ data }) => !data.draft);
 const gallery = await getCollection('gallery');
+const places = await getCollection('places');
+const work = await getCollection('work', ({ data }) => !data.draft);
+
+const distinctCountries = new Set(places.map((p) => p.data.country)).size;
 
 const pages: Record<string, OGPage> = {
   home: {
@@ -37,6 +42,10 @@ const pages: Record<string, OGPage> = {
   about: {
     title: about.headline,
     description: siteConfig.description,
+  },
+  places: {
+    title: 'Places visited',
+    description: `${places.length} cities across ${distinctCountries} countries.`,
   },
   ...Object.fromEntries(
     projects.map((entry) => [
@@ -56,6 +65,15 @@ const pages: Record<string, OGPage> = {
       {
         title: entry.data.title,
         description: entry.data.caption ?? entry.data.location ?? siteConfig.name,
+      },
+    ]),
+  ),
+  ...Object.fromEntries(
+    work.map((entry) => [
+      `work/${entry.id}`,
+      {
+        title: `${entry.data.title} — ${entry.data.org}`,
+        description: entry.data.summary,
       },
     ]),
   ),

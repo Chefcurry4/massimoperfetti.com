@@ -13,11 +13,13 @@
   color-scheme: dark light;
 
   /* Type families (theme-invariant) */
-  --font-display: 'Lora Variable', 'Lora', ui-serif, Georgia, serif;
-  --font-sans: 'Geist Variable', 'Geist', ui-sans-serif, system-ui, -apple-system,
-    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --font-mono: 'Geist Mono Variable', 'Geist Mono', ui-monospace,
-    'SF Mono', 'Menlo', 'Consolas', monospace;
+  --font-display: "Lora Variable", "Lora", ui-serif, Georgia, serif;
+  --font-sans:
+    "Geist Variable", "Geist", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono:
+    "Geist Mono Variable", "Geist Mono", ui-monospace, "SF Mono", "Menlo",
+    "Consolas", monospace;
 
   /* Spacing rhythm (theme-invariant) */
   --space-section: clamp(4rem, 3rem + 5vw, 10rem);
@@ -28,14 +30,14 @@
    * if a value isn't on this scale, round to the nearest token or extend
    * the scale here with a justification.
    */
-  --space-1: 0.25rem;  /*  4px */
-  --space-2: 0.5rem;   /*  8px */
-  --space-3: 0.75rem;  /* 12px */
-  --space-4: 1rem;     /* 16px */
-  --space-5: 1.5rem;   /* 24px */
-  --space-6: 2rem;     /* 32px */
-  --space-7: 3rem;     /* 48px */
-  --space-8: 4rem;     /* 64px */
+  --space-1: 0.25rem; /*  4px */
+  --space-2: 0.5rem; /*  8px */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem; /* 16px */
+  --space-5: 1.5rem; /* 24px */
+  --space-6: 2rem; /* 32px */
+  --space-7: 3rem; /* 48px */
+  --space-8: 4rem; /* 64px */
 
   /*
    * Radius scale — four values. Editorial sites should not need more.
@@ -60,6 +62,37 @@
   --control-h-md: 36px;
   --icon-sm: 18px;
   --icon-xs: 12px;
+
+  /*
+   * Touch-target floor — 44px (Apple HIG). The visible control may stay
+   * at --control-h-sm/md for editorial density; --tap-pad expands the *hit
+   * region* to 44×44 via outer padding so the click area meets accessibility
+   * requirements without the visual UI getting blockier.
+   *   tap-min   primary controls' minimum dimension
+   *   tap-pad   invisible hit-padding around dense controls
+   *             (tap-pad * 2 + control-h-sm = 6 * 2 + 32 = 44)
+   */
+  --tap-min: 44px;
+  --tap-pad: 6px;
+
+  /*
+   * Mobile-tuned glass — gentler GPU load on phones. The desktop glass
+   * recipe (20px blur, 140% saturate) is heavy on low-end mobile GPUs and
+   * can cause jank during drawer/scroll. Mobile media queries reference
+   * these instead.
+   */
+  --glass-blur-mobile: 12px;
+  --glass-saturate-mobile: 130%;
+
+  /*
+   * Safe-area shorthand — env() with a 0px fallback so non-notched browsers
+   * still satisfy the var(). Consumers wrap with max(token, var(--safe-*))
+   * to combine ordinary inset with notch clearance.
+   */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
 
   /*
    * Z-index scale — leave 10-unit gaps so future layers can interleave
@@ -92,18 +125,16 @@
    * everywhere; tweaking the brand becomes one edit. The -soft variant is
    * for backdrops where the avatar gradient would be too saturated.
    */
-  --gradient-cool:
-    linear-gradient(
-      135deg,
-      oklch(72% 0.12 264 / 0.85),
-      oklch(38% 0.10 295 / 0.95)
-    );
-  --gradient-cool-soft:
-    linear-gradient(
-      135deg,
-      oklch(72% 0.08 264 / 0.5),
-      oklch(38% 0.06 295 / 0.6)
-    );
+  --gradient-cool: linear-gradient(
+    135deg,
+    oklch(72% 0.12 264 / 0.85),
+    oklch(38% 0.1 295 / 0.95)
+  );
+  --gradient-cool-soft: linear-gradient(
+    135deg,
+    oklch(72% 0.08 264 / 0.5),
+    oklch(38% 0.06 295 / 0.6)
+  );
 
   /* Backdrop / scrim for modal overlays. Three opacities cover the use
      cases the design needs:
@@ -129,7 +160,7 @@
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-[data-theme='dark'] {
+[data-theme="dark"] {
   --bg: #0a0a0a;
   --surface: #141414;
   --surface-glass: rgba(20, 20, 20, 0.55);
@@ -143,13 +174,12 @@
      soft drop shadow that combines glass-shadow with a faint accent halo. */
   --border-hover: oklch(92% 0.18 117 / 0.36);
   --hover-shadow:
-    0 12px 40px rgba(0, 0, 0, 0.45),
-    0 0 0 1px oklch(92% 0.18 117 / 0.06);
+    0 12px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px oklch(92% 0.18 117 / 0.06);
 
   /* Status pill palette — three tones, low-saturation. */
-  --status-live: oklch(78% 0.16 152);              /* green */
+  --status-live: oklch(78% 0.16 152); /* green */
   --status-live-bg: oklch(78% 0.16 152 / 0.12);
-  --status-progress: oklch(92% 0.18 117);          /* accent yellow-green */
+  --status-progress: oklch(92% 0.18 117); /* accent yellow-green */
   --status-progress-bg: oklch(92% 0.18 117 / 0.12);
   --status-archived: var(--text-muted);
   --status-archived-bg: transparent;
@@ -157,8 +187,8 @@
   /* Availability palette — sidebar Now snippet dot. Reuses live as
      'available'. Limited = amber, unavailable = warm red. */
   --availability-available: var(--status-live);
-  --availability-limited: oklch(82% 0.16 80);      /* amber */
-  --availability-unavailable: oklch(64% 0.20 25);  /* warm red */
+  --availability-limited: oklch(82% 0.16 80); /* amber */
+  --availability-unavailable: oklch(64% 0.2 25); /* warm red */
 
   /* Glass treatment — inset highlight + drop shadow per theme. */
   --glass-highlight: rgba(255, 255, 255, 0.06);
@@ -170,7 +200,7 @@
   --on-cover: oklch(98% 0 0);
 }
 
-[data-theme='light'] {
+[data-theme="light"] {
   --bg: #f5f5f3;
   --surface: #ffffff;
   --surface-glass: rgba(255, 255, 255, 0.65);
@@ -182,19 +212,18 @@
 
   --border-hover: oklch(48% 0.22 263 / 0.32);
   --hover-shadow:
-    0 12px 40px rgba(0, 0, 0, 0.10),
-    0 0 0 1px oklch(48% 0.22 263 / 0.10);
+    0 12px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px oklch(48% 0.22 263 / 0.1);
 
   --status-live: oklch(54% 0.16 152);
-  --status-live-bg: oklch(54% 0.16 152 / 0.10);
+  --status-live-bg: oklch(54% 0.16 152 / 0.1);
   --status-progress: oklch(48% 0.22 263);
-  --status-progress-bg: oklch(48% 0.22 263 / 0.10);
+  --status-progress-bg: oklch(48% 0.22 263 / 0.1);
   --status-archived: var(--text-muted);
   --status-archived-bg: transparent;
 
   --availability-available: var(--status-live);
   --availability-limited: oklch(60% 0.16 75);
-  --availability-unavailable: oklch(50% 0.20 25);
+  --availability-unavailable: oklch(50% 0.2 25);
 
   --glass-highlight: rgba(255, 255, 255, 0.45);
   --glass-shadow: rgba(0, 0, 0, 0.08);

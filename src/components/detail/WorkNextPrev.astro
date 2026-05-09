@@ -1,0 +1,124 @@
+---
+/**
+ * WorkNextPrev — two-column link strip below RelatedWork on /work/[slug].
+ * Mirrors NextPrev.astro: sort by `period.start` desc, find current, render
+ * newer (left) / older (right) sibling links.
+ */
+import { getCollection, type CollectionEntry } from 'astro:content';
+
+interface Props {
+  current: CollectionEntry<'work'>;
+}
+
+const { current } = Astro.props;
+
+const all = (await getCollection('work', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.period.start.getTime() - a.data.period.start.getTime(),
+);
+
+const idx = all.findIndex((e) => e.id === current.id);
+const newer = idx > 0 ? all[idx - 1] : null;
+const older = idx < all.length - 1 ? all[idx + 1] : null;
+
+const hasAny = Boolean(newer || older);
+---
+
+{
+  hasAny && (
+    <nav class="nextprev" aria-label="Adjacent work">
+      {newer ? (
+        <a class="link prev" href={`/work/${newer.id}`} rel="prev">
+          <span class="text-caption muted">← newer role</span>
+          <span class="title text-h3">{newer.data.title}</span>
+          <span class="org text-small muted">{newer.data.org}</span>
+        </a>
+      ) : (
+        <span class="link spacer" aria-hidden="true" />
+      )}
+
+      {older ? (
+        <a class="link next" href={`/work/${older.id}`} rel="next">
+          <span class="text-caption muted">older role →</span>
+          <span class="title text-h3">{older.data.title}</span>
+          <span class="org text-small muted">{older.data.org}</span>
+        </a>
+      ) : (
+        <span class="link spacer" aria-hidden="true" />
+      )}
+    </nav>
+  )
+}
+
+<style>
+  .muted {
+    color: var(--text-muted);
+  }
+  .nextprev {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+    margin-top: var(--space-5);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--border);
+  }
+  .link {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    text-decoration: none;
+    color: inherit;
+    padding: var(--space-3);
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    transition:
+      border-color var(--duration-fast) var(--ease-out-expo),
+      background var(--duration-fast) var(--ease-out-expo);
+  }
+  .link.spacer {
+    pointer-events: none;
+  }
+  .link.next {
+    align-items: flex-end;
+    text-align: right;
+  }
+  .link:hover:not(.spacer),
+  .link:focus-visible:not(.spacer) {
+    border-color: var(--border);
+    background: var(--surface);
+  }
+  .link:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .title {
+    margin: 0;
+    color: var(--text);
+    transition: color var(--duration-fast) var(--ease-out-expo);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .org {
+    margin: 0;
+  }
+  .link:hover .title,
+  .link:focus-visible .title {
+    color: var(--accent);
+  }
+
+  @media (max-width: 600px) {
+    .nextprev {
+      grid-template-columns: 1fr;
+      gap: var(--space-2);
+    }
+    .link.next {
+      align-items: flex-start;
+      text-align: left;
+    }
+    .link.spacer {
+      display: none;
+    }
+  }
+</style>

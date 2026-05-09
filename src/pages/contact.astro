@@ -56,10 +56,14 @@ import { site } from '../data/site';
 
       <div class="field">
         <label for="contact-name" class="text-caption muted">name</label>
+        {/* inputmode="text" hints the OS keyboard layout — on mobile it
+            picks the standard alphabetic keyboard rather than guessing
+            from `type=text`. autocomplete enables password-manager fill. */}
         <input
           id="contact-name"
           name="name"
           type="text"
+          inputmode="text"
           required
           autocomplete="name"
         />
@@ -67,10 +71,13 @@ import { site } from '../data/site';
 
       <div class="field">
         <label for="contact-email" class="text-caption muted">email</label>
+        {/* inputmode="email" pulls up the @-key-prominent keyboard on iOS
+            and Android — meaningful win over plain `type=email`. */}
         <input
           id="contact-email"
           name="email"
           type="email"
+          inputmode="email"
           required
           autocomplete="email"
         />
@@ -82,6 +89,7 @@ import { site } from '../data/site';
           id="contact-subject"
           name="subject"
           type="text"
+          inputmode="text"
         />
       </div>
 
@@ -184,6 +192,9 @@ import { site } from '../data/site';
 
   .submit {
     align-self: flex-start;
+    /* Explicit 44px floor — the prior padding (12 + 13px text + 12 ≈ 37) was
+       below Apple HIG and ambiguous on touch. */
+    min-height: var(--tap-min);
     padding: var(--space-3) var(--space-5);
     border-radius: var(--radius-pill);
     border: 1px solid var(--border-strong);

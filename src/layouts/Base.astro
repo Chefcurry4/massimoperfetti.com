@@ -8,8 +8,10 @@
  * pages). Spotify keeps playing, theme toggle state survives.
  */
 import { ClientRouter } from 'astro:transitions';
+import { getImage } from 'astro:assets';
 import { site } from '../data/site';
 import Sidebar from '../components/sidebar/Sidebar.astro';
+import portraitMobileSrc from '../assets/in.png';
 import '../styles/global.css';
 
 interface Props {
@@ -37,14 +39,44 @@ const ogImageAltText =
 // Preload the AboutCell portrait on the home route only — it's the LCP
 // candidate above the fold, so giving it `fetchpriority="high"` cuts ~600ms
 // off the first paint vs. waiting for the bento grid to lay out first.
+//
+// Two variants:
+//   Desktop (≥1024px) — /me.webp, the square 280×280 portrait composed for
+//     the bento rail. Pre-built; ships from /public.
+//   Mobile  (<1024px) — src/assets/in.png, a wider crop suited to the
+//     full-width × 280 mobile cell. Run through getImage() to a hashed WebP
+//     (~1200px) so phones don't pull the 962KB source PNG.
+//
+// The two preload <link>s carry `media="..."` so only the variant the
+// visitor will actually paint gets fetched — no double-download.
 const isHome = Astro.url.pathname === '/';
+const portraitMobile = isHome
+  ? await getImage({
+      src: portraitMobileSrc,
+      width: 1200,
+      format: 'webp',
+    })
+  : null;
 ---
 
 <!doctype html>
 <html lang={site.locale} data-theme="dark">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {/* viewport-fit=cover unlocks env(safe-area-inset-*) on notched iPhones
+        so full-bleed surfaces (gallery detail, drawer footer) can clear the
+        Dynamic Island and home indicator. */}
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    {/* color-scheme tells the UA which form-control / scrollbar palette to
+        use; theme-color paints the mobile address-bar / browser chrome to
+        match. The theme bootstrap script below overwrites theme-color
+        imperatively so it tracks the user's *chosen* theme, not just the
+        system one. */}
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#0a0a0a" />
     <meta name="generator" content={Astro.generator} />
 
     <title>{fullTitle}</title>
@@ -76,17 +108,36 @@ const isHome = Astro.url.pathname === '/';
     />
     {
       isHome && (
-        <link
-          rel="preload"
-          as="image"
-          href="/me.webp"
-          type="image/webp"
-          fetchpriority="high"
-        />
+        <>
+          {/* Desktop variant — square portrait, only fetched on ≥1024px. */}
+          <link
+            rel="preload"
+            as="image"
+            href="/me.webp"
+            type="image/webp"
+            media="(min-width: 1024px)"
+            fetchpriority="high"
+          />
+          {/* Mobile variant — wider crop, only fetched on <1024px. */}
+          {portraitMobile && (
+            <link
+              rel="preload"
+              as="image"
+              href={portraitMobile.src}
+              type="image/webp"
+              media="(max-width: 1023.98px)"
+              fetchpriority="high"
+            />
+          )}
+        </>
       )
     }
 
-    {/* Theme bootstrap: synchronous, runs before first paint. */}
+    {/* Theme bootstrap: synchronous, runs before first paint. Also syncs
+        the <meta name="theme-color"> so the mobile browser chrome matches
+        the resolved theme — without this the address bar would lock to the
+        SSR-emitted dark color even after the user picks light. Values must
+        stay in sync with --bg in tokens.css. */}
     <script is:inline>
       (function () {
         try {
@@ -96,6 +147,8 @@ const isHome = Astro.url.pathname === '/';
             ? stored
             : (prefersLight ? 'light' : 'dark');
           document.documentElement.dataset.theme = theme;
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute('content', theme === 'light' ? '#f5f5f3' : '#0a0a0a');
         } catch (e) {
           document.documentElement.dataset.theme = 'dark';
         }

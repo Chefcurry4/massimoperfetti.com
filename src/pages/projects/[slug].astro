@@ -26,6 +26,7 @@ import { coverHueVars } from '../../lib/cover-color';
 import ReadingProgress from '../../components/detail/ReadingProgress.astro';
 import RelatedProjects from '../../components/detail/RelatedProjects.astro';
 import NextPrev from '../../components/detail/NextPrev.astro';
+import PandaIcon from '../../components/projects/icons/PandaIcon.astro';
 
 export async function getStaticPaths() {
   const entries = await getCollection('projects', ({ data }) => !data.draft);
@@ -44,6 +45,7 @@ const { title, summary, status, tags, links, date } = entry.data;
 const { Content } = await render(entry);
 
 const initial = title.trim().charAt(0).toUpperCase() || '·';
+const hasIcon = entry.id === 'unidiary';
 const coverStyle = coverHueVars(title);
 
 const statusLabel: Record<typeof status, string> = {
@@ -74,12 +76,12 @@ const dateLabel = date.toLocaleString('en-US', {
     >
       <div class="hero">
         <div
-          class="cover"
-          style={coverStyle}
+          class:list={['cover', { 'cover-bare': hasIcon }]}
+          style={hasIcon ? undefined : coverStyle}
           aria-hidden="true"
           transition:name={`poster-projects-${entry.id}-image`}
         >
-          <span class="cover-initial">{initial}</span>
+          {hasIcon ? <PandaIcon class="cover-icon" /> : <span class="cover-initial">{initial}</span>}
         </div>
 
         <div class="hero-meta">
@@ -178,6 +180,12 @@ const dateLabel = date.toLocaleString('en-US', {
       );
     color: var(--on-cover);
   }
+  /* Bare variant — mirrors ProjectsCell.cover-bare so an icon-led project
+     (Unidiary) shows the panda on the hero surface, not the gradient. */
+  .cover.cover-bare {
+    background: transparent;
+    color: var(--text);
+  }
   .cover-initial {
     /* Bigger than the bento variant — this is the hero. Off-scale on
        purpose: graphic-display, not body text. */
@@ -189,6 +197,15 @@ const dateLabel = date.toLocaleString('en-US', {
     text-align: center;
     opacity: 0.95;
     mix-blend-mode: screen;
+    pointer-events: none;
+    user-select: none;
+  }
+  /* Project-mark variant for entries with a dedicated icon (Unidiary).
+     Sized to feel like a hero glyph rather than a UI affordance. */
+  .cover-icon {
+    width: clamp(96px, 14vw, 200px);
+    height: auto;
+    opacity: 0.95;
     pointer-events: none;
     user-select: none;
   }
@@ -261,6 +278,9 @@ const dateLabel = date.toLocaleString('en-US', {
     }
     .cover-initial {
       font-size: clamp(72px, 18vw, 120px);
+    }
+    .cover-icon {
+      width: clamp(72px, 18vw, 120px);
     }
   }
 </style>

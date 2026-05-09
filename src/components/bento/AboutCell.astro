@@ -23,20 +23,41 @@
  * paint candidate on the wall.
  */
 import Cell from '../ui/Cell.astro';
+import { getImage } from 'astro:assets';
 import { about } from '../../data/about';
 import { site } from '../../data/site';
+import portraitMobileSrc from '../../assets/in.png';
+
+// Mobile gets a different portrait — desktop's /me.webp is composed for the
+// 280×280 square in the bento rail; the mobile cell renders full-width × 280
+// (a wide rectangle) and benefits from a different crop. Run through Astro's
+// asset pipeline so the user-supplied PNG is served as a hashed WebP at a
+// width sized for retina phones (1080px effective at 360×3x; 1200 gives
+// headroom). Build-time only — zero client cost.
+const portraitMobile = await getImage({
+  src: portraitMobileSrc,
+  width: 1200,
+  format: 'webp',
+});
 ---
 
 <Cell glass slot="cell-about" class="about-cell">
+  {/* --portrait-mobile carries the build-hashed WebP URL into the scoped
+      stylesheet so the @media block below can swap the background-image
+      without inlining the URL twice or duplicating the rule. */}
   <div
     class="portrait"
     role="img"
     aria-label={`Portrait of ${site.name}`}
+    style={`--portrait-mobile: url('${portraitMobile.src}');`}
   ></div>
 
   <div class="content">
     <p class="text-caption muted">about</p>
-    <h2 class="text-h1 name">{site.name}</h2>
+    {/* h1 because this cell is the bento home page's primary heading.
+        AboutContent on /about owns its own h1 so there's no collision —
+        AboutCell is only ever rendered on /. */}
+    <h1 class="text-h1 name">{site.name}</h1>
     <p class="role text-small">{about.role}</p>
     <p class="body text-small muted">{about.body[0]}</p>
 
@@ -61,16 +82,15 @@ import { site } from '../../data/site';
   }
 
   .portrait {
-    /* `flex: 1 1 0; min-height: 0` lets the portrait shrink when the cell is
-       short (so the meta block always renders fully). aspect-ratio gives it
-       a sensible footprint when there's room; max-height caps it at the
-       intended hero size. The cap is more generous now that AboutCell owns
-       the full column-1 height (Phase 3 moved contacts to the sidebar). */
-    flex: 1 1 0;
-    min-height: 0;
+    /* Fixed height — no flex grow, no aspect-ratio, no max-height. The
+       previous flex+aspect-ratio combination interacted unpredictably
+       across browsers (flex item sizing winning over max-height under
+       certain content states), letting the photo render much taller than
+       intended and pushing the cell past the wall's row allocation.
+       width: 100% fills the cell; height is locked. */
+    flex: 0 0 280px;
     width: 100%;
-    aspect-ratio: 4 / 5;
-    max-height: 480px;
+    height: 280px;
     border-radius: var(--radius-md);
     overflow: hidden;
     /* Layered: gradient fallback below, photo on top. If /me.webp 404s, the
@@ -84,6 +104,27 @@ import { site } from '../../data/site';
     background-position: center top, center;
     background-repeat: no-repeat, no-repeat;
     border: 1px solid var(--border);
+  }
+  /* === Mobile layout =================================================
+   * Stacked (portrait above content), same as desktop, but the portrait
+   * uses aspect-ratio: 1 instead of a fixed 280px height. The old
+   * full-width × 280 rectangle was forcing `background-size: cover` to
+   * crop the face down to just the eyes and forehead; a 1:1 box shows the
+   * whole head-and-shoulders. The mobile-specific photo (src/assets/in.png)
+   * is hashed to WebP via getImage() and injected through --portrait-mobile.
+   * ================================================================== */
+  @media (max-width: 1023.98px) {
+    .portrait {
+      /* Reset the desktop fixed-280px height — let aspect-ratio drive it
+         instead so the photo's natural proportions are preserved. The
+         flex basis switches from a height value to `auto` for the same
+         reason. width: 100% fills the cell horizontally as before. */
+      flex: 0 0 auto;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1 / 1;
+      background-image: var(--portrait-mobile), var(--gradient-cool);
+    }
   }
 
   .content {
@@ -132,6 +173,14 @@ import { site } from '../../data/site';
     display: inline-flex;
     align-items: center;
     gap: var(--space-1);
+    /* The visible label is text-caption (~17px tall) — far below the 44px
+       tap floor. Vertical padding + min-height lifts the click region to
+       spec without changing visual rhythm: margin-top: auto pins the
+       label to the bottom of .content, padding: var(--space-2) 0 absorbs
+       stray finger taps above and below the eyebrow. No horizontal pad
+       so the inline alignment stays. */
+    min-height: var(--tap-min);
+    padding: var(--space-2) 0;
     color: var(--text-muted);
     text-decoration: none;
     transition: color var(--duration-normal) var(--ease-out-expo);

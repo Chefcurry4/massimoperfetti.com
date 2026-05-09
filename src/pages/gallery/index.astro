@@ -9,6 +9,7 @@
  * per navigation, so the names never collide.
  */
 import { getCollection } from 'astro:content';
+import { Picture } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import { hashHue } from '../../lib/cover-color';
 
@@ -52,11 +53,17 @@ const gallery = (await getCollection('gallery')).sort(
                     style={`--hue: ${hue}; --hue-alt: ${hueAlt};`}
                     transition:name={`poster-gallery-${entry.id}-image`}
                   >
-                    <img
+                    {/* Below-the-fold thumbnail grid — lazy + AVIF/WebP at
+                        three widths via <Picture> for format negotiation.
+                        `sizes` mirrors the responsive grid: 2-col under 480,
+                        3-col to 768, 4-col to 1280, 5-col beyond, with the
+                        page max-width clamping at 1080. */}
+                    <Picture
                       src={entry.data.image}
                       alt={entry.data.caption ?? entry.data.title}
-                      width="800"
-                      height="800"
+                      widths={[300, 500, 800]}
+                      sizes="(max-width: 480px) 50vw, (max-width: 768px) 33vw, (max-width: 1280px) 25vw, 216px"
+                      formats={['avif', 'webp']}
                       loading="lazy"
                       decoding="async"
                     />
@@ -100,9 +107,30 @@ const gallery = (await getCollection('gallery')).sort(
     margin: 0;
     padding: 0;
     display: grid;
-    /* Instagram-tight: 3 columns, 2px gutter, square cells. */
-    grid-template-columns: repeat(3, 1fr);
+    /* Mobile-first ladder.
+       <480px : 2 cols → each thumb ≥ 152px on a 320px viewport (well above
+                          the 44px tap floor; uniform 3-col would land near 100).
+       480-767: 3 cols (Instagram-tight at small tablet).
+       768-1279: 4 cols.
+       ≥1280  : 5 cols (densifies on desktop without ever shrinking thumbs
+                        below tap-target). */
+    grid-template-columns: repeat(2, 1fr);
     gap: 2px;
+  }
+  @media (min-width: 480px) {
+    .grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  @media (min-width: 768px) {
+    .grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  @media (min-width: 1280px) {
+    .grid {
+      grid-template-columns: repeat(5, 1fr);
+    }
   }
 
   .thumb {

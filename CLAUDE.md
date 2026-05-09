@@ -65,13 +65,19 @@ Do not introduce: Next.js, server components, a database, a CMS, shadcn/ui (woul
 │   │   ├── bento/                  # bento cell components
 │   │   │   ├── BentoGrid.astro     # the wall itself
 │   │   │   ├── AboutCell.astro     # full column-1 hero (contacts moved to sidebar in Phase 3)
-│   │   │   ├── WorkCell.astro
+│   │   │   ├── WorkCell.astro      # clickable; morphs into /work/[slug] (post-Phase-8)
 │   │   │   ├── WritingCell.astro
 │   │   │   ├── ProjectsCell.astro  # 3-4 projects, lg + sm variants
 │   │   │   ├── GalleryCell.astro
-│   │   │   ├── PlacesCell.astro    # expandable world map
+│   │   │   ├── PlacesCell.astro    # bento mini world-map (uses ../places/WorldMap)
 │   │   │   ├── SeeAllCell.astro    # "see all projects" CTA tile
 │   │   │   └── StubCell.astro      # intentional empty slot
+│   │   ├── work/
+│   │   │   ├── WorkLogo.astro      # dispatches a work entry to its inline-SVG logo
+│   │   │   └── logos/              # per-org inline-SVG logos with mono/color variants
+│   │   │       └── DualEnergyLogo.astro
+│   │   ├── places/
+│   │   │   └── WorldMap.astro      # SSR-rendered SVG world (d3-geo + topojson)
 │   │   ├── sidebar/
 │   │   │   ├── Sidebar.astro       # persistent; rail/panel hover-expand
 │   │   │   ├── Identity.astro      # avatar + name + role + availability ring
@@ -86,6 +92,8 @@ Do not introduce: Next.js, server components, a database, a CMS, shadcn/ui (woul
 │   │   ├── index.astro             # the bento wall (home)
 │   │   ├── projects/[slug].astro   # project detail pages
 │   │   ├── projects/index.astro    # full projects index
+│   │   ├── work/[slug].astro       # work detail pages (logo hero or gradient fallback)
+│   │   ├── work/index.astro        # full work index
 │   │   ├── writing/[slug].astro
 │   │   ├── gallery/index.astro     # Instagram-style photo feed
 │   │   ├── gallery/[slug].astro    # fullscreen photo on liquid-glass
@@ -135,12 +143,22 @@ All long-form content lives in `src/content/`. Each collection has a strict Zod 
 ```ts
 {
   title: string,                   // role / title
+  slug?: string,                   // auto from filename if omitted
   org: string,                     // institution / company
   period: { start: Date, end?: Date }, // end omitted = current
   location?: string,
-  summary: string,
+  summary: string,                 // 1-2 sentences for the bento card
+  tags: string[],                  // e.g. ['founder', 'ai', 'energy']
+  cover?: string,                  // optional path under /public
+  logo?: string,                   // optional path under /public — when set,
+                                   // detail-page hero shows the wordmark
+                                   // (color variant) and bento WorkCell
+                                   // shows it inline mono via <WorkLogo>
+  featured?: boolean,              // shows in bento grid (2 max)
   links?: { label: string, url: string }[],
+  draft?: boolean,
 }
+// body: optional case-study markdown / MDX rendered on /work/[slug]
 ```
 
 ### `writing/`
@@ -465,10 +483,11 @@ This is the suggested phasing. Work top-down. Don't run ahead.
 - [x] **Phase 3** — Sidebar built and persisted. Identity (avatar + name + role), Now snippet with availability dot, public-audience contacts cluster (Tooltip-wrapped icon row), Spotify embed (iframe), theme toggle slotted in. Mobile = bottom drawer with Identity peek, scroll-position-preserving body lock, AbortController-managed listeners. Bento ContactsCell retired; AboutCell expanded to full col-1.
 - [x] **Phase 4** — View Transitions. Card-to-detail morphs wired for projects (3-name: card/image/title), writing (2-name: card/title), gallery (2-name: card/image). Routes: /projects/[slug], /projects (list), /writing/[slug], /gallery/[slug]. Project detail uses a full-bleed split hero (cover left, meta right). Wall scrollLeft preserved across nav via sessionStorage. Cover-hue helper extracted to src/lib/cover-color.ts so source + destination gradients match continuously through the morph.
 - [x] **Phase 5** — Project detail polish. Editorial `.prose` upgrade (drop cap on first paragraph, blockquote, figure/figcaption, hr, 17px body, tighter h2/h3 rhythm). New components: `RelatedProjects` (tag-overlap, transition:names match bento for cross-detail morphs), `NextPrev` (date-desc adjacency), `ReadingProgress` (top-edge bar, used on /projects/[slug] + /writing/[slug]). MDX body components: `<Figure>`, `<Pullquote>`, `<Aside>` (in `src/components/mdx/`, opt-in per .mdx file — see §MDX body components).
-- [ ] **Phase 6** — Places: expandable world map. This is the highest-risk component — likely needs an island. Investigate `react-simple-maps` or a custom SVG world before committing. Reference: gianmarcocavallo.com.
+- [x] **Phase 6** — Places: world map at `/places`. Pure-Astro SSR — no React island. Build-time renders an SVG world via `d3-geo` (`geoNaturalEarth1` projection) + `topojson-client.feature()` over `world-atlas/countries-110m.json`; no client-side map library, zero bundle impact (Astro tree-shakes server-only imports). [`src/components/places/WorldMap.astro`](src/components/places/WorldMap.astro) is the reusable component (`variant: 'mini' | 'full'`, native `<title>` tooltips for accessibility); [`src/pages/places/index.astro`](src/pages/places/index.astro) is the full page with header + map + auto-fit grid of place cards sorted date-desc. Bento [`PlacesCell`](src/components/bento/PlacesCell.astro) replaces its hand-drawn placeholder with `<WorldMap variant="mini">` and links to `/places` via `transition:name="poster-places"` (singleton naming per §View Transitions). 14 entries in `src/content/places/` (Italy, Spain, UK, France, Netherlands, New York, Turkey, Germany, Malta, Ireland, Switzerland, Poland, Hungary + the existing Cambridge-MA). Lighthouse desktop on `/places`: Perf 95 / A11y 100 / BP 96 / SEO 100, LCP 1.2s, CLS 0. axe-clean.
 - [x] **Phase 7** — Gallery: bento `GalleryCell` auto-cycles through every photo every 10s (crossfade, pause-on-hover/focus, off under prefers-reduced-motion); each tick rewrites `view-transition-name` on the link + frame so a click mid-cycle morphs into `/gallery/[slug]` for whichever photo is currently on screen. The detail page is a fullscreen photo on a liquid-glass backdrop (no exif page chrome — the page IS the zoomed view); its "all photos →" link leads to `/gallery`, an Instagram-style square-thumbnail feed; thumbnails morph back to the fullscreen view via the same `poster-gallery-{slug}` / `-image` names. Contact form at `/contact` (Netlify Forms, declarative, redirects to `/thanks`); CTA surfaced in the sidebar ContactsCluster next to the Book CTA. About: `<AboutContent />` extracted as a shared component used by `/about` only — the popup was reverted in favour of a single deep-linkable page (AboutCell `→ read more` links straight to `/about`).
-- [ ] **Phase 8** — Polish: loading states, OG images, sitemap, RSS for `writing/`, accessibility audit, Lighthouse pass.
-- [ ] **Phase 9** — Deploy to Netlify. Custom domain.
+- [x] **Phase 8** — Polish. OG image generator unblocked via `.npmrc` (`public-hoist-pattern[]=*canvaskit*` so pnpm hoists `canvaskit-wasm` and `astro-og-canvas` finds the wasm binary); 8 OG PNGs emit at build (`/og/home.png`, `/og/about.png`, `/og/projects/{slug}.png`, `/og/writing/{slug}.png`, `/og/gallery/{slug}.png`). RSS verified (`/writing/rss.xml`, valid feed) and sitemap verified (13 public URLs, `/design` + `/thanks` + `/og/*` excluded). Accessibility audit: axe-core/cli clean across `/`, `/about`, `/projects/flowmap`, `/gallery`, `/projects`, `/contact` (the only remaining violation is on `/book` and originates inside the Cal.com iframe — third-party). Bento home heading hierarchy fixed (`AboutCell` is now `<h1>`, all cell titles `<h2>`). Lighthouse desktop preset: Performance ≥ 94, Accessibility 100, Best Practices 96, SEO 100; LCP ≤ 1.4s, CLS ≤ 0.007 across `/`, `/about`, `/projects/flowmap`, `/gallery`. Loading states de-scoped (static MPA, gradient fallbacks already cover missing media).
+- ~~**Phase 9** — Deploy to Netlify. Custom domain.~~ **Out of scope.** Massimo already owns the custom domain and handles the Netlify deploy himself. Do not propose deploy steps, DNS changes, Netlify CLI commands, or domain config — that lane is the author's. The repo's `netlify.toml` is the only deploy-side artifact we maintain.
+- [x] **Post-Phase-8** — Work detail pages. The work collection now mirrors the project detail-page system: `WorkCell` is a clickable anchor with `poster-work-{slug}` morph names (card / image / title); `/work/[slug]` is a split-hero detail page (logo left when `entry.data.logo` is set, gradient + initial fallback otherwise — same `coverHueVars()` recipe as projects so the morph reads continuously); `/work` is a list view; `<RelatedWork>` and `<WorkNextPrev>` clone the project equivalents over the work fields. Schema extended additively (`slug`, `tags`, `cover`, `logo`, `featured`, `draft`, all optional; loader switched to `**/*.{md,mdx}`) — pre-existing entries unchanged. Per-org logos live in [`src/components/work/logos/*`](src/components/work/logos/) as inline SVGs with `mono` (currentColor) and `color` variants; [`WorkLogo.astro`](src/components/work/WorkLogo.astro) dispatches by slug. OG generator extended for `work/{slug}.png`.
 
 Mark items done by editing this file when phases complete. Don't move on with TODOs left behind.
 
@@ -544,6 +563,8 @@ pnpm lint:css
 ---
 
 ## Deployment — Netlify
+
+> **Author-owned lane.** Massimo deploys to Netlify and manages the custom domain himself. Claude maintains `netlify.toml` and the contact-form markup; Claude does **not** run Netlify CLI commands, edit DNS, propose redeploy steps, or chase build failures on the deployed site unless Massimo explicitly asks.
 
 `netlify.toml` at repo root:
 ```toml

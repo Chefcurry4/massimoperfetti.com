@@ -123,4 +123,19 @@ const playlistUrl = site.spotifyEmbedUrl.replace('/embed/playlist/', '/playlist/
   .card-link:focus-visible .arrow {
     transform: translate(2px, -2px);
   }
+
+  /* Reduced-motion: keep the color affordances, drop the position deltas.
+     Global rules collapse transition durations but the destination
+     transform still applies; explicitly resetting transform here matches
+     the canonical pattern from RelatedProjects. */
+  @media (prefers-reduced-motion: reduce) {
+    .card-link:hover,
+    .card-link:focus-visible {
+      transform: none;
+    }
+    .card-link:hover .arrow,
+    .card-link:focus-visible .arrow {
+      transform: none;
+    }
+  }
 </style>

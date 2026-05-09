@@ -128,10 +128,14 @@ import { site } from '../data/site';
     .page {
       margin-left: 0;
       margin-right: 0;
+      /* Top: max(token, safe-top) so the page header clears the Dynamic
+         Island. Sides: max(token, safe-{left,right}) for landscape on
+         notched devices. Bottom: existing drawer clearance + safe-bottom. */
       padding:
-        clamp(var(--space-6), 8vw, var(--space-7))
-        clamp(var(--space-4), 5vw, var(--space-5))
-        calc(var(--space-7) + var(--space-5));
+        max(clamp(var(--space-6), 8vw, var(--space-7)), var(--safe-top))
+        max(clamp(var(--space-4), 5vw, var(--space-5)), var(--safe-right))
+        calc(var(--space-7) + var(--space-5) + var(--safe-bottom))
+        max(clamp(var(--space-4), 5vw, var(--space-5)), var(--safe-left));
     }
   }
 </style>
