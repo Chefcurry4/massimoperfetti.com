@@ -4,10 +4,10 @@
  *
  * Desktop (≥ 1024px) — rail / panel, collapsed by default.
  *   Collapsed (rail, 64px): avatar + a vertical accent edge + a discoverable
- *     chevron trigger + the theme toggle. Reads as a thin column on the
- *     left edge with one obvious "expand" affordance.
- *   Expanded (panel, 280px): full content (Identity, Now, Contacts + Book,
- *     Spotify, Theme toggle).
+ *     chevron trigger. Reads as a thin column on the left edge with one
+ *     obvious "expand" affordance.
+ *   Expanded (panel, 280px): full content (Identity, Contacts + Book,
+ *     Spotify).
  *   Triggers:
  *     - Click the chevron (or anywhere on the rail) → expand.
  *     - Click the chevron when expanded → collapse immediately.
@@ -29,7 +29,6 @@
  * each section its own breathing room rather than a flat hairline.
  */
 import Identity from './Identity.astro';
-import NowSnippet from './NowSnippet.astro';
 import ContactsCluster from './ContactsCluster.astro';
 import SpotifyWidget from './SpotifyWidget.astro';
 ---
@@ -57,7 +56,6 @@ import SpotifyWidget from './SpotifyWidget.astro';
   </div>
 
   <div id="sidebar-content" class="content">
-    <NowSnippet />
     <ContactsCluster />
     <SpotifyWidget />
   </div>

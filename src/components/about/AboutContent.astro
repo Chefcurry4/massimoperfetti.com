@@ -1,24 +1,45 @@
 ---
 /**
- * Shared about content — centered editorial reading column.
- * Hosted by /about, which owns the page chrome (margin, sidebar offset,
- * footer, backdrop). Extracted as a component so the editorial body can
- * be reused if a second surface ever needs it.
+ * Editorial about — magazine profile layout.
  *
- * The `photos` array on `src/data/about.ts` is no longer rendered — kept
- * in the schema for future use.
+ * Three sections, each a top-level flex child of the host page (/about):
+ *   1. Head — small mono eyebrow + a poster-scale display headline.
+ *   2. Facts strip — three structured tabular pairs (Now / Based / Trained at)
+ *      with hairline rules above + below; reads like the masthead block in
+ *      a print profile.
+ *   3. Essay — body paragraphs through the global `.prose` treatment so the
+ *      drop cap, muted middle-paragraph rhythm, and 64ch reading column
+ *      come for free.
+ *
+ * Hosted by /about; this component owns content + composition only.
+ * The page chrome (sidebar offset, backdrop, footer) lives one level up.
  */
 import { about } from '../../data/about';
 ---
 
-<header class="head">
-  <p class="text-caption muted">about</p>
-  <h1 class="text-display headline">{about.headline}</h1>
+<header class="about-head">
+  <p class="eyebrow text-mono-small">about — 2026 — personal</p>
+  <h1 class="title">{about.headline}</h1>
 </header>
 
-<article class="essay">
+<dl class="about-facts" aria-label="Quick facts">
+  <div class="fact">
+    <dt class="text-caption muted">Now</dt>
+    <dd class="text-body">Researcher · MIT van Rees Lab</dd>
+  </div>
+  <div class="fact">
+    <dt class="text-caption muted">Based</dt>
+    <dd class="text-body">Cambridge, MA</dd>
+  </div>
+  <div class="fact">
+    <dt class="text-caption muted">Trained at</dt>
+    <dd class="text-body">MIT · TU Delft · EPFL · Politecnico di Torino</dd>
+  </div>
+</dl>
+
+<article class="about-body prose">
   {about.body.map((paragraph) => (
-    <p class="text-body">{paragraph}</p>
+    <p>{paragraph}</p>
   ))}
 </article>
 
@@ -27,38 +48,93 @@ import { about } from '../../data/about';
     color: var(--text-muted);
   }
 
-  .head {
+  /* === Head ============================================================ */
+  .about-head {
     display: flex;
     flex-direction: column;
-    align-items: center;
     gap: var(--space-3);
-    text-align: center;
-    max-width: 720px;
-    /* Center the head block within the host's flex column */
-    margin-inline: auto;
+    width: 100%;
   }
-  .headline {
+  .eyebrow {
+    margin: 0;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+  .title {
     margin: 0;
     color: var(--text);
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-optical-sizing: auto;
+    /* Poster-scale headline. clamp gives room to breathe between 40px (mobile)
+       and 80px (wide desktop). Tight leading + slight negative tracking are
+       what makes a serif this big read as editorial rather than novel. */
+    font-size: clamp(40px, 6.5vw, 80px);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    /* Cap measure so the line breaks fall at a typographically pleasing
+       rhythm (3–4 lines on desktop) rather than 1 wide stretched line. */
+    max-width: 18ch;
+    /* Modern wrap-balancing distributes line widths evenly. */
+    text-wrap: balance;
   }
 
-  .essay {
+  /* === Facts strip ===================================================== */
+  /* Tabular masthead — three columns on desktop, stacks on mobile. Hairline
+     rules above + below give the strip the structured feel of a print
+     publication's profile metadata. */
+  .about-facts {
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-5);
+    padding: var(--space-4) 0;
+    border-top: 1px solid var(--border-strong);
+    border-bottom: 1px solid var(--border);
+    width: 100%;
+  }
+  .about-facts .fact {
     display: flex;
     flex-direction: column;
-    gap: var(--space-5);
-    margin-top: var(--space-5);
-    text-align: center;
-    /* Reading column — keep it tight enough to scan, centered in the host. */
-    max-width: 60ch;
-    margin-inline: auto;
+    gap: var(--space-1);
+    min-width: 0;
   }
-  .essay p {
+  .about-facts dt {
+    margin: 0;
+  }
+  .about-facts dd {
     margin: 0;
     color: var(--text);
+    /* Allow the longest cell (Trained at) to wrap rather than overflow. */
+    overflow-wrap: anywhere;
   }
-  /* Middle paragraphs muted for visual rhythm — first (intro) and last
-     (closing) sit at full --text emphasis. */
-  .essay p:not(:first-child):not(:last-child) {
+
+  /* === Body ============================================================ */
+  /* Inherits the global `.prose` treatment (drop cap, blockquote, hairline
+     hr, etc.). Only override max-width — editorial reading column is
+     intentionally narrower than the headline so the eye drops into the
+     copy after sweeping the title. */
+  .about-body {
+    max-width: 64ch;
+    width: 100%;
+  }
+  /* Middle paragraphs muted so the first (intro) and last (outro) carry
+     the visual weight — same rhythm the previous version used, kept
+     because it works. */
+  .about-body p:not(:first-of-type):not(:last-of-type) {
     color: var(--text-muted);
+  }
+
+  /* === Mobile ========================================================== */
+  @media (max-width: 720px) {
+    .title {
+      max-width: none;
+    }
+    .about-facts {
+      grid-template-columns: 1fr;
+      gap: var(--space-3);
+      padding: var(--space-3) 0;
+    }
   }
 </style>

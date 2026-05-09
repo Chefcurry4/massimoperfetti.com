@@ -46,7 +46,6 @@ const gallery = (await getCollection('gallery')).sort(
                   href={`/gallery/${entry.id}`}
                   class="thumb"
                   transition:name={`poster-gallery-${entry.id}`}
-                  aria-label={`Open ${entry.data.title}`}
                 >
                   <div
                     class="frame"

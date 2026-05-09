@@ -30,7 +30,14 @@ const {
 const fullTitle = title === site.title ? title : `${title} — ${site.name}`;
 const canonical = new URL(Astro.url.pathname, site.url).toString();
 const ogImageUrl = new URL(ogImage, site.url).toString();
-const ogImageAltText = ogImageAlt ?? `${title} — ${site.name}`;
+// Avoid the "Name — Name" double-up on the home page when title === site.name.
+const ogImageAltText =
+  ogImageAlt ?? (title === site.title ? title : `${title} — ${site.name}`);
+
+// Preload the AboutCell portrait on the home route only — it's the LCP
+// candidate above the fold, so giving it `fetchpriority="high"` cuts ~600ms
+// off the first paint vs. waiting for the bento grid to lay out first.
+const isHome = Astro.url.pathname === '/';
 ---
 
 <!doctype html>
@@ -67,6 +74,17 @@ const ogImageAltText = ogImageAlt ?? `${title} — ${site.name}`;
       title={`${site.name} — writing`}
       href="/writing/rss.xml"
     />
+    {
+      isHome && (
+        <link
+          rel="preload"
+          as="image"
+          href="/me.webp"
+          type="image/webp"
+          fetchpriority="high"
+        />
+      )
+    }
 
     {/* Theme bootstrap: synchronous, runs before first paint. */}
     <script is:inline>

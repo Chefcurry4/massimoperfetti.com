@@ -16,7 +16,11 @@
  *
  * Glass surface (per CLAUDE.md §Liquid glass selective use).
  *
- * Portrait file: public/me.jpeg.
+ * Portrait file: public/me.webp.
+ * Preload directive (`<link rel="preload" as="image" fetchpriority="high">`)
+ * lives in Base.astro for the home route — speeds up LCP since the bento
+ * AboutCell sits above the fold and its portrait is the largest contentful
+ * paint candidate on the wall.
  */
 import Cell from '../ui/Cell.astro';
 import { about } from '../../data/about';
@@ -69,12 +73,12 @@ import { site } from '../../data/site';
     max-height: 480px;
     border-radius: var(--radius-md);
     overflow: hidden;
-    /* Layered: gradient fallback below, photo on top. If /me.jpg 404s, the
+    /* Layered: gradient fallback below, photo on top. If /me.webp 404s, the
        gradient remains visible. The first background-color sits underneath
        both for further safety in older renderers. */
     background-color: var(--surface);
     background-image:
-      url('/me.jpeg'),
+      url('/me.webp'),
       var(--gradient-cool);
     background-size: cover, cover;
     background-position: center top, center;

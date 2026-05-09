@@ -14,8 +14,7 @@ export type ContactKind =
   | 'x'
   | 'scholar'
   | 'cv'
-  | 'newsletter'
-  | 'leetcode';
+  | 'newsletter';
 
 export type ContactAudience = 'public' | 'academic';
 
@@ -65,11 +64,5 @@ export const contacts: readonly Contact[] = [
     label: 'Newsletter',
     handle: 'perfettis-notes',
     url: 'https://perfettis-notes.beehiiv.com',
-  },
-  {
-    kind: 'leetcode',
-    label: 'LeetCode',
-    handle: '@Chefcurry4',
-    url: 'https://leetcode.com/u/Chefcurry4/',
   },
 ];

@@ -30,20 +30,23 @@ import { site } from '../data/site';
 </Base>
 
 <style>
-  /* Sidebar-aware page chrome. Centered text + max-width comes from
-     AboutContent; this rule only positions the column relative to the
-     viewport and provides the grainy backdrop. */
+  /* Sidebar-aware page chrome. AboutContent owns its own internal layout
+     (head + facts + body); this rule positions the column relative to the
+     viewport, caps it at an editorial reading width on huge monitors, and
+     hosts the grainy backdrop. The page is left-anchored after the sidebar
+     offset — magazine-profile aesthetic, not a centered novel page. */
   .page {
     position: relative;
     margin-left: calc(var(--wall-inset) + var(--sidebar-rail) + var(--sidebar-gap));
     margin-right: var(--wall-inset);
+    max-width: 960px;
     padding:
       clamp(var(--space-7), 10vh, var(--space-8))
       clamp(var(--space-4), 5vw, var(--space-6))
       var(--space-7);
     display: flex;
     flex-direction: column;
-    gap: var(--space-6);
+    gap: var(--space-7);
     min-height: calc(100dvh - 2 * var(--wall-inset));
   }
 
@@ -52,8 +55,14 @@ import { site } from '../data/site';
    * ::before is the colored gradient (drifts slowly via animated
    * background-position); ::after is the SVG fractal-noise overlay.
    * Both are pointer-events: none and z-index -1 so they sit cleanly behind
-   * the reading column without intercepting clicks. Sidebar's glass surface
-   * lets the gradient show through subtly — that's intentional.
+   * the reading column without intercepting clicks.
+   *
+   * Colour budget is intentionally tiny: two small blue/purple ellipses
+   * pinned to opposite corners on an otherwise solid black-ish field. The
+   * lower chroma (~0.05–0.07 vs 0.12–0.18 previously) and tighter ellipse
+   * footprint keep the page reading as black-with-a-whisper-of-colour rather
+   * than a coloured wash. The drift animation still moves the hotspots
+   * across the field for life, just at a far quieter visual amplitude.
    */
   .page::before,
   .page::after {
@@ -66,14 +75,14 @@ import { site } from '../data/site';
   .page::before {
     background:
       radial-gradient(
-        ellipse 60% 50% at 30% 25%,
-        oklch(72% 0.12 264 / 0.38),
-        transparent 70%
+        ellipse 42% 38% at 15% 20%,
+        oklch(58% 0.05 264 / 0.22),
+        transparent 65%
       ),
       radial-gradient(
-        ellipse 55% 60% at 70% 75%,
-        oklch(60% 0.18 295 / 0.32),
-        transparent 70%
+        ellipse 38% 42% at 85% 80%,
+        oklch(45% 0.07 295 / 0.20),
+        transparent 65%
       ),
       var(--bg);
     background-size: 200% 200%, 200% 200%, auto;
@@ -82,10 +91,11 @@ import { site } from '../data/site';
   }
   .page::after {
     /* SVG fractal noise — film-grain texture so the gradient doesn't read
-       as a flat color blob. Overlay blend keeps the grain subtle on light
-       areas, visible on dark. */
+       as a flat colour blob. Overlay blend keeps the grain subtle on light
+       areas, visible on dark. Opacity reduced to 0.30 so the noise sits
+       softer on the deeper black field. */
     background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
-    opacity: 0.45;
+    opacity: 0.30;
     mix-blend-mode: overlay;
   }
 
@@ -112,8 +122,6 @@ import { site } from '../data/site';
     align-items: center;
     color: var(--text-muted);
     width: 100%;
-    max-width: 720px;
-    margin-inline: auto;
   }
 
   @media (max-width: 720px) {

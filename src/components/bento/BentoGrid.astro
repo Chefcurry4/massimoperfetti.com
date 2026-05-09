@@ -178,11 +178,13 @@ const writingEntry = writing[0] ?? null;
     );
     overflow-x: auto;
     overflow-y: hidden;
-    /* Mandatory snap so the wall always lands on a column boundary — no more
-       half-visible cells at rest. The 24px scroll-padding matches the inner
-       grid padding so a snapped column's content sits cleanly inside the
-       wall's visible gutter. */
-    scroll-snap-type: x mandatory;
+    /* Proximity snap — soft alignment to column boundaries when the user
+       coasts to a stop near one, but never overrides mid-flight motion.
+       Mandatory was hostile to the small per-tick deltas the wheel handler
+       produces (the browser kept yanking the wall back to the nearest
+       boundary mid-lerp). The 24px scroll-padding still parks a snapped
+       column cleanly inside the visible gutter. */
+    scroll-snap-type: x proximity;
     scroll-padding-inline: var(--space-5);
     scrollbar-width: none; /* Firefox */
     /* Soft fade on ALL four edges so any cell meeting the wall's bound
@@ -374,27 +376,60 @@ const writingEntry = writing[0] ?? null;
    * to the detail page via a View Transitions morph, and clicks back, the home
    * page re-mounts with scrollLeft = 0 by default (browser scroll restoration
    * only handles the document's own scroll, not a child element's). We persist
-   * to sessionStorage on every scroll and restore on `astro:page-load`, which
-   * fires for both fresh loads and View Transitions back-navigation.
+   * to sessionStorage and restore on `astro:page-load`, which fires for both
+   * fresh loads and View Transitions back-navigation.
    *
    * Re-bind on `astro:page-load` so the binding survives ClientRouter swaps.
+   * AbortController teardown is critical here: without it, every navigation
+   * back to / would add a second wheel handler whose scroll calls would
+   * compound on every event.
+   *
+   * Wheel-to-horizontal mapping is delegated to the browser's native
+   * scroll-animator via `scrollBy({ behavior: 'smooth' })`. An earlier JS
+   * RAF lerp version stalled on Windows/Chromium because sub-pixel scrollLeft
+   * writes round to no-ops, leaving the RAF spinning forever. The native
+   * animator runs on the compositor and re-targets cleanly when wheel events
+   * arrive mid-animation.
    */
   const SCROLL_KEY = 'bento-wall-scrollLeft';
+
+  let abortController: AbortController | null = null;
 
   function bindBentoProgress() {
     const wall = document.querySelector<HTMLElement>('.bento-wall');
     const bar = document.querySelector<HTMLElement>('.bento-progress');
     if (!wall || !bar) return;
 
+    // Tear down the previous run's listeners before binding fresh. Mirrors
+    // the pattern in Sidebar.astro and the GalleryCell cycle script.
+    abortController?.abort();
+    abortController = new AbortController();
+    const { signal } = abortController;
+
+    let storageDebounce: ReturnType<typeof setTimeout> | null = null;
+
+    signal.addEventListener('abort', () => {
+      if (storageDebounce !== null) {
+        clearTimeout(storageDebounce);
+        storageDebounce = null;
+      }
+    });
+
     const update = () => {
       const max = wall.scrollWidth - wall.clientWidth;
       const ratio = max > 0 ? wall.scrollLeft / max : 0;
       bar.style.transform = `scaleX(${ratio.toFixed(4)})`;
-      try {
-        sessionStorage.setItem(SCROLL_KEY, String(wall.scrollLeft));
-      } catch {
-        /* storage blocked (private mode) — just skip persistence */
-      }
+      // Debounced sessionStorage write — only the last position matters for
+      // restore-on-back-nav, so writing 200ms after motion stops is fine.
+      if (storageDebounce !== null) clearTimeout(storageDebounce);
+      storageDebounce = setTimeout(() => {
+        try {
+          sessionStorage.setItem(SCROLL_KEY, String(wall.scrollLeft));
+        } catch {
+          /* storage blocked (private mode) — just skip persistence */
+        }
+        storageDebounce = null;
+      }, 200);
     };
 
     // Restore previously saved scrollLeft if present. Done before listeners
@@ -410,8 +445,35 @@ const writingEntry = writing[0] ?? null;
     }
 
     update();
-    wall.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', update, { passive: true });
+    wall.addEventListener('scroll', update, { passive: true, signal });
+    window.addEventListener('resize', update, { passive: true, signal });
+
+    // Vertical wheel input → horizontal wall scroll, smoothed by the
+    // browser's native scroll-animator. The wall is the only scrollable
+    // surface on desktop (page is 100dvh-locked), so claiming deltaY for
+    // horizontal motion is what visitors expect. SCROLL_FACTOR < 1 keeps
+    // the scroll slow enough that one wheel-tick doesn't fly past a column.
+    //
+    // Why scrollBy({ behavior: 'smooth' }) instead of a JS RAF lerp:
+    //   – Animation runs on the compositor, not the main thread → no
+    //     contention with the wall's mask-image paint work.
+    //   – No browser-rounding stall (sub-pixel deltas can't break the loop
+    //     because there's no JS-side loop).
+    //   – Subsequent wheel events while a smooth scroll is in flight
+    //     re-target the active animation in Chromium/Firefox — exactly the
+    //     continuous-gesture feel the previous JS lerp was emulating.
+    //
+    // Skipped on mobile (< 1024px) where the wall flattens to a vertical
+    // stack and natural vertical scroll must keep working. Horizontal
+    // trackpad gestures (deltaX-dominant) pass through untouched.
+    const SCROLL_FACTOR = 0.5;
+
+    wall.addEventListener('wheel', (e) => {
+      if (window.innerWidth < 1024) return;
+      if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+      e.preventDefault();
+      wall.scrollBy({ left: e.deltaY * SCROLL_FACTOR, behavior: 'smooth' });
+    }, { passive: false, signal });
 
     // Keyboard arrow scrolling — improves a11y on a horizontal scroll view
     // when the user has focused the wall via tab.
@@ -430,7 +492,7 @@ const writingEntry = writing[0] ?? null;
         wall.scrollTo({ left: wall.scrollWidth, behavior: 'smooth' });
         e.preventDefault();
       }
-    });
+    }, { signal });
   }
 
   bindBentoProgress();

@@ -1,35 +1,25 @@
 ---
 /**
- * Sidebar identity block: gradient avatar, name, role.
+ * Sidebar identity block: gradient avatar + name + degree line.
  *
- * The avatar is a 36px circle filled with `--gradient-cool` (no photo).
- * The colored ring around it signals real-time availability via
- * `now.availability` — green/amber/red. This is the single most important
- * affordance on the collapsed rail: it preserves the "real-time context"
- * signal that NowSnippet otherwise hides until the sidebar expands.
- *
- * The ring is implemented as a stacked outline (inner gap via --surface,
- * outer ring via the availability token) so it reads as a halo, not a
- * border.
+ * The avatar is a 36px circle filled with --gradient-cool (no photo, no
+ * availability ring). Name sits in --text on top of it; the degree line
+ * sits below in --text-muted to keep visual weight on the name.
  */
 import { site } from '../../data/site';
-import { about } from '../../data/about';
-import { now } from '../../data/now';
 
-const ringColor = `var(--availability-${now.availability})`;
-const availabilityLabel = `Currently ${now.availability}`;
+const role = 'MSc Mechanical Engineering MIT | TUDelft';
 ---
 
 <div class="identity">
   <div
     class="avatar"
     role="img"
-    aria-label={`${site.name} — ${availabilityLabel}`}
-    style={`--ring: ${ringColor};`}
+    aria-label={`Portrait of ${site.name}`}
   ></div>
   <div class="text">
     <p class="name text-body">{site.name}</p>
-    <p class="role text-caption muted">{about.role}</p>
+    <p class="role text-caption muted">{role}</p>
   </div>
 </div>
 
@@ -49,13 +39,6 @@ const availabilityLabel = `Currently ${now.availability}`;
     border-radius: var(--radius-pill);
     background-image: var(--gradient-cool);
     flex-shrink: 0;
-    /* Stacked rings: inner 2px in --surface (the breathing gap), outer 2px
-       in the availability color. Reads as a soft halo around the avatar
-       rather than a flat border. */
-    box-shadow:
-      0 0 0 2px var(--surface),
-      0 0 0 4px var(--ring);
-    transition: box-shadow var(--duration-normal) var(--ease-out-expo);
   }
   .text {
     min-width: 0;

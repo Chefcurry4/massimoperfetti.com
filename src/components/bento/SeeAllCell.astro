@@ -16,7 +16,7 @@ interface Props {
 const { count, slot } = Astro.props;
 ---
 
-<a href="/projects" class="card-link" aria-label={`See all ${count} projects`}>
+<a href="/projects" class="card-link">
   <Cell glass slot={slot} class="see-all">
     <p class="text-caption muted">all projects</p>
     <p class="num">{count}</p>
