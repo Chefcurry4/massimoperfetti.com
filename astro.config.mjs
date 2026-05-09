@@ -10,10 +10,10 @@ export default defineConfig({
   integrations: [
     mdx(),
     sitemap({
-      // /design is the internal design-system reference page. It builds
-      // (so we can visit it at runtime) but stays out of the sitemap so
-      // crawlers don't surface it.
-      filter: (page) => !page.includes('/design'),
+      // /design is the internal design-system reference page; /thanks is a
+      // post-submit success page. Both build (so they're reachable) but
+      // stay out of the sitemap so crawlers don't surface them.
+      filter: (page) => !page.includes('/design') && !page.includes('/thanks'),
     }),
   ],
   vite: {

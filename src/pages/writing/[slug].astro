@@ -37,9 +37,14 @@ const dateLabel = date.toLocaleString('en-US', {
 });
 ---
 
-<Base title={title} description={summary}>
+<Base
+  title={title}
+  description={summary}
+  ogImage={`/og/writing/${entry.id}.png`}
+  ogImageAlt={`${title} — note by Massimo Perfetti`}
+>
   <ReadingProgress />
-  <main class="detail-page page">
+  <main id="main" class="detail-page page">
     <a href="/" class="back-link text-caption">← back</a>
 
     <article

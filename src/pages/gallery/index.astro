@@ -21,7 +21,7 @@ const gallery = (await getCollection('gallery')).sort(
   title="Gallery"
   description="Photographs."
 >
-  <main class="gallery-feed detail-page">
+  <main id="main" class="gallery-feed detail-page">
     <a href="/" class="back-link text-caption">← back</a>
 
     <header class="head">
@@ -56,6 +56,8 @@ const gallery = (await getCollection('gallery')).sort(
                     <img
                       src={entry.data.image}
                       alt={entry.data.caption ?? entry.data.title}
+                      width="800"
+                      height="800"
                       loading="lazy"
                       decoding="async"
                     />

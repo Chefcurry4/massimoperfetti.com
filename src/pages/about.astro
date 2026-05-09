@@ -14,8 +14,12 @@ import AboutContent from '../components/about/AboutContent.astro';
 import { site } from '../data/site';
 ---
 
-<Base title="About">
-  <main class="page">
+<Base
+  title="About"
+  ogImage="/og/about.png"
+  ogImageAlt="About Massimo Perfetti"
+>
+  <main id="main" class="page">
     <AboutContent />
 
     <footer class="meta">

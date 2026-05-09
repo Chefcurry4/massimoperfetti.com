@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /design
+Disallow: /thanks
+
+Sitemap: https://massimoperfetti.com/sitemap-index.xml

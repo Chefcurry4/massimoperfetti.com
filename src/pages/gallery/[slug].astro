@@ -35,8 +35,13 @@ const hueAlt = (hue + 60) % 360;
 const fallbackStyle = `--hue: ${hue}; --hue-alt: ${hueAlt};`;
 ---
 
-<Base title={title} description={caption ?? title}>
-  <main class="photo-view" transition:name={`poster-gallery-${entry.id}`}>
+<Base
+  title={title}
+  description={caption ?? title}
+  ogImage={`/og/gallery/${entry.id}.png`}
+  ogImageAlt={caption ?? title}
+>
+  <main id="main" class="photo-view" transition:name={`poster-gallery-${entry.id}`}>
     <a href="/" class="corner back text-caption" aria-label="Back to wall">
       ← back
     </a>

@@ -16,17 +16,21 @@ interface Props {
   title?: string;
   description?: string;
   ogImage?: string;
+  /** Alt text for the OG image — describes the social share preview content. */
+  ogImageAlt?: string;
 }
 
 const {
   title = site.title,
   description = site.description,
   ogImage = site.defaultOgImage,
+  ogImageAlt,
 } = Astro.props;
 
 const fullTitle = title === site.title ? title : `${title} — ${site.name}`;
 const canonical = new URL(Astro.url.pathname, site.url).toString();
 const ogImageUrl = new URL(ogImage, site.url).toString();
+const ogImageAltText = ogImageAlt ?? `${title} — ${site.name}`;
 ---
 
 <!doctype html>
@@ -45,14 +49,24 @@ const ogImageUrl = new URL(ogImage, site.url).toString();
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={ogImageAltText} />
     <meta property="og:locale" content={site.locale} />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageUrl} />
+    <meta name="twitter:image:alt" content={ogImageAltText} />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={`${site.name} — writing`}
+      href="/writing/rss.xml"
+    />
 
     {/* Theme bootstrap: synchronous, runs before first paint. */}
     <script is:inline>
@@ -73,6 +87,7 @@ const ogImageUrl = new URL(ogImage, site.url).toString();
     <ClientRouter />
   </head>
   <body>
+    <a href="#main" class="skip-link">Skip to content</a>
     <Sidebar />
     <slot />
   </body>

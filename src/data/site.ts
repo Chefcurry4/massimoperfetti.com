@@ -44,7 +44,12 @@ export const site: SiteConfig = {
   description:
     'Researcher at MIT van Rees Lab. AI × CFD, full-stack, founder. MSc at MIT and TU Delft.',
   author: 'Massimo Perfetti',
-  defaultOgImage: '/og-default.png',
+  /**
+   * Default OG image — points at the build-time generated home card.
+   * Per-page detail pages pass their own `ogImage` to <Base>; this is the
+   * fallback for surfaces that don't override (404, /thanks, etc).
+   */
+  defaultOgImage: '/og/home.png',
   locale: 'en',
   spotifyEmbedUrl: 'https://open.spotify.com/embed/playlist/382H8jrG9erCxwOiL6naNd',
   bookingUrl: 'https://app.cal.com/massimo-perfetti',

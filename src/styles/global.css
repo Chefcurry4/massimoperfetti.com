@@ -501,6 +501,37 @@
   .prose-wide {
     max-width: 72ch;
   }
+
+  /*
+   * Skip-to-content link — the first focusable element in the body. Visually
+   * hidden until keyboard focus reveals it pinned top-left, where it
+   * announces itself in the accent color and routes screen-reader / keyboard
+   * users straight into <main id="main">. Above the sidebar via z-tooltip.
+   */
+  .skip-link {
+    position: fixed;
+    top: var(--space-3);
+    left: var(--space-3);
+    z-index: var(--z-tooltip);
+    padding: var(--space-2) var(--space-4);
+    background: var(--accent);
+    color: var(--bg);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transform: translateY(calc(-100% - var(--space-3)));
+    transition: transform var(--duration-fast) var(--ease-out-expo);
+  }
+  .skip-link:focus,
+  .skip-link:focus-visible {
+    transform: translateY(0);
+    outline: 2px solid var(--text);
+    outline-offset: 2px;
+  }
 }
 
 /*
