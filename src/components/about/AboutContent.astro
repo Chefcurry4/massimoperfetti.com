@@ -1,18 +1,12 @@
 ---
 /**
  * Shared about content — centered editorial reading column.
- * Used in two places:
+ * Hosted by /about, which owns the page chrome (margin, sidebar offset,
+ * footer, backdrop). Extracted as a component so the editorial body can
+ * be reused if a second surface ever needs it.
  *
- *   1. /about (full page, deep-linkable URL)
- *   2. <AboutPopover /> (popup overlay on the home bento)
- *
- * The host page/popup provides the page chrome (margin, sidebar offset,
- * close button, footer); this component owns only the editorial content.
- *
- * Photos previously interleaved between paragraphs were retired — the page
- * now reads as a focused essay rather than a magazine spread. The
- * `photos` array on `src/data/about.ts` is no longer rendered (kept in
- * the schema for future use).
+ * The `photos` array on `src/data/about.ts` is no longer rendered — kept
+ * in the schema for future use.
  */
 import { about } from '../../data/about';
 ---

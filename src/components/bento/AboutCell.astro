@@ -12,7 +12,7 @@
  *   3. Name (display serif, h1).
  *   4. Role line.
  *   5. Body line (clamped to 2).
- *   6. "→ read more" CTA, accent on hover.
+ *   6. "→ read more" CTA — links to /about.
  *
  * Glass surface (per CLAUDE.md §Liquid glass selective use).
  *
@@ -36,15 +36,14 @@ import { site } from '../../data/site';
     <p class="role text-small">{about.role}</p>
     <p class="body text-small muted">{about.body[0]}</p>
 
-    <button
-      type="button"
+    <a
+      href="/about"
       class="cta text-caption"
-      popovertarget="about-popover"
-      aria-label="Open about"
+      data-astro-prefetch
     >
       <span aria-hidden="true">→</span>
       <span>read more</span>
-    </button>
+    </a>
   </div>
 </Cell>
 
@@ -124,19 +123,13 @@ import { site } from '../../data/site';
   }
 
   .cta {
-    /* Same eyebrow caption sizing, but transitions to accent on hover.
-       The element is a <button> in Phase 7 (popovertarget); reset native
-       button chrome so it matches the visual treatment of the prior <a>. */
+    /* Same eyebrow caption sizing, transitions to accent on hover. */
     margin-top: auto;
     display: inline-flex;
     align-items: center;
     gap: var(--space-1);
     color: var(--text-muted);
-    background: transparent;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    font: inherit;
+    text-decoration: none;
     transition: color var(--duration-normal) var(--ease-out-expo);
     width: fit-content;
   }

@@ -62,7 +62,6 @@ const projSm: ReadonlyArray<typeof allProjects[number] | null> = [
 ];
 
 const writingEntry = writing[0] ?? null;
-const galleryEntry = gallery[0] ?? null;
 ---
 
 <div
@@ -146,8 +145,8 @@ const galleryEntry = gallery[0] ?? null;
     {/* -------- COLUMN 4: gallery (top) / places (bottom) -------- */}
     <div class="col col-4">
       {
-        galleryEntry ? (
-          <GalleryCell entry={galleryEntry} slot="cell-gallery" />
+        gallery.length > 0 ? (
+          <GalleryCell entries={gallery} slot="cell-gallery" />
         ) : (
           <StubCell label="gallery" slot="cell-gallery" />
         )

@@ -87,12 +87,12 @@ Do not introduce: Next.js, server components, a database, a CMS, shadcn/ui (woul
 │   │   ├── projects/[slug].astro   # project detail pages
 │   │   ├── projects/index.astro    # full projects index
 │   │   ├── writing/[slug].astro
-│   │   ├── gallery/[slug].astro
-│   │   ├── about.astro             # standalone about page (also used by popup)
+│   │   ├── gallery/index.astro     # Instagram-style photo feed
+│   │   ├── gallery/[slug].astro    # fullscreen photo on liquid-glass
+│   │   ├── about.astro             # standalone about page
 │   │   ├── book.astro              # /book — Cal.com booking embed
 │   │   ├── design.astro            # /design — internal design system reference (sitemap-excluded)
 │   │   ├── places/index.astro      # full places map page (Phase 6)
-│   │   ├── gallery/index.astro     # full gallery page (Phase 7)
 │   │   └── contact.astro           # contact form (Phase 7, Netlify Forms)
 │   └── styles/
 │       ├── tokens.css              # CSS custom properties (theme tokens, both themes)
@@ -466,7 +466,7 @@ This is the suggested phasing. Work top-down. Don't run ahead.
 - [x] **Phase 4** — View Transitions. Card-to-detail morphs wired for projects (3-name: card/image/title), writing (2-name: card/title), gallery (2-name: card/image). Routes: /projects/[slug], /projects (list), /writing/[slug], /gallery/[slug]. Project detail uses a full-bleed split hero (cover left, meta right). Wall scrollLeft preserved across nav via sessionStorage. Cover-hue helper extracted to src/lib/cover-color.ts so source + destination gradients match continuously through the morph.
 - [x] **Phase 5** — Project detail polish. Editorial `.prose` upgrade (drop cap on first paragraph, blockquote, figure/figcaption, hr, 17px body, tighter h2/h3 rhythm). New components: `RelatedProjects` (tag-overlap, transition:names match bento for cross-detail morphs), `NextPrev` (date-desc adjacency), `ReadingProgress` (top-edge bar, used on /projects/[slug] + /writing/[slug]). MDX body components: `<Figure>`, `<Pullquote>`, `<Aside>` (in `src/components/mdx/`, opt-in per .mdx file — see §MDX body components).
 - [ ] **Phase 6** — Places: expandable world map. This is the highest-risk component — likely needs an island. Investigate `react-simple-maps` or a custom SVG world before committing. Reference: gianmarcocavallo.com.
-- [x] **Phase 7** — Gallery detail polish (real `<img>` with gradient fallback layered behind, click-to-zoom `<Lightbox />` via native HTML Popover API, tighter exif metadata grid). Contact form at `/contact` (Netlify Forms, declarative, redirects to `/thanks`). About popup: `<AboutContent />` extracted to a shared component used by both `/about` (deep-link) and `<AboutPopover />` (popover overlay rendered on home, triggered from AboutCell). `/contact` CTA surfaced in the sidebar ContactsCluster next to the existing Book CTA.
+- [x] **Phase 7** — Gallery: bento `GalleryCell` auto-cycles through every photo every 10s (crossfade, pause-on-hover/focus, off under prefers-reduced-motion); each tick rewrites `view-transition-name` on the link + frame so a click mid-cycle morphs into `/gallery/[slug]` for whichever photo is currently on screen. The detail page is a fullscreen photo on a liquid-glass backdrop (no exif page chrome — the page IS the zoomed view); its "all photos →" link leads to `/gallery`, an Instagram-style square-thumbnail feed; thumbnails morph back to the fullscreen view via the same `poster-gallery-{slug}` / `-image` names. Contact form at `/contact` (Netlify Forms, declarative, redirects to `/thanks`); CTA surfaced in the sidebar ContactsCluster next to the Book CTA. About: `<AboutContent />` extracted as a shared component used by `/about` only — the popup was reverted in favour of a single deep-linkable page (AboutCell `→ read more` links straight to `/about`).
 - [ ] **Phase 8** — Polish: loading states, OG images, sitemap, RSS for `writing/`, accessibility audit, Lighthouse pass.
 - [ ] **Phase 9** — Deploy to Netlify. Custom domain.
 

@@ -1,0 +1,149 @@
+---
+/**
+ * /gallery — Instagram-style square-thumbnail feed.
+ *
+ * Reached from the bento GalleryCell (one photo) via the "show all photos"
+ * link on /gallery/[slug], or directly. Each thumbnail morphs into the
+ * fullscreen photo view via the same View Transition names the bento cell
+ * uses (`poster-gallery-{slug}` / `-image`); only one source page is visible
+ * per navigation, so the names never collide.
+ */
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { hashHue } from '../../lib/cover-color';
+
+const gallery = (await getCollection('gallery')).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
+);
+---
+
+<Base
+  title="Gallery"
+  description="Photographs."
+>
+  <main class="gallery-feed detail-page">
+    <a href="/" class="back-link text-caption">← back</a>
+
+    <header class="head">
+      <p class="text-caption muted">photographs</p>
+      <h1 class="text-h1 headline">Gallery</h1>
+      <p class="text-small muted">
+        {gallery.length} {gallery.length === 1 ? 'photo' : 'photos'}
+      </p>
+    </header>
+
+    {
+      gallery.length === 0 ? (
+        <p class="empty text-body muted">No photos yet.</p>
+      ) : (
+        <ul class="grid">
+          {gallery.map((entry) => {
+            const hue = hashHue(entry.data.title);
+            const hueAlt = (hue + 60) % 360;
+            return (
+              <li>
+                <a
+                  href={`/gallery/${entry.id}`}
+                  class="thumb"
+                  transition:name={`poster-gallery-${entry.id}`}
+                  aria-label={`Open ${entry.data.title}`}
+                >
+                  <div
+                    class="frame"
+                    style={`--hue: ${hue}; --hue-alt: ${hueAlt};`}
+                    transition:name={`poster-gallery-${entry.id}-image`}
+                  >
+                    <img
+                      src={entry.data.image}
+                      alt={entry.data.caption ?? entry.data.title}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      )
+    }
+  </main>
+</Base>
+
+<style>
+  /* Wider than .detail-page's default — photo grids want room. */
+  .gallery-feed {
+    max-width: 1080px;
+    width: 100%;
+  }
+  .muted {
+    color: var(--text-muted);
+  }
+
+  .head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+  .headline {
+    margin: 0;
+    color: var(--text);
+  }
+
+  .empty {
+    margin: var(--space-4) 0;
+  }
+
+  .grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    /* Instagram-tight: 3 columns, 2px gutter, square cells. */
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+  }
+
+  .thumb {
+    display: block;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    transition:
+      opacity var(--duration-fast) var(--ease-out-expo),
+      transform var(--duration-fast) var(--ease-out-expo);
+  }
+  .thumb:hover,
+  .thumb:focus-visible {
+    opacity: 0.88;
+  }
+  .thumb:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .frame {
+    width: 100%;
+    height: 100%;
+    /* Layered: gradient sits below, image on top. If the file 404s the
+       gradient stays visible (same pattern as AboutCell + GalleryCell). */
+    background: linear-gradient(
+      135deg,
+      oklch(72% 0.16 var(--hue) / 0.9),
+      oklch(40% 0.12 var(--hue-alt) / 0.95)
+    );
+    overflow: hidden;
+  }
+  .frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .thumb:hover,
+    .thumb:focus-visible {
+      opacity: 1;
+    }
+  }
+</style>

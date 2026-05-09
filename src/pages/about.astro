@@ -6,9 +6,8 @@
  * drifting across the viewport, plus an SVG fractal-noise overlay for film
  * grain). Both the drift and the noise honor `prefers-reduced-motion`.
  *
- * Body markup lives in `<AboutContent />` (shared with the bento About popup
- * — see <AboutPopover />). This file owns only the page chrome (sidebar-aware
- * margin, padding, footer, backdrop) so /about and the popup never drift.
+ * Body markup lives in `<AboutContent />`; this file owns only the page
+ * chrome (sidebar-aware margin, padding, footer, backdrop).
  */
 import Base from '../layouts/Base.astro';
 import AboutContent from '../components/about/AboutContent.astro';

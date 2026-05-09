@@ -2,65 +2,92 @@
 /**
  * Gallery cell — top of column 4.
  *
- * Phase 2: gradient frame is the visible placeholder; we don't render the
- * <img> tag because we have no real photo files yet (the entry's `image`
- * field still validates the schema but points at /gallery/... that won't
- * resolve). When real assets land, set `RENDER_IMG = true` here and the
- * gradient becomes a backdrop while the image overlays it.
+ * Renders the most-recent photo statically (so SSR / no-JS users still see
+ * one) and cycles through the rest every 10s via the inline script below.
+ * Each tick crossfades the photo, swaps the link `href` + ARIA label,
+ * refreshes the meta strip, and rewrites the matching `view-transition-name`
+ * so a click mid-cycle morphs to the photo currently on screen.
  *
- * Caption + EXIF render the same in both states.
+ * Why inline `style="view-transition-name: …"` instead of Astro's
+ * `transition:name` directive: the directive bakes the value into a scoped
+ * stylesheet at build time. We need the value to track whatever photo is
+ * visible right now, which means a runtime-mutable inline CSS property.
+ * The destination /gallery/[slug] page keeps the static directive.
+ *
+ * Graceful degradation:
+ *   – fewer than 2 photos: cycle is a no-op (single photo, no JS attached)
+ *   – `prefers-reduced-motion: reduce`: cycle is a no-op
+ *   – missing /public/gallery/* file: layered gradient fallback stays
+ *     visible behind the broken <img> (same pattern as AboutCell + feed)
  */
 import Cell from '../ui/Cell.astro';
 import type { CollectionEntry } from 'astro:content';
 import { hashHue } from '../../lib/cover-color';
 
 interface Props {
-  entry: CollectionEntry<'gallery'>;
+  entries: CollectionEntry<'gallery'>[];
   slot?: string;
 }
 
-const { entry, slot } = Astro.props;
-const { title, image, caption, location, exif } = entry.data;
+const { entries, slot } = Astro.props;
 
-const RENDER_IMG = false; // flip true once /public/gallery/* exists
+// Payload for the cycle script. SSR renders entries[0]; the script swaps in
+// the rest at runtime. Hues precomputed here so the gradient fallback stays
+// in lockstep with the active photo across cycles.
+const cycleData = entries.map((e) => {
+  const hue = hashHue(e.data.title);
+  return {
+    slug: e.id,
+    image: e.data.image,
+    alt: e.data.caption ?? e.data.title,
+    title: e.data.title,
+    caption: e.data.caption ?? '',
+    location: e.data.location ?? '',
+    hue,
+    hueAlt: (hue + 60) % 360,
+  };
+});
 
-// Gallery uses a 60° hue spread for a richer, more photographic feel than
-// projects' tighter 40°. Hashes via the shared helper so source + destination
-// (Phase 4 morph) agree on the primary hue.
+const first = entries[0];
+const { title, image, caption, location } = first.data;
 const hue = hashHue(title);
 const hueAlt = (hue + 60) % 360;
-const fallbackStyle = `--hue: ${hue}; --hue-alt: ${hueAlt};`;
 
-const exifLine = [exif?.camera, exif?.lens, exif?.fStop].filter(Boolean).join(' · ');
+const linkStyle = `view-transition-name: poster-gallery-${first.id}`;
+const frameStyle = `--hue: ${hue}; --hue-alt: ${hueAlt}; view-transition-name: poster-gallery-${first.id}-image`;
+const detailHref = `/gallery/${first.id}`;
 
-const detailHref = `/gallery/${entry.id}`;
+const shouldCycle = entries.length > 1;
 ---
 
 <a
   href={detailHref}
   class="card-link"
-  transition:name={`poster-gallery-${entry.id}`}
+  style={linkStyle}
   aria-label={`Open ${title}`}
+  data-gallery-cycle={shouldCycle ? '' : undefined}
+  data-gallery-entries={shouldCycle ? JSON.stringify(cycleData) : undefined}
 >
   <Cell slot={slot} class="gallery-cell">
-    <div
-      class="frame"
-      style={fallbackStyle}
-      transition:name={`poster-gallery-${entry.id}-image`}
-    >
-      {
-        RENDER_IMG && (
-          <img src={image} alt={caption ?? title} loading="lazy" decoding="async" />
-        )
-      }
+    <div class="frame" style={frameStyle} data-gallery-frame>
+      <img
+        src={image}
+        alt={caption ?? title}
+        loading="lazy"
+        decoding="async"
+        data-gallery-img
+      />
     </div>
 
     <div class="meta">
       <p class="text-caption muted">photograph</p>
-      <h3 class="text-h3 title">{title}</h3>
-      {caption && <p class="caption text-small muted">{caption}</p>}
-      {location && <p class="exif-line text-caption muted">{location}</p>}
-      {exifLine && <p class="exif-line text-caption muted">{exifLine}</p>}
+      <h3 class="text-h3 title" data-gallery-title>{title}</h3>
+      <p class="caption text-small muted" data-gallery-caption hidden={!caption}>
+        {caption ?? ''}
+      </p>
+      <p class="exif-line text-caption muted" data-gallery-location hidden={!location}>
+        {location ?? ''}
+      </p>
     </div>
   </Cell>
 </a>
@@ -69,8 +96,6 @@ const detailHref = `/gallery/${entry.id}`;
   .muted {
     color: var(--text-muted);
   }
-  /* Anchor wrapper — same pattern as ProjectsCell. Visual chrome stays on
-     the inner Cell; the anchor is just transparent block-level wrap. */
   .card-link {
     display: block;
     height: 100%;
@@ -91,12 +116,11 @@ const detailHref = `/gallery/${entry.id}`;
     flex: 1 1 60%;
     min-height: 0;
     overflow: hidden;
-    background:
-      linear-gradient(
-        135deg,
-        oklch(72% 0.16 var(--hue) / 0.9),
-        oklch(40% 0.12 var(--hue-alt) / 0.95)
-      );
+    background: linear-gradient(
+      135deg,
+      oklch(72% 0.16 var(--hue) / 0.9),
+      oklch(40% 0.12 var(--hue-alt) / 0.95)
+    );
     border-bottom: 1px solid var(--border);
   }
   .frame img {
@@ -104,6 +128,9 @@ const detailHref = `/gallery/${entry.id}`;
     height: 100%;
     object-fit: cover;
     display: block;
+    /* Opacity-only crossfade — compositor-safe and forgiving of mid-fade
+       clicks (the morph snapshot still captures a sensible image). */
+    transition: opacity 400ms var(--ease-out-expo);
   }
   .meta {
     padding: clamp(var(--space-3), 1.6vw, var(--space-4));
@@ -114,15 +141,12 @@ const detailHref = `/gallery/${entry.id}`;
   .title {
     margin: 0;
     color: var(--text);
-    /* one line + ellipsis — keep the title compact in the meta strip */
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
   .caption {
     margin: 0;
-    /* clamp to 2 lines so the meta block stays predictable;
-       step to 1 line on short viewports. */
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
@@ -136,12 +160,123 @@ const detailHref = `/gallery/${entry.id}`;
     }
   }
   .exif-line {
-    /* one line, ellipsis if too long — never wrap. flex-wrap was the cause
-       of the cell overflowing vertically when location + camera + lens
-       combined exceeded one line at 420px col width. */
     margin: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    .frame img {
+      transition: none;
+    }
+  }
 </style>
+
+<script>
+  /**
+   * Auto-cycle the gallery cell every 10s.
+   *   – Pause while pointer is over the cell or keyboard focus is inside it
+   *     (so a visitor reading the meta isn't yanked mid-thought).
+   *   – Skip entirely under prefers-reduced-motion.
+   *   – Pre-warm the next photo right after each swap so subsequent ticks
+   *     don't surface a blank frame while the network fetches.
+   *   – AbortController cleans up across `astro:page-load` so View
+   *     Transitions back-navigation doesn't double-bind the timer.
+   */
+  type CycleEntry = {
+    slug: string;
+    image: string;
+    alt: string;
+    title: string;
+    caption: string;
+    location: string;
+    hue: number;
+    hueAlt: number;
+  };
+
+  const INTERVAL_MS = 10000;
+  const FADE_MS = 400;
+
+  function initGalleryCycle(signal: AbortSignal) {
+    const link = document.querySelector<HTMLAnchorElement>('a[data-gallery-cycle]');
+    if (!link) return;
+
+    let entries: CycleEntry[];
+    try {
+      entries = JSON.parse(link.dataset.galleryEntries ?? '[]') as CycleEntry[];
+    } catch {
+      return;
+    }
+    if (entries.length < 2) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const frame = link.querySelector<HTMLElement>('[data-gallery-frame]');
+    const img = link.querySelector<HTMLImageElement>('[data-gallery-img]');
+    const titleEl = link.querySelector<HTMLElement>('[data-gallery-title]');
+    const captionEl = link.querySelector<HTMLElement>('[data-gallery-caption]');
+    const locationEl = link.querySelector<HTMLElement>('[data-gallery-location]');
+    if (!frame || !img) return;
+
+    let index = 0;
+    let paused = false;
+
+    const preload = (i: number) => {
+      const e = entries[i];
+      if (!e) return;
+      const pre = new Image();
+      pre.src = e.image;
+    };
+    preload((index + 1) % entries.length);
+
+    const swapTo = (next: number) => {
+      const e = entries[next];
+      img.style.opacity = '0';
+      window.setTimeout(() => {
+        if (signal.aborted) return;
+        img.src = e.image;
+        img.alt = e.alt;
+        link.href = `/gallery/${e.slug}`;
+        link.setAttribute('aria-label', `Open ${e.title}`);
+        link.style.viewTransitionName = `poster-gallery-${e.slug}`;
+        frame.style.viewTransitionName = `poster-gallery-${e.slug}-image`;
+        frame.style.setProperty('--hue', String(e.hue));
+        frame.style.setProperty('--hue-alt', String(e.hueAlt));
+        if (titleEl) titleEl.textContent = e.title;
+        if (captionEl) {
+          captionEl.textContent = e.caption;
+          captionEl.hidden = !e.caption;
+        }
+        if (locationEl) {
+          locationEl.textContent = e.location;
+          locationEl.hidden = !e.location;
+        }
+        img.style.opacity = '1';
+        index = next;
+        preload((index + 1) % entries.length);
+      }, FADE_MS);
+    };
+
+    const tick = () => {
+      if (paused) return;
+      swapTo((index + 1) % entries.length);
+    };
+
+    const timer = window.setInterval(tick, INTERVAL_MS);
+
+    link.addEventListener('mouseenter', () => { paused = true; }, { signal });
+    link.addEventListener('mouseleave', () => { paused = false; }, { signal });
+    link.addEventListener('focusin', () => { paused = true; }, { signal });
+    link.addEventListener('focusout', () => { paused = false; }, { signal });
+
+    signal.addEventListener('abort', () => window.clearInterval(timer));
+  }
+
+  let aborter: AbortController | null = null;
+  function bindGalleryCycle() {
+    aborter?.abort();
+    aborter = new AbortController();
+    initGalleryCycle(aborter.signal);
+  }
+  document.addEventListener('astro:page-load', bindGalleryCycle);
+</script>

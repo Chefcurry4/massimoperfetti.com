@@ -1,21 +1,18 @@
 ---
 /**
- * Gallery detail — morph destination from the bento GalleryCell.
+ * /gallery/[slug] — fullscreen photo on a liquid-glass backdrop.
  *
- * Phase 4: minimal landing page so the morph has somewhere to go. Phase 7
- * upgrades this to a proper gallery detail / lightbox treatment.
+ * The page IS the zoomed view. Sidebar stays visible; the rest of the
+ * viewport is a soft cool-gradient bg with the photo centered. Two anchors
+ * at the top corners: ← back to home, and "all photos →" to the /gallery feed.
  *
- * Hero is the gradient frame (matching the bento source via shared hash),
- * meta below: title, caption, location, exif.
- *
- * View Transitions naming:
- *   poster-gallery-{slug}        → wrapping <article>
- *   poster-gallery-{slug}-image  → cover frame
+ * Morph source can be the bento GalleryCell (from /) or a feed thumbnail
+ * (from /gallery) — only one is on the source page per navigation, so the
+ * shared `poster-gallery-{slug}` / `-image` names never collide.
  */
-import { getCollection, render, type CollectionEntry } from 'astro:content';
+import { getCollection, type CollectionEntry } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import { hashHue } from '../../lib/cover-color';
-import Lightbox from '../../components/gallery/Lightbox.astro';
 
 export async function getStaticPaths() {
   const entries = await getCollection('gallery');
@@ -30,210 +27,133 @@ interface Props {
 }
 
 const { entry } = Astro.props;
-const { title, image, caption, location, exif, date } = entry.data;
-const { Content } = await render(entry);
+const { title, image, caption } = entry.data;
 
-// Same 60° hue spread as GalleryCell so source + destination gradients agree.
-// The gradient sits behind the <img>; if the file 404s, the gradient stays
-// visible (no broken-icon, no flag-flipping — same pattern as AboutCell).
+// 60° spread mirrors GalleryCell so source + destination gradients agree.
 const hue = hashHue(title);
 const hueAlt = (hue + 60) % 360;
 const fallbackStyle = `--hue: ${hue}; --hue-alt: ${hueAlt};`;
-
-const dateLabel = date.toLocaleString('en-US', {
-  month: 'long',
-  day: 'numeric',
-  year: 'numeric',
-});
 ---
 
 <Base title={title} description={caption ?? title}>
-  <main class="detail-page page">
-    <a href="/" class="back-link text-caption">← back</a>
+  <main class="photo-view" transition:name={`poster-gallery-${entry.id}`}>
+    <a href="/" class="corner back text-caption" aria-label="Back to wall">
+      ← back
+    </a>
 
-    <article
-      class="photograph"
-      transition:name={`poster-gallery-${entry.id}`}
+    <a
+      href="/gallery"
+      class="corner show-all text-caption"
+      data-astro-prefetch
     >
-      <button
-        type="button"
-        class="frame-button"
-        popovertarget="photo-lightbox"
-        aria-label={`Open ${title} at full size`}
-      >
-        <div
-          class="frame"
-          style={fallbackStyle}
-          transition:name={`poster-gallery-${entry.id}-image`}
-        >
-          <img
-            src={image}
-            alt={caption ?? title}
-            width="1600"
-            height="1067"
-            loading="eager"
-            decoding="async"
-          />
-        </div>
-      </button>
+      all photos →
+    </a>
 
-      <div class="meta">
-        <p class="text-caption muted">photograph</p>
-        <h1 class="title text-h1">{title}</h1>
-        {caption && <p class="caption text-body">{caption}</p>}
-
-        <dl class="exif" aria-label="photo metadata">
-          <div class="row">
-            <dt class="text-caption muted">date</dt>
-            <dd class="text-small">{dateLabel}</dd>
-          </div>
-          {
-            location && (
-              <div class="row">
-                <dt class="text-caption muted">location</dt>
-                <dd class="text-small">{location}</dd>
-              </div>
-            )
-          }
-          {
-            exif?.camera && (
-              <div class="row">
-                <dt class="text-caption muted">camera</dt>
-                <dd class="text-small">{exif.camera}</dd>
-              </div>
-            )
-          }
-          {
-            (exif?.lens || exif?.fStop) && (
-              <div class="row">
-                <dt class="text-caption muted">lens</dt>
-                <dd class="text-small">
-                  {[exif?.lens, exif?.fStop].filter(Boolean).join(' · ')}
-                </dd>
-              </div>
-            )
-          }
-        </dl>
-      </div>
-
-      {
-        Content && (
-          <div class="prose">
-            <Content />
-          </div>
-        )
-      }
-    </article>
+    <figure
+      class="frame"
+      style={fallbackStyle}
+      transition:name={`poster-gallery-${entry.id}-image`}
+    >
+      <img
+        src={image}
+        alt={caption ?? title}
+        width="1600"
+        height="1067"
+        loading="eager"
+        decoding="async"
+      />
+      {caption && <figcaption class="caption text-caption">{caption}</figcaption>}
+    </figure>
   </main>
-
-  <Lightbox src={image} alt={caption ?? title} caption={caption} />
 </Base>
 
 <style>
-  /* Page chrome from `.detail-page`; back link from `.back-link`; markdown
-     body from `.prose`. Local rules cover only the page-specific layout. */
-  .page {
-    max-width: 1080px;
+  .photo-view {
+    /* Anchored to the collapsed sidebar rail so the wall and this view share
+       a left edge — sidebar floats over via z-index when expanded, no reflow. */
+    min-height: 100dvh;
+    margin-left: calc(var(--sidebar-rail) + var(--sidebar-gap));
+    width: calc(100% - var(--sidebar-rail) - var(--sidebar-gap));
+    /* Liquid-glass backdrop: soft cool gradient under a vignette. The image
+       provides the focal contrast; the bg is intentionally muted. */
+    background:
+      radial-gradient(circle at 50% 50%, transparent 0%, var(--scrim-soft) 100%),
+      var(--gradient-cool);
+    display: grid;
+    place-items: center;
+    padding:
+      clamp(var(--space-6), 4vw, var(--space-7))
+      clamp(var(--space-4), 3vw, var(--space-6));
+    position: relative;
+    overflow: hidden;
   }
-  .muted {
-    color: var(--text-muted);
+  @media (max-width: 1023.98px) {
+    .photo-view {
+      margin-left: 0;
+      width: 100%;
+      /* clear the bottom drawer (~64px) plus breathing room */
+      padding-bottom: calc(var(--space-7) + var(--space-5));
+    }
   }
 
-  .photograph {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-5);
+  .corner {
+    position: absolute;
+    top: max(var(--space-4), env(safe-area-inset-top));
+    color: var(--on-cover);
+    text-decoration: none;
+    z-index: 1;
+    /* Slight contrast shadow against any photo color that bleeds near the
+       corners — same trick the lightbox caption used. */
+    text-shadow: 0 1px 2px var(--scrim-soft);
+    transition: color var(--duration-fast) var(--ease-out-expo);
   }
-
-  /* Click-to-zoom — the photo wraps in a transparent <button> that triggers
-     the Lightbox popover. Reset native button chrome so the only visual is
-     the inner .frame. */
-  .frame-button {
-    display: block;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    background: transparent;
-    border: none;
-    cursor: zoom-in;
-    border-radius: var(--radius-md);
+  .corner:hover,
+  .corner:focus-visible {
+    color: var(--accent);
   }
-  .frame-button:focus-visible {
+  .corner:focus-visible {
     outline: 2px solid var(--accent);
-    outline-offset: 2px;
+    outline-offset: 4px;
+    border-radius: var(--radius-sm);
+  }
+  .back {
+    left: max(var(--space-5), env(safe-area-inset-left));
+  }
+  .show-all {
+    right: max(var(--space-5), env(safe-area-inset-right));
   }
 
   .frame {
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border);
-    overflow: hidden;
-    aspect-ratio: 3 / 2;
-    max-height: 75dvh;
-    /* Layered: gradient sits below the image so a missing /public/gallery/*
-       file shows the gradient, not a broken-icon. Same pattern as AboutCell. */
-    background:
-      linear-gradient(
-        135deg,
-        oklch(72% 0.16 var(--hue) / 0.9),
-        oklch(40% 0.12 var(--hue-alt) / 0.95)
-      );
-    transition: transform var(--duration-normal) var(--ease-out-expo);
-  }
-  .frame-button:hover .frame,
-  .frame-button:focus-visible .frame {
-    transform: scale(1.005);
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .frame-button:hover .frame,
-    .frame-button:focus-visible .frame {
-      transform: none;
-    }
-  }
-  .frame img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
-  .meta {
+    margin: 0;
+    max-width: min(95vw, 1280px);
     display: flex;
     flex-direction: column;
-    gap: var(--space-2);
-    max-width: 720px;
+    gap: var(--space-3);
+    align-items: center;
+    /* Gradient fallback applies if <img> 404s — matches the bento source. */
+    --gradient: linear-gradient(
+      135deg,
+      oklch(72% 0.16 var(--hue) / 0.9),
+      oklch(40% 0.12 var(--hue-alt) / 0.95)
+    );
   }
-  .title {
-    margin: 0;
-    color: var(--text);
+  .frame img {
+    max-width: 100%;
+    /* Allow vertical fill but reserve room for back/show-all + caption. */
+    max-height: calc(100dvh - var(--space-8) * 2);
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: var(--radius-md);
+    background: var(--gradient);
+    box-shadow:
+      0 1px 0 0 var(--glass-highlight) inset,
+      0 24px 64px var(--scrim-medium);
   }
   .caption {
-    margin: 0;
-    color: var(--text);
+    color: var(--on-cover);
+    text-align: center;
+    text-shadow: 0 1px 2px var(--scrim-soft);
+    max-width: 64ch;
   }
-
-  .exif {
-    margin: var(--space-2) 0 0;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 0;
-  }
-  .exif .row {
-    display: grid;
-    grid-template-columns: 96px 1fr;
-    gap: var(--space-3);
-    padding: var(--space-1) 0;
-    border-top: 1px solid var(--border);
-    align-items: baseline;
-  }
-  .exif .row:first-child {
-    border-top: 1px solid var(--border-strong);
-  }
-  .exif dt {
-    margin: 0;
-  }
-  .exif dd {
-    margin: 0;
-    color: var(--text);
-  }
-
 </style>

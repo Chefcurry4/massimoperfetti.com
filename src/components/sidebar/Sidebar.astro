@@ -199,48 +199,24 @@ import SpotifyWidget from './SpotifyWidget.astro';
    * Section dividers — each section after the first gets a border-top and
    * padding-top so the divider has integrated breathing room. Adjacent-
    * sibling selector means there's no border above the first section
-   * (NowSnippet) or above the footer (which is anchored by margin-top: auto).
-   * The footer-divider exception sits separately because the chevron may
-   * sit between it and the prior section visually.
+   * (NowSnippet).
    */
-  .content > * + *:not(.footer) {
+  .content > * + * {
     padding-top: var(--space-4);
     border-top: 1px solid var(--border);
   }
-  .content > .footer {
-    margin-top: auto;
-    padding-top: var(--space-3);
-    display: flex;
-    justify-content: flex-end;
-  }
 
-  /* Collapsed footer: theme toggle is always visible at the bottom of the
-     rail (sits outside `.content` visibility gate by being placed in
-     .content for desktop expanded, but we override on the rail). */
-  .sidebar:not(.expanded) .content > .footer {
-    /* Float the footer to the bottom of the rail and re-show it even though
-       .content's opacity is 0 in rail state. */
-    position: absolute;
-    bottom: var(--space-4);
-    left: 0;
-    right: 0;
-    justify-content: center;
-    padding-top: 0;
-    opacity: 1;
-    pointer-events: auto;
-  }
-  /* Hide everything else in the content block when collapsed (would float
-     visually weirdly behind the chevron). */
-  .sidebar:not(.expanded) .content > :not(.footer) {
+  /* Hide content when sidebar is collapsed — chevron handles expand. */
+  .sidebar:not(.expanded) .content > * {
     visibility: hidden;
   }
 
   /* === Rail chevron ==================================================== */
   .rail-chevron {
-    /* Bottom-center of the rail, sitting above the theme toggle footer.
-       Width matches the rail interior; tappable target meets a11y minimum. */
+    /* Bottom-center of the rail. Theme toggle removed — chevron sits at
+       the bottom edge with just one --space-4 inset from the bottom. */
     position: absolute;
-    bottom: calc(var(--space-4) + var(--control-h-md) + var(--space-3));
+    bottom: var(--space-4);
     left: 0;
     right: 0;
     margin: 0 auto;
@@ -391,14 +367,10 @@ import SpotifyWidget from './SpotifyWidget.astro';
       max-height: none;
       overflow: visible;
     }
-    /* Reset the desktop rail-content tricks on mobile. */
-    .sidebar:not(.expanded) .content > :not(.footer),
-    .sidebar:not(.open) .content > :not(.footer) {
+    /* Reset the desktop rail-content visibility trick on mobile. */
+    .sidebar:not(.expanded) .content > *,
+    .sidebar:not(.open) .content > * {
       visibility: visible;
-    }
-    .sidebar:not(.expanded) .content > .footer,
-    .sidebar:not(.open) .content > .footer {
-      position: static;
     }
 
     .drawer-scrim {
