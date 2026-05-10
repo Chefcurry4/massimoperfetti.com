@@ -11,6 +11,8 @@
  */
 import Base from '../layouts/Base.astro';
 import AboutContent from '../components/about/AboutContent.astro';
+import JsonLd from '../components/ui/JsonLd.astro';
+import { personSchema } from '../lib/structured-data';
 import { site } from '../data/site';
 ---
 
@@ -19,6 +21,7 @@ import { site } from '../data/site';
   ogImage="/og/about.png"
   ogImageAlt="About Massimo Perfetti"
 >
+  <JsonLd slot="head" data={personSchema()} />
   <main id="main" class="page">
     <AboutContent />
 

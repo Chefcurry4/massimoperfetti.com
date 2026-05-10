@@ -1,0 +1,31 @@
+---
+/**
+ * Emits a JSON-LD <script> for schema.org structured data. Accepts one
+ * schema object or an array of them.
+ *
+ * `undefined` properties are stripped before serialization so optional
+ * fields (e.g. an `image` we don't have) don't ship as `"image": null` —
+ * Google's structured-data validator flags `null` as an error.
+ */
+interface Props {
+  data: object | readonly object[];
+}
+
+const { data } = Astro.props;
+
+const stripUndefined = (value: unknown): unknown => {
+  if (Array.isArray(value)) return value.map(stripUndefined);
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>)
+        .filter(([, v]) => v !== undefined)
+        .map(([k, v]) => [k, stripUndefined(v)]),
+    );
+  }
+  return value;
+};
+
+const json = JSON.stringify(stripUndefined(data));
+---
+
+<script type="application/ld+json" set:html={json} />

@@ -29,6 +29,9 @@ import NextPrev from '../../components/detail/NextPrev.astro';
 import PandaIcon from '../../components/projects/icons/PandaIcon.astro';
 import GitHubIcon from '../../components/projects/icons/GitHubIcon.astro';
 import LinkedInIcon from '../../components/projects/icons/LinkedInIcon.astro';
+import JsonLd from '../../components/ui/JsonLd.astro';
+import { creativeWorkSchema } from '../../lib/structured-data';
+import { site } from '../../data/site';
 
 export async function getStaticPaths() {
   const entries = await getCollection('projects', ({ data }) => !data.draft);
@@ -75,6 +78,19 @@ const otherLinks = links?.filter((l) => l !== ghLink && l !== liLink) ?? [];
   ogImage={`/og/projects/${entry.id}.png`}
   ogImageAlt={`${title} — project case study`}
 >
+  <JsonLd
+    slot="head"
+    data={creativeWorkSchema({
+      title,
+      summary,
+      url: new URL(`/projects/${entry.id}`, site.url).toString(),
+      dateCreated: date,
+      status,
+      tags,
+      image: `/og/projects/${entry.id}.png`,
+      externalLinks: links?.map((l) => l.url),
+    })}
+  />
   <ReadingProgress />
   <main id="main" class="detail-page page">
     <a href="/" class="back-link text-caption">← back</a>

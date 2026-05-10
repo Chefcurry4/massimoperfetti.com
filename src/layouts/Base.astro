@@ -133,6 +133,12 @@ const portraitMobile = isHome
       )
     }
 
+    {/* Optional JSON-LD structured data — pages pass a `<JsonLd>` element
+        into the `head` slot. Lives in <head> so search engines / AI agents
+        parse it on first read; Google explicitly accepts both head and body
+        but head is canonical. */}
+    <slot name="head" />
+
     {/* Theme bootstrap: synchronous, runs before first paint. Also syncs
         the <meta name="theme-color"> so the mobile browser chrome matches
         the resolved theme — without this the address bar would lock to the
