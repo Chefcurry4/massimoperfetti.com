@@ -10,6 +10,7 @@
  * Phase 2: cells are non-interactive. Phase 4 wires View Transitions.
  */
 import { getCollection } from 'astro:content';
+import { periodSortKey } from '../../lib/period';
 
 import AboutCell from './AboutCell.astro';
 import WorkCell from './WorkCell.astro';
@@ -28,7 +29,7 @@ const featuredProjects = allProjects
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 
 const work = (await getCollection('work')).sort(
-  (a, b) => b.data.period.start.getTime() - a.data.period.start.getTime(),
+  (a, b) => periodSortKey(b.data.period) - periodSortKey(a.data.period),
 );
 
 // Writing collection still drives /writing/[slug] + /writing/rss.xml, but

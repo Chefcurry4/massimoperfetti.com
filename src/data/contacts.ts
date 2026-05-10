@@ -60,6 +60,15 @@ export const contacts: readonly Contact[] = [
     url: 'https://www.linkedin.com/in/mperfetti4/',
   },
   {
+    kind: 'cv',
+    label: 'CV (PDF)',
+    handle: 'download',
+    // File served from /public/cv/. Space in the filename is URL-encoded
+    // here so the link is unambiguous across browsers. Update both the
+    // filename on disk and this URL together if you rename it.
+    url: '/cv/Perfetti%20Resume.pdf',
+  },
+  {
     kind: 'newsletter',
     label: 'Newsletter',
     handle: 'perfettis-notes',

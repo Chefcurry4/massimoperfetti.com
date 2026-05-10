@@ -8,15 +8,12 @@
  */
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
+import { formatPeriod, periodSortKey } from '../../lib/period';
 
 const entries = (await getCollection('work', ({ data }) => !data.draft)).sort((a, b) => {
   if (a.data.featured !== b.data.featured) return a.data.featured ? -1 : 1;
-  return b.data.period.start.getTime() - a.data.period.start.getTime();
+  return periodSortKey(b.data.period) - periodSortKey(a.data.period);
 });
-
-function fmt(d: Date): string {
-  return d.toLocaleString('en-US', { month: 'short', year: 'numeric' });
-}
 ---
 
 <Base title="Work" description="All work and roles.">
@@ -34,9 +31,7 @@ function fmt(d: Date): string {
     <ul class="list" aria-label="all work">
       {
         entries.map((entry) => {
-          const periodLabel = `${fmt(entry.data.period.start)} — ${
-            entry.data.period.end ? fmt(entry.data.period.end) : 'Present'
-          }`;
+          const periodLabel = formatPeriod(entry.data.period);
           return (
             <li>
               <a class="row" href={`/work/${entry.id}`}>

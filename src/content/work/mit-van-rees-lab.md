@@ -2,7 +2,7 @@
 title: 'Graduate Researcher'
 org: 'MIT — van Rees Lab'
 period:
-  start: 2025-09-01
+  start: 2026-04-01
 location: 'Cambridge, MA'
 summary: 'Master thesis research on machine-learning surrogates for computational fluid dynamics, focusing on long-horizon stability of learned flow-map operators.'
 links:

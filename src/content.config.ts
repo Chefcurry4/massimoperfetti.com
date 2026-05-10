@@ -49,7 +49,10 @@ const work = defineCollection({
     slug: z.string().optional(),
     org: z.string().min(1),
     period: z.object({
-      start: z.coerce.date(),
+      // start is optional: an entry without a start date is treated as
+      // "currently active, no historical anchor" and renders as just
+      // "Present". See src/lib/period.ts for the rendering + sort rules.
+      start: z.coerce.date().optional(),
       end: z.coerce.date().optional(),
     }),
     location: z.string().optional(),

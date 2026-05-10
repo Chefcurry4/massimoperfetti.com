@@ -23,6 +23,7 @@
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import { coverHueVars } from '../../lib/cover-color';
+import { formatPeriod } from '../../lib/period';
 import ReadingProgress from '../../components/detail/ReadingProgress.astro';
 import RelatedWork from '../../components/detail/RelatedWork.astro';
 import WorkNextPrev from '../../components/detail/WorkNextPrev.astro';
@@ -48,10 +49,7 @@ const hasLogo = Boolean(logo);
 const initial = org.trim().charAt(0).toUpperCase() || '·';
 const coverStyle = coverHueVars(org);
 
-function fmt(d: Date): string {
-  return d.toLocaleString('en-US', { month: 'short', year: 'numeric' });
-}
-const periodLabel = `${fmt(period.start)} — ${period.end ? fmt(period.end) : 'Present'}`;
+const periodLabel = formatPeriod(period);
 ---
 
 <Base

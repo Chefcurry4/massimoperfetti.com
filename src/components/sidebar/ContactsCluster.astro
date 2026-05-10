@@ -16,9 +16,13 @@
  * out of the always-visible cluster — they're folded into the email popover
  * instead of crowding the sidebar with three identical envelope icons.
  *
- * Tooltips on icon links use `side="right"` because the sidebar sits at the
- * left edge — tooltips reading outward feel anchored, tooltips reading
- * upward (the default) collide with the previous section's content.
+ * Tooltips on icon links use `side="top"`. An earlier iteration used
+ * `side="right"` (tooltips reading outward, away from the sidebar's left
+ * edge), but at the rightmost icons (CV, Newsletter) the bubble extends
+ * past the panel's right boundary and gets visually clipped. `top` keeps
+ * every tooltip inside the panel; the small overlap with the "CONTACTS"
+ * eyebrow on hover is acceptable since that label is contextually
+ * redundant when an icon is already labeled by its tooltip.
  */
 import { contacts, type ContactKind } from '../../data/contacts';
 import Tooltip from '../ui/Tooltip.astro';
@@ -57,7 +61,7 @@ const primaryEmail = emails[0];
       {/* Email icon: popover trigger if multiple, plain mailto link otherwise. */}
       {primaryEmail && (
         <li>
-          <Tooltip label={hasMultipleEmails ? 'Email' : primaryEmail.label} side="right">
+          <Tooltip label={hasMultipleEmails ? 'Email' : primaryEmail.label} side="top">
             {hasMultipleEmails ? (
               <button
                 type="button"
@@ -104,32 +108,43 @@ const primaryEmail = emails[0];
         </li>
       )}
 
-      {nonEmails.map((c) => (
-        <li>
-          <Tooltip label={c.label} side="right">
-            <a
-              class="icon-link"
-              href={c.url}
-              aria-label={`${c.label} — ${c.handle}`}
-              rel="me noopener"
-            >
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width={iconStrokeWidth}
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true"
+      {nonEmails.map((c) => {
+        // CV link is a downloadable asset, not an external profile — give the
+        // browser the right semantics (`download` triggers save / inline view
+        // depending on user prefs; `target=_blank` falls back to opening the
+        // PDF in a new tab on browsers that ignore `download` for same-origin
+        // top-level links). All other contact icons keep their original
+        // outbound-profile behavior.
+        const isCv = c.kind === 'cv';
+        return (
+          <li>
+            <Tooltip label={c.label} side="top">
+              <a
+                class="icon-link"
+                href={c.url}
+                aria-label={`${c.label} — ${c.handle}`}
+                rel="me noopener"
+                download={isCv ? '' : undefined}
+                target={isCv ? '_blank' : undefined}
               >
-                <path d={iconPaths[c.kind]} />
-              </svg>
-            </a>
-          </Tooltip>
-        </li>
-      ))}
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width={iconStrokeWidth}
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d={iconPaths[c.kind]} />
+                </svg>
+              </a>
+            </Tooltip>
+          </li>
+        );
+      })}
     </ul>
   </section>
 

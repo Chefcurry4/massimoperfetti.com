@@ -7,6 +7,7 @@
  */
 
 import type { CollectionEntry } from 'astro:content';
+import { periodSortKey } from './period';
 
 type WorkEntry = CollectionEntry<'work'>;
 
@@ -35,7 +36,7 @@ export function relatedWork(
 
   scored.sort((a, b) => {
     if (b.score !== a.score) return b.score - a.score;
-    return b.entry.data.period.start.getTime() - a.entry.data.period.start.getTime();
+    return periodSortKey(b.entry.data.period) - periodSortKey(a.entry.data.period);
   });
 
   return scored.slice(0, max).map((s) => s.entry);

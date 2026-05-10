@@ -27,6 +27,8 @@ import ReadingProgress from '../../components/detail/ReadingProgress.astro';
 import RelatedProjects from '../../components/detail/RelatedProjects.astro';
 import NextPrev from '../../components/detail/NextPrev.astro';
 import PandaIcon from '../../components/projects/icons/PandaIcon.astro';
+import GitHubIcon from '../../components/projects/icons/GitHubIcon.astro';
+import LinkedInIcon from '../../components/projects/icons/LinkedInIcon.astro';
 
 export async function getStaticPaths() {
   const entries = await getCollection('projects', ({ data }) => !data.draft);
@@ -58,6 +60,13 @@ const dateLabel = date.toLocaleString('en-US', {
   month: 'long',
   year: 'numeric',
 });
+
+// Pull github + linkedin links out of the generic links list — when
+// present we render them as recognisable icon buttons alongside the
+// eyebrow row, and drop them from the textual list to avoid duplication.
+const ghLink = links?.find((l) => /(^|\.)github\.com\//i.test(l.url));
+const liLink = links?.find((l) => /(^|\.)linkedin\.com\//i.test(l.url));
+const otherLinks = links?.filter((l) => l !== ghLink && l !== liLink) ?? [];
 ---
 
 <Base
@@ -87,9 +96,37 @@ const dateLabel = date.toLocaleString('en-US', {
         <div class="hero-meta">
           <div class="row">
             <p class="text-caption muted">project</p>
-            <span class:list={['status-pill', 'text-mono-small', `status-${status}`]}>
-              {statusLabel[status]}
-            </span>
+            <div class="row-right">
+              {
+                ghLink && (
+                  <a
+                    class="action-btn"
+                    href={ghLink.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${title} repository on GitHub`}
+                  >
+                    <GitHubIcon />
+                  </a>
+                )
+              }
+              {
+                liLink && (
+                  <a
+                    class="action-btn"
+                    href={liLink.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${title} on LinkedIn`}
+                  >
+                    <LinkedInIcon />
+                  </a>
+                )
+              }
+              <span class:list={['status-pill', 'text-mono-small', `status-${status}`]}>
+                {statusLabel[status]}
+              </span>
+            </div>
           </div>
 
           <h1
@@ -112,9 +149,9 @@ const dateLabel = date.toLocaleString('en-US', {
           }
 
           {
-            links && links.length > 0 && (
+            otherLinks.length > 0 && (
               <ul class="links" aria-label="links">
-                {links.map((l) => (
+                {otherLinks.map((l) => (
                   <li>
                     <a class="link text-small" href={l.url} rel="noopener">
                       {l.label}
@@ -223,6 +260,49 @@ const dateLabel = date.toLocaleString('en-US', {
     justify-content: space-between;
     align-items: center;
     gap: var(--space-2);
+  }
+  /* Right-hand cluster in the eyebrow row — github icon button + status
+     pill. Kept compact so the row stays a single line at all viewports. */
+  .row-right {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  /* Action icon button (github / linkedin) — same recipe as the bento
+     card's .action-btn so the affordance reads as the same control across
+     the morph. Slightly larger here since the hero has more room. */
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--control-h-md);
+    height: var(--control-h-md);
+    border-radius: var(--radius-pill);
+    background: var(--surface-glass);
+    backdrop-filter: blur(8px) saturate(140%);
+    -webkit-backdrop-filter: blur(8px) saturate(140%);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    text-decoration: none;
+    transition:
+      color var(--duration-fast) var(--ease-out-expo),
+      border-color var(--duration-fast) var(--ease-out-expo),
+      transform var(--duration-fast) var(--ease-out-expo);
+  }
+  .action-btn :global(svg) {
+    width: var(--icon-sm);
+    height: var(--icon-sm);
+  }
+  .action-btn:hover,
+  .action-btn:focus-visible {
+    color: var(--text);
+    border-color: var(--border-strong);
+    transform: translateY(-1px);
+  }
+  .action-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
 
   .title {

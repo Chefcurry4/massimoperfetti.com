@@ -20,6 +20,7 @@
 import Cell from '../ui/Cell.astro';
 import WorkLogo from '../work/WorkLogo.astro';
 import type { CollectionEntry } from 'astro:content';
+import { formatPeriod } from '../../lib/period';
 
 interface Props {
   entry: CollectionEntry<'work'>;
@@ -29,11 +30,7 @@ interface Props {
 const { entry, slot } = Astro.props;
 const { title, org, period, location, summary, logo } = entry.data;
 
-function fmt(d: Date): string {
-  return d.toLocaleString('en-US', { month: 'short', year: 'numeric' });
-}
-
-const periodLabel = `${fmt(period.start)} — ${period.end ? fmt(period.end) : 'Present'}`;
+const periodLabel = formatPeriod(period);
 
 const detailHref = `/work/${entry.id}`;
 ---

@@ -16,6 +16,8 @@ import Cell from '../ui/Cell.astro';
 import type { CollectionEntry } from 'astro:content';
 import { coverHueVars } from '../../lib/cover-color';
 import PandaIcon from '../projects/icons/PandaIcon.astro';
+import GitHubIcon from '../projects/icons/GitHubIcon.astro';
+import LinkedInIcon from '../projects/icons/LinkedInIcon.astro';
 
 interface Props {
   entry: CollectionEntry<'projects'>;
@@ -24,7 +26,7 @@ interface Props {
 }
 
 const { entry, variant = 'lg', slot } = Astro.props;
-const { title, summary, status, tags } = entry.data;
+const { title, summary, status, tags, links } = entry.data;
 
 const initial = title.trim().charAt(0).toUpperCase() || '·';
 const hasIcon = entry.id === 'unidiary';
@@ -40,8 +42,17 @@ const statusLabel: Record<typeof status, string> = {
 };
 
 const detailHref = `/projects/${entry.id}`;
+
+// Surface social/repo affordances directly on the card when the entry
+// exposes a github.com or linkedin.com link. Rendered as siblings of the
+// morph anchor (not children) — nested <a> is invalid markup. Multiple
+// matches stack as a small cluster in the top-right corner.
+const ghLink = links?.find((l) => /(^|\.)github\.com\//i.test(l.url));
+const liLink = links?.find((l) => /(^|\.)linkedin\.com\//i.test(l.url));
+const hasActions = Boolean(ghLink || liLink);
 ---
 
+<div class="card-shell">
 <a
   href={detailHref}
   class="card-link"
@@ -68,7 +79,7 @@ const detailHref = `/projects/${entry.id}`;
       </div>
 
       <h2
-        class:list={['title', variant === 'lg' ? 'text-h2' : 'text-h3']}
+        class:list={['title', variant === 'lg' ? 'text-h2' : 'text-small']}
         transition:name={`poster-projects-${entry.id}-title`}
       >{title}</h2>
 
@@ -86,6 +97,35 @@ const detailHref = `/projects/${entry.id}`;
     </div>
   </Cell>
 </a>
+{
+  hasActions && (
+    <div class:list={['card-actions', `card-actions-${variant}`]}>
+      {ghLink && (
+        <a
+          class="action-btn"
+          href={ghLink.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`${title} repository on GitHub`}
+        >
+          <GitHubIcon />
+        </a>
+      )}
+      {liLink && (
+        <a
+          class="action-btn"
+          href={liLink.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`${title} on LinkedIn`}
+        >
+          <LinkedInIcon />
+        </a>
+      )}
+    </div>
+  )
+}
+</div>
 
 <style is:global>
   /* These rules target the .bento-cell element (which lives in Cell.astro's
@@ -121,6 +161,15 @@ const detailHref = `/projects/${entry.id}`;
     color: var(--text-muted);
   }
 
+  /* Card shell — wraps the morph anchor + the optional github icon as
+     siblings, since nesting <a> in <a> is invalid. The shell takes the full
+     grid slot (`height: 100%`) so the inner card-link can still fill it. */
+  .card-shell {
+    position: relative;
+    display: block;
+    height: 100%;
+  }
+
   /* The anchor wraps the cell so the morph (Phase 4) can carry the whole
      poster across navigation. Keep it transparent — Cell.astro owns the
      visual chrome. `display: block; height: 100%` so the anchor occupies
@@ -135,6 +184,68 @@ const detailHref = `/projects/${entry.id}`;
   .card-link:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
+  }
+
+  /* Action cluster — corner row of social/repo icon buttons. Sits above
+     the morphing card-link via z-index, with its own hit area so a click
+     on an icon opens the link instead of triggering the project-page
+     morph. Generalised from a single GitHub button so multiple icons
+     (github + linkedin + future others) stack horizontally. */
+  .card-actions {
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-3);
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+  /* Sm variant: tighter inset so the cluster doesn't crowd the compact cell. */
+  .card-actions-sm {
+    top: var(--space-2);
+    right: var(--space-2);
+  }
+
+  /* Individual icon button — glass-pill, theme-aware. */
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--control-h-sm);
+    height: var(--control-h-sm);
+    border-radius: var(--radius-pill);
+    background: var(--surface-glass);
+    backdrop-filter: blur(8px) saturate(140%);
+    -webkit-backdrop-filter: blur(8px) saturate(140%);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    text-decoration: none;
+    transition:
+      color var(--duration-fast) var(--ease-out-expo),
+      border-color var(--duration-fast) var(--ease-out-expo),
+      transform var(--duration-fast) var(--ease-out-expo);
+  }
+  .action-btn :global(svg) {
+    width: var(--icon-sm);
+    height: var(--icon-sm);
+  }
+  .action-btn:hover,
+  .action-btn:focus-visible {
+    color: var(--text);
+    border-color: var(--border-strong);
+    transform: translateY(-1px);
+  }
+  .action-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .card-actions-sm .action-btn {
+    width: 28px;
+    height: 28px;
+  }
+  .card-actions-sm .action-btn :global(svg) {
+    width: var(--icon-xs);
+    height: var(--icon-xs);
   }
 
   .cover {
@@ -243,6 +354,30 @@ const detailHref = `/projects/${entry.id}`;
     line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+  /* Sm variant title — smaller text so long titles ("Wind Power
+     Forecasting with Graph Neural Networks", "Heterogeneous Missing-Data
+     Imputation with HI-VAE") fit more readably in the compact cell. Adds
+     title weight + tight rhythm on top of the inherited .text-small
+     sizing so it still reads as a card title, not body. Line-clamps to
+     3 lines with a normal ellipsis — the soft fade lives on the cell
+     chrome below, not on the text. */
+  :global(.projects-cell.variant-sm) .title {
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.005em;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
+  /* Sm cell — soft bottom-edge fade. Mask-image dissolves the cell's
+     own chrome (background + border) over the bottom 18% of its height,
+     reading as a "the wall keeps going" cue without obscuring the title,
+     which sits in the upper portion of the cell. The .card-actions
+     cluster lives outside the masked .bento-cell (it's a sibling inside
+     .card-shell), so the github/linkedin icons stay fully opaque. */
+  :global(.projects-cell.variant-sm) {
+    mask-image: linear-gradient(to bottom, black 82%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 82%, transparent 100%);
   }
   .summary {
     margin: 0;

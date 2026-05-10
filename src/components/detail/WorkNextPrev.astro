@@ -5,6 +5,7 @@
  * newer (left) / older (right) sibling links.
  */
 import { getCollection, type CollectionEntry } from 'astro:content';
+import { periodSortKey } from '../../lib/period';
 
 interface Props {
   current: CollectionEntry<'work'>;
@@ -13,7 +14,7 @@ interface Props {
 const { current } = Astro.props;
 
 const all = (await getCollection('work', ({ data }) => !data.draft)).sort(
-  (a, b) => b.data.period.start.getTime() - a.data.period.start.getTime(),
+  (a, b) => periodSortKey(b.data.period) - periodSortKey(a.data.period),
 );
 
 const idx = all.findIndex((e) => e.id === current.id);
