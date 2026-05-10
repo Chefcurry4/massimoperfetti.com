@@ -46,6 +46,11 @@ const { count, slot } = Astro.props;
     justify-content: space-between;
     gap: var(--space-1);
     cursor: pointer;
+    /* Drop the bleeding outer shadow that .glass adds globally — on this
+       cell against the dark wall it reads as the bottom edge dissolving
+       into the page. Keep the inset highlight so the glass still has its
+       top-edge sheen. */
+    box-shadow: 0 1px 0 0 var(--glass-highlight) inset;
   }
 
   .num {
