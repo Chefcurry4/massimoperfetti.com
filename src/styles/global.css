@@ -21,6 +21,14 @@
 
 @import "./tokens.css";
 
+/*
+ * Active color preset. tokens.css must load first so structural + recipe
+ * tokens are in place; the preset then overlays the palette via cascade.
+ * To switch presets, change this line — bundled options live under
+ * src/styles/themes/ (_default, _linen, _sapphire, _forest). See SETUP.md.
+ */
+@import "./themes/_default.css";
+
 @import "@fontsource-variable/lora";
 @import "@fontsource-variable/geist";
 @import "@fontsource-variable/geist-mono";

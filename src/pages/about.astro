@@ -19,7 +19,7 @@ import { site } from '../data/site';
 <Base
   title="About"
   ogImage="/og/about.png"
-  ogImageAlt="About Massimo Perfetti"
+  ogImageAlt={`About ${site.author}`}
 >
   <JsonLd slot="head" data={personSchema()} />
   <main id="main" class="page">

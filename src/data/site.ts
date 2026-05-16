@@ -12,12 +12,24 @@ export interface SocialLink {
   readonly url: string;
 }
 
+export interface NewsletterConfig {
+  readonly title: string;
+  readonly url: string;
+}
+
 export interface SiteConfig {
   readonly name: string;
   readonly url: string;
   readonly title: string;
   readonly description: string;
   readonly author: string;
+  /**
+   * First name only — used for casual possessive copy ("Massimo's
+   * calendar", "Massimo replies..."). Falls back gracefully if a forker
+   * prefers a single-name handle (e.g. set both `author` and `firstName`
+   * to the same value).
+   */
+  readonly firstName: string;
   readonly defaultOgImage: string;
   readonly locale: string;
   /**
@@ -35,6 +47,18 @@ export interface SiteConfig {
    * created. `theme=auto` lets the embed match the visitor's system theme.
    */
   readonly bookingUrl: string;
+  /**
+   * Newsletter block — drives the bento WritingCell's subscribe CTA and
+   * the sidebar newsletter icon. Omit entirely if your site has no
+   * newsletter; the WritingCell adapts to a plain /writing entry point.
+   */
+  readonly newsletter?: NewsletterConfig;
+  /**
+   * URL to the open-source template repo. Powers the small
+   * "MIT-licensed template →" chip in the bottom-right corner. Set to an
+   * empty string (or omit entirely) to hide the chip on your fork.
+   */
+  readonly templateRepoUrl?: string;
 }
 
 export const site: SiteConfig = {
@@ -44,6 +68,7 @@ export const site: SiteConfig = {
   description:
     'Researcher at MIT van Rees Lab. AI × CFD, full-stack, founder. MSc at MIT and TU Delft.',
   author: 'Massimo Perfetti',
+  firstName: 'Massimo',
   /**
    * Default OG image — points at the build-time generated home card.
    * Per-page detail pages pass their own `ogImage` to <Base>; this is the
@@ -53,4 +78,9 @@ export const site: SiteConfig = {
   locale: 'en',
   spotifyEmbedUrl: 'https://open.spotify.com/embed/playlist/382H8jrG9erCxwOiL6naNd',
   bookingUrl: 'https://app.cal.com/massimo-perfetti',
+  newsletter: {
+    title: "Perfettis' Notes",
+    url: 'https://perfettis-notes.beehiiv.com/',
+  },
+  templateRepoUrl: 'https://github.com/Chefcurry4/massimoperfetti.com',
 };

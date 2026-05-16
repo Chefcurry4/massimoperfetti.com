@@ -2,13 +2,19 @@
 /**
  * WorkLogo — dispatches a work entry to its inline-SVG logo component.
  *
- * Each logo lives in src/components/work/logos/* as an Astro component with
- * mono + color variants (using currentColor for mono). This dispatcher
- * keeps the per-org switch in one place; new logos slot in by adding a
- * sibling component and one line here.
+ * Precedence (first match wins):
+ *   1. Slug-mapped bespoke SVG component (e.g. DualEnergyLogo) — supports
+ *      mono/color variants via currentColor + brand palette.
+ *   2. entry.data.logo path → <img> rendered as-is in both variants. Use
+ *      this for any logo you don't want to inline as an Astro component.
+ *      Caveat: variant="mono" can't currentColor-tint external images;
+ *      provide a monochrome asset if you want the icon-row treatment.
+ *   3. Nothing. Caller (detail-page hero, RelatedWork) is responsible for
+ *      showing its own monogram-over-gradient fallback via coverHueVars().
  *
- * Returns nothing if the entry has no logo (or the slug isn't mapped) — the
- * caller is responsible for the no-logo fallback.
+ * Bespoke per-org components live in src/components/work/logos/* with the
+ * same prop shape (variant, height, ariaLabel, class); register them via
+ * the slug switch below.
  */
 import type { CollectionEntry } from 'astro:content';
 import DualEnergyLogo from './logos/DualEnergyLogo.astro';
@@ -30,15 +36,32 @@ const {
 } = Astro.props;
 
 const slug = entry.id;
+const hasBespoke = slug === 'dualenergy';
+const fallbackLogo = entry.data.logo;
+const computedAlt = ariaLabel ?? entry.data.org;
 ---
 
 {
-  slug === 'dualenergy' && (
+  hasBespoke && (
     <DualEnergyLogo
       variant={variant}
       height={height}
       ariaLabel={ariaLabel}
       class={className}
+    />
+  )
+}
+
+{
+  !hasBespoke && fallbackLogo && (
+    <img
+      src={fallbackLogo}
+      alt={computedAlt}
+      height={height}
+      class={className}
+      style="width:auto;display:inline-block;vertical-align:middle"
+      loading="lazy"
+      decoding="async"
     />
   )
 }

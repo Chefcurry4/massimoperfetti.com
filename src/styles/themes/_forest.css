@@ -1,0 +1,35 @@
+/*
+ * _forest — Parchment + forest / deep moss + bright moss.
+ *
+ * Outdoorsy editorial. Light mode: warm parchment with a deep-forest
+ * accent for typography and links. Dark mode: deep moss-black with a
+ * bright moss accent — alive but grounded, field-notebook feel.
+ */
+
+[data-theme="dark"] {
+  --bg: oklch(15% 0.02 150); /* deep moss-black */
+  --surface: oklch(20% 0.025 150);
+  --text: oklch(94% 0.015 100); /* parchment */
+  --text-muted: oklch(62% 0.025 130);
+  --accent: oklch(78% 0.18 145); /* bright moss */
+  --border: oklch(94% 0.015 100 / 0.08);
+  --border-strong: oklch(94% 0.015 100 / 0.16);
+
+  --border-hover: oklch(78% 0.18 145 / 0.36);
+  --hover-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px oklch(78% 0.18 145 / 0.06);
+}
+
+[data-theme="light"] {
+  --bg: oklch(96% 0.012 100); /* warm parchment */
+  --surface: oklch(99% 0.005 100);
+  --text: oklch(20% 0.02 145); /* forest ink */
+  --text-muted: oklch(48% 0.03 145);
+  --accent: oklch(42% 0.13 152); /* forest */
+  --border: oklch(20% 0.02 145 / 0.08);
+  --border-strong: oklch(20% 0.02 145 / 0.16);
+
+  --border-hover: oklch(42% 0.13 152 / 0.32);
+  --hover-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px oklch(42% 0.13 152 / 0.1);
+}

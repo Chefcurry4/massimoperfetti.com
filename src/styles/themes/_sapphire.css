@@ -1,0 +1,35 @@
+/*
+ * _sapphire — Bone + royal blue / deep blue + pale gold.
+ *
+ * Disciplined editorial luxury. Light mode: cool bone paper with a
+ * royal-blue accent for links and CTAs. Dark mode: deep blue-black
+ * field with a pale-gold accent — restrained, archival, museum-label.
+ */
+
+[data-theme="dark"] {
+  --bg: oklch(15% 0.04 255); /* deep blue-black */
+  --surface: oklch(20% 0.05 255);
+  --text: oklch(95% 0.01 80); /* warm bone */
+  --text-muted: oklch(62% 0.04 250);
+  --accent: oklch(86% 0.14 88); /* pale gold */
+  --border: oklch(95% 0.01 80 / 0.08);
+  --border-strong: oklch(95% 0.01 80 / 0.16);
+
+  --border-hover: oklch(86% 0.14 88 / 0.36);
+  --hover-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px oklch(86% 0.14 88 / 0.06);
+}
+
+[data-theme="light"] {
+  --bg: oklch(96% 0.005 240); /* cool bone */
+  --surface: oklch(99% 0.003 240);
+  --text: oklch(15% 0.02 250); /* deep blue-ink */
+  --text-muted: oklch(45% 0.04 250);
+  --accent: oklch(48% 0.22 263); /* royal blue */
+  --border: oklch(15% 0.02 250 / 0.08);
+  --border-strong: oklch(15% 0.02 250 / 0.16);
+
+  --border-hover: oklch(48% 0.22 263 / 0.32);
+  --hover-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px oklch(48% 0.22 263 / 0.1);
+}

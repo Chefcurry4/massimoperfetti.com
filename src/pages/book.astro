@@ -23,7 +23,7 @@ const fallbackEmail = 'massimoperfetti4@gmail.com';
 
 <Base
   title="Book a call"
-  description="Pick a 30-minute slot. Synced to Massimo's Google Calendar."
+  description={`Pick a 30-minute slot. Synced to ${site.firstName}'s Google Calendar.`}
 >
   {/* Outer wrapper is <section>, not <main> — the embedded Cal.com iframe
       contains its own <main> landmark for the booking flow. Two <main>s on
@@ -48,7 +48,7 @@ const fallbackEmail = 'massimoperfetti4@gmail.com';
           are placeholders the browser uses for layout reservation only. */}
       <iframe
         src={embedSrc}
-        title="Book a 30-min call with Massimo Perfetti"
+        title={`Book a 30-min call with ${site.author}`}
         width="800"
         height="800"
         loading="lazy"

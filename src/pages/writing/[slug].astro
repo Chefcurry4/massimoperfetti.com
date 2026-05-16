@@ -44,7 +44,7 @@ const dateLabel = date.toLocaleString('en-US', {
   title={title}
   description={summary}
   ogImage={`/og/writing/${entry.id}.png`}
-  ogImageAlt={`${title} — note by Massimo Perfetti`}
+  ogImageAlt={`${title} — note by ${site.author}`}
 >
   <JsonLd
     slot="head"

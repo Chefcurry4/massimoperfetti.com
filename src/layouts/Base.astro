@@ -11,6 +11,7 @@ import { ClientRouter } from 'astro:transitions';
 import { getImage } from 'astro:assets';
 import { site } from '../data/site';
 import Sidebar from '../components/sidebar/Sidebar.astro';
+import TemplateCredit from '../components/ui/TemplateCredit.astro';
 import portraitMobileSrc from '../assets/in.png';
 import '../styles/global.css';
 
@@ -167,5 +168,6 @@ const portraitMobile = isHome
     <a href="#main" class="skip-link">Skip to content</a>
     <Sidebar />
     <slot />
+    <TemplateCredit transition:persist="template-credit" />
   </body>
 </html>

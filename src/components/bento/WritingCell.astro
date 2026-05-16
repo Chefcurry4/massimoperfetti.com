@@ -2,13 +2,15 @@
 /**
  * Writing cell — bottom of column 2.
  *
- * Pinned newsletter announcement. The cell *body* is deliberately
- * non-interactive (no <a> wrapper around the cell, no detail page). The
- * one clickable element is the newsletter icon in the bottom-right corner,
- * which opens https://perfettis-notes.beehiiv.com/ in a new tab — same
- * destination the sidebar newsletter icon points at.
+ * Pinned newsletter announcement when `site.newsletter` is set: the cell
+ * body is non-interactive editorial copy, with one clickable subscribe
+ * icon in the bottom-right corner that opens the newsletter URL in a new
+ * tab (same destination the sidebar newsletter icon points at).
  *
- * Edit the body copy directly here when the announcement changes.
+ * Forker fallback: when `site.newsletter` is undefined, the cell renders
+ * a plain entry point to `/writing` — no subscribe CTA, no italian/free
+ * meta line. Edit the body copy directly here when the announcement
+ * changes.
  */
 import Cell from '../ui/Cell.astro';
 import { site } from '../../data/site';
@@ -19,45 +21,59 @@ interface Props {
 
 const { slot } = Astro.props;
 
-const newsletterUrl = 'https://perfettis-notes.beehiiv.com/';
+const newsletter = site.newsletter;
 ---
 
 <Cell slot={slot}>
-  <p class="text-caption muted">newsletter</p>
-  <h2 class="text-h3 title">Perfettis' Notes</h2>
-  <p class="lede text-body muted">
-    My brother Matteo and I launched a newsletter — free, in Italian. We
-    write about academic choices, engineering, AI and ML, motivation, work
-    experience, and the advice we wish we'd had along the way.
-  </p>
-  <p class="closer text-small">
-    If it helps a few Italian students find their way a bit better, that's
-    already a win.
-  </p>
-  <div class="meta-row">
-    <p class="meta text-caption muted">free · in italian</p>
-    <a
-      class="subscribe"
-      href={newsletterUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label={`Subscribe to Perfettis' Notes — opens ${site.name === 'Massimo Perfetti' ? 'beehiiv' : 'newsletter'} in a new tab`}
-    >
-      <svg
-        width="18"
-        height="18"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.7"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-        aria-hidden="true"
-      >
-        <path d="M4 6h12v10H4zM4 6l6 5 6-5M19 9h3M19 12h3M19 15h3" />
-      </svg>
+  {newsletter ? (
+    <>
+      <p class="text-caption muted">newsletter</p>
+      <h2 class="text-h3 title">{newsletter.title}</h2>
+      <p class="lede text-body muted">
+        My brother Matteo and I launched a newsletter — free, in Italian. We
+        write about academic choices, engineering, AI and ML, motivation, work
+        experience, and the advice we wish we'd had along the way.
+      </p>
+      <p class="closer text-small">
+        If it helps a few Italian students find their way a bit better, that's
+        already a win.
+      </p>
+      <div class="meta-row">
+        <p class="meta text-caption muted">free · in italian</p>
+        <a
+          class="subscribe"
+          href={newsletter.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`Subscribe to ${newsletter.title} — opens newsletter in a new tab`}
+        >
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M4 6h12v10H4zM4 6l6 5 6-5M19 9h3M19 12h3M19 15h3" />
+          </svg>
+        </a>
+      </div>
+    </>
+  ) : (
+    <a class="entry" href="/writing" transition:name="poster-writing">
+      <p class="text-caption muted">writing</p>
+      <h2 class="text-h3 title">Notes</h2>
+      <p class="lede text-body muted">
+        Short essays, working notes, and longer pieces. Updated when there's
+        something worth saying.
+      </p>
+      <p class="meta text-caption muted entry-cta">read more →</p>
     </a>
-  </div>
+  )}
 </Cell>
 
 <style>
@@ -132,5 +148,30 @@ const newsletterUrl = 'https://perfettis-notes.beehiiv.com/';
     .subscribe:focus-visible {
       transform: none;
     }
+  }
+
+  /* Forker fallback branch — when site.newsletter is undefined the cell
+     becomes a plain block link into /writing. Cell chrome (border, padding,
+     hover-lift) comes from the wrapping <Cell>; this just lays out the
+     inner contents as a column and removes anchor styling. */
+  .entry {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    height: 100%;
+    color: inherit;
+    text-decoration: none;
+  }
+  .entry .lede {
+    margin-bottom: auto;
+  }
+  .entry-cta {
+    margin: 0;
+    color: var(--text);
+    transition: color var(--duration-fast) var(--ease-out-expo);
+  }
+  .entry:hover .entry-cta,
+  .entry:focus-visible .entry-cta {
+    color: var(--accent);
   }
 </style>

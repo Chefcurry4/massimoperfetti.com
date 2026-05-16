@@ -13,6 +13,7 @@
 import { getCollection } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import WorldMap from '../../components/places/WorldMap.astro';
+import { site } from '../../data/site';
 
 const places = (await getCollection('places')).sort(
   (a, b) => b.data.visitedOn.getTime() - a.data.visitedOn.getTime(),
@@ -28,7 +29,7 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
   title="Places"
   description={`${places.length} places visited.`}
   ogImage="/og/places.png"
-  ogImageAlt="Places visited by Massimo Perfetti"
+  ogImageAlt={`Places visited by ${site.author}`}
 >
   <main id="main" class="detail-page page" transition:name="poster-places">
     <a href="/" class="back-link text-caption">← back</a>

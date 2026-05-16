@@ -55,8 +55,14 @@ module.exports = {
     {
       // Token DEFINITIONS — these files exist to contain raw values.
       // Disable the strict rules here, since they need to define what the
-      // rest of the codebase will consume.
-      files: ['src/styles/tokens.css', 'src/styles/global.css'],
+      // rest of the codebase will consume. Theme presets under
+      // src/styles/themes/ are the per-palette override layer for the
+      // [data-theme=*] blocks in tokens.css; same exemption rationale.
+      files: [
+        'src/styles/tokens.css',
+        'src/styles/global.css',
+        'src/styles/themes/**/*.css',
+      ],
       rules: {
         'color-no-hex': null,
         'declaration-property-value-allowed-list': null,
