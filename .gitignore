@@ -31,3 +31,6 @@ pnpm-debug.log*
 # netlify
 .netlify/
 
+# local scratch dir (screenshot scripts, throwaway artifacts)
+.tmp/
+

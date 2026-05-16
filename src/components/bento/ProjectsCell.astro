@@ -379,6 +379,26 @@ const hasActions = Boolean(ghLink || liLink);
     mask-image: linear-gradient(to bottom, black 82%, transparent 100%);
     -webkit-mask-image: linear-gradient(to bottom, black 82%, transparent 100%);
   }
+  /* Mobile (< 1024px): the sm cell expands to full card width inside the
+     stacked layout, so the desktop-strict compact title looks lost in the
+     space. Bump to display serif at poster-size, drop the bottom fade
+     (a wall-continues cue that's meaningless when the card is the whole
+     visible unit), and raise the line-clamp so longer titles breathe. */
+  @media (max-width: 1023.98px) {
+    :global(.projects-cell.variant-sm) {
+      mask-image: none;
+      -webkit-mask-image: none;
+    }
+    :global(.projects-cell.variant-sm) .title {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: clamp(22px, 5.5vw, 28px);
+      line-height: 1.15;
+      letter-spacing: -0.015em;
+      -webkit-line-clamp: 4;
+      line-clamp: 4;
+    }
+  }
   .summary {
     margin: 0;
     display: -webkit-box;
