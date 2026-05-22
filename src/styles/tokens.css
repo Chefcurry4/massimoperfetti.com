@@ -153,12 +153,6 @@
   --scrim-medium: rgba(0, 0, 0, 0.6);
   --scrim-strong: rgba(0, 0, 0, 0.92);
 
-  /* Theme-invariant chrome token: thin border for elements sitting on top
-     of `--scrim-strong` (e.g. Lightbox close button). Mirrors `--on-cover`
-     for the "white-on-dark-medium" pattern — same value in both themes
-     because the surface underneath is theme-invariant. */
-  --on-scrim-border: rgba(255, 255, 255, 0.32);
-
   /* Motion (theme-invariant) */
   --duration-fast: 150ms;
   --duration-normal: 280ms;

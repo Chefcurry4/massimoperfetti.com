@@ -118,6 +118,13 @@ import SpotifyWidget from './SpotifyWidget.astro';
       background var(--duration-normal) var(--ease-out-expo),
       box-shadow var(--duration-normal) var(--ease-out-expo);
   }
+  @media (prefers-reduced-transparency: reduce) {
+    .sidebar {
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      background: var(--surface-glass-strong);
+    }
+  }
 
   /* Vertical accent edge on the right of the rail — subtle signal that the
      column is interactive. Fades out when expanded. */
