@@ -116,9 +116,6 @@ import { site } from '../data/site';
   .page {
     max-width: 640px;
   }
-  .muted {
-    color: var(--text-muted);
-  }
 
   .head {
     display: flex;
@@ -178,9 +175,13 @@ import { site } from '../data/site';
       border-color var(--duration-fast) var(--ease-out-expo),
       box-shadow var(--duration-fast) var(--ease-out-expo);
   }
-  .field input:focus,
-  .field textarea:focus {
-    outline: none;
+  .field input:focus-visible,
+  .field textarea:focus-visible {
+    /* Site-wide focus convention: a real outline (survives forced-colors /
+       high-contrast modes, unlike the previous box-shadow-only ring) plus
+       the accent border + soft halo. */
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
     border-color: var(--accent);
     box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 20%, transparent);
   }

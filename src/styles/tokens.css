@@ -144,6 +144,27 @@
     oklch(38% 0.06 295 / 0.6)
   );
 
+  /*
+   * Hue-parameterized cover gradients — one definition for the recipe that
+   * was previously copy-pasted at 8 call sites. Consumers set --hue /
+   * --hue-alt (via coverHueVars / coverHues) and write
+   * `background: var(--gradient-cover)`; custom properties substitute at
+   * the consuming element, so the local hue vars apply there.
+   *   --gradient-cover  radial — project/work card covers, related cards,
+   *                     detail-page heroes
+   *   --gradient-photo  linear — gallery frames + photo 404 fallbacks
+   */
+  --gradient-cover: radial-gradient(
+    circle at 30% 30%,
+    oklch(70% 0.18 var(--hue, 264) / 0.85),
+    oklch(35% 0.14 var(--hue-alt, 295) / 0.95) 70%
+  );
+  --gradient-photo: linear-gradient(
+    135deg,
+    oklch(72% 0.16 var(--hue, 264) / 0.9),
+    oklch(40% 0.12 var(--hue-alt, 295) / 0.95)
+  );
+
   /* Backdrop / scrim for modal overlays. Three opacities cover the use
      cases the design needs:
        --scrim-modal: popover ::backdrop, mobile drawer scrim (medium dim)

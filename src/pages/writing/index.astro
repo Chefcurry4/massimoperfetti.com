@@ -17,7 +17,12 @@ const entries = (await getCollection('writing', ({ data }) => !data.draft)).sort
 );
 ---
 
-<Base title="Writing" description="Notes and essays on ML, CFD, and engineering.">
+<Base
+  title="Writing"
+  description="Notes and essays on ML, CFD, and engineering."
+  ogImage="/og/writing-index.png"
+  ogImageAlt="Notes and essays — index"
+>
   <main id="main" class="detail-page page">
     <a href="/" class="back-link text-caption">← back</a>
 
@@ -64,9 +69,6 @@ const entries = (await getCollection('writing', ({ data }) => !data.draft)).sort
      `.detail-page` and `.back-link` in global.css. */
   .page {
     max-width: 920px;
-  }
-  .muted {
-    color: var(--text-muted);
   }
 
   .head {

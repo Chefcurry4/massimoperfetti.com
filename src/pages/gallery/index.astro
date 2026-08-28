@@ -11,7 +11,7 @@
 import { getCollection } from 'astro:content';
 import { Picture } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
-import { hashHue } from '../../lib/cover-color';
+import { coverHues } from '../../lib/cover-color';
 
 const gallery = (await getCollection('gallery')).sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime(),
@@ -20,7 +20,9 @@ const gallery = (await getCollection('gallery')).sort(
 
 <Base
   title="Gallery"
-  description="Photographs."
+  description="Photographs from research trips, races, and places in between."
+  ogImage="/og/gallery-index.png"
+  ogImageAlt="Photo gallery — index"
 >
   <main id="main" class="gallery-feed detail-page">
     <a href="/" class="back-link text-caption">← back</a>
@@ -39,8 +41,7 @@ const gallery = (await getCollection('gallery')).sort(
       ) : (
         <ul class="grid">
           {gallery.map((entry) => {
-            const hue = hashHue(entry.data.title);
-            const hueAlt = (hue + 60) % 360;
+            const { hue, hueAlt } = coverHues(entry.data.title);
             return (
               <li>
                 <a
@@ -60,7 +61,7 @@ const gallery = (await getCollection('gallery')).sort(
                         page max-width clamping at 1080. */}
                     <Picture
                       src={entry.data.image}
-                      alt={entry.data.caption ?? entry.data.title}
+                      alt={entry.data.alt ?? entry.data.caption ?? entry.data.title}
                       widths={[300, 500, 800]}
                       sizes="(max-width: 480px) 50vw, (max-width: 768px) 33vw, (max-width: 1280px) 25vw, 216px"
                       formats={['avif', 'webp']}
@@ -84,9 +85,6 @@ const gallery = (await getCollection('gallery')).sort(
   .gallery-feed {
     max-width: 1080px;
     width: 100%;
-  }
-  .muted {
-    color: var(--text-muted);
   }
 
   .head {
@@ -154,11 +152,8 @@ const gallery = (await getCollection('gallery')).sort(
     height: 100%;
     /* Layered: gradient sits below, image on top. If the file 404s the
        gradient stays visible (same pattern as AboutCell + GalleryCell). */
-    background: linear-gradient(
-      135deg,
-      oklch(72% 0.16 var(--hue) / 0.9),
-      oklch(40% 0.12 var(--hue-alt) / 0.95)
-    );
+    background: var(--gradient-photo);
+
     overflow: hidden;
   }
   .frame img {

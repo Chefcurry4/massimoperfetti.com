@@ -4,8 +4,6 @@ summary: 'AI-guided study planner for university students. Where I learned full-
 date: 2025-08-15
 status: 'live'
 tags: ['fullstack', 'nextjs', 'supabase', 'ai', 'edtech']
-cover: '/projects/unidiary-cover.webp'
-coverPosition: 'center'
 featured: true
 bentoSize: 'lg'
 links:

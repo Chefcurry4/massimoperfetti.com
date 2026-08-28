@@ -72,7 +72,7 @@ const typeScale = [
 ];
 ---
 
-<Base title="Design system" description="Internal design system reference.">
+<Base title="Design system" description="Internal design system reference." noindex>
   <main id="main" class="page">
     <header class="head">
       <p class="text-caption muted">internal</p>
@@ -155,7 +155,8 @@ const typeScale = [
     <section class="block">
       <h2 class="text-h2 section-title">Availability dots</h2>
       <p class="text-small muted section-lead">
-        Used by NowSnippet and the avatar ring in Identity. <code>--availability-*</code>.
+        Reserved palette (<code>--availability-*</code>) — currently unused
+        since the Now snippet was retired; kept for a future status surface.
       </p>
       <ul class="availability-list">
         {availabilityTokens.map((a) => (
@@ -215,7 +216,7 @@ const typeScale = [
       </p>
       <div class="controls-row">
         <Tooltip label="Tooltip on hover" side="top">
-          <button type="button" class="demo-icon-link" aria-label="demo small">
+          <button type="button" class="icon-btn demo-icon-link" aria-label="demo small">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <circle cx="12" cy="12" r="9" />
               <path d="M8 12l3 3 5-6" />
@@ -385,17 +386,9 @@ const typeScale = [
     flex-wrap: wrap;
     gap: var(--space-2);
   }
-  .status-pill {
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    padding: var(--space-1) var(--space-2);
-    border-radius: var(--radius-pill);
-    border: 1px solid var(--border-strong);
-    color: var(--text-muted);
-  }
-  .status-live { color: var(--status-live); border-color: var(--status-live); background: var(--status-live-bg); }
-  .status-in-progress { color: var(--status-progress); border-color: var(--status-progress); background: var(--status-progress-bg); }
-  .status-archived { color: var(--status-archived); background: var(--status-archived-bg); }
+  /* .status-pill + .status-* come from global.css — the reference page
+     renders the REAL component classes (a local copy here had already
+     drifted from the shipping recipe). */
 
   /* === Availability === */
   .availability-list {
@@ -459,26 +452,33 @@ const typeScale = [
     gap: var(--space-4);
     flex-wrap: wrap;
   }
+  /* Skeleton from the global .icon-btn base; the demo only recolors. */
   .demo-icon-link {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: var(--control-h-sm);
-    height: var(--control-h-sm);
-    border-radius: var(--radius-pill);
-    border: 1px solid var(--border-strong);
     color: var(--text);
-    background: transparent;
-    cursor: pointer;
+  }
+  .demo-icon-link:hover,
+  .demo-icon-link:focus-visible {
+    color: var(--accent);
+    border-color: var(--accent);
   }
   .demo-cta {
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
+    min-height: var(--tap-min);
     padding: var(--space-2) var(--space-4);
     border-radius: var(--radius-pill);
     border: 1px solid var(--accent);
     color: var(--text);
+    transition: background var(--duration-fast) var(--ease-out-quad);
+  }
+  .demo-cta:hover,
+  .demo-cta:focus-visible {
+    background: color-mix(in oklab, var(--accent) 12%, transparent);
+  }
+  .demo-cta:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
   }
 
   /* === Z-index list === */
@@ -506,8 +506,18 @@ const typeScale = [
     align-items: center;
     color: var(--text-muted);
   }
-  .back { transition: color var(--duration-fast) var(--ease-out-expo); }
-  .back:hover { color: var(--text); }
+  .back {
+    transition: color var(--duration-fast) var(--ease-out-quad);
+  }
+  .back:hover,
+  .back:focus-visible {
+    color: var(--text);
+  }
+  .back:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
 
   @media (max-width: 1023.98px) {
     .page {

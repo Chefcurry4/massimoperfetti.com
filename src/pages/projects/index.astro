@@ -26,7 +26,12 @@ const statusLabel: Record<CollectionEntry<'projects'>['data']['status'], string>
 };
 ---
 
-<Base title="Projects" description="All projects.">
+<Base
+  title="Projects"
+  description="Case studies across AI, CFD, and full-stack engineering — research code, startups, and side projects."
+  ogImage="/og/projects-index.png"
+  ogImageAlt="All projects — index"
+>
   <main id="main" class="detail-page page">
     <a href="/" class="back-link text-caption">← back</a>
 
@@ -71,9 +76,6 @@ const statusLabel: Record<CollectionEntry<'projects'>['data']['status'], string>
      `.detail-page` and `.back-link` in global.css. */
   .page {
     max-width: 920px;
-  }
-  .muted {
-    color: var(--text-muted);
   }
 
   .head {

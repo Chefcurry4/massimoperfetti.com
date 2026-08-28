@@ -47,6 +47,24 @@ const pages: Record<string, OGPage> = {
     title: 'Places visited',
     description: `${places.length} cities across ${distinctCountries} countries.`,
   },
+  // Index-route cards — previously /projects, /work, /gallery and /writing
+  // all fell back to the generic home card.
+  'projects-index': {
+    title: 'All projects',
+    description: `${projects.length} case studies across AI, CFD, and full-stack engineering.`,
+  },
+  'work-index': {
+    title: 'Work',
+    description: 'Roles and ventures — research, founding, and the path in between.',
+  },
+  'gallery-index': {
+    title: 'Gallery',
+    description: `${gallery.length} photographs.`,
+  },
+  'writing-index': {
+    title: 'Notes',
+    description: `${writing.length} ${writing.length === 1 ? 'note' : 'notes'} on ML, CFD, and engineering.`,
+  },
   ...Object.fromEntries(
     projects.map((entry) => [
       `projects/${entry.id}`,

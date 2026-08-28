@@ -7,12 +7,13 @@
  * emails.
  */
 
+// Kinds map 1:1 to icon paths in ContactsCluster.astro — add the icon
+// there when adding a kind here. ('x' and 'scholar' were removed as dead:
+// no contact entry used them and the x icon was a plain ✕, not the logo.)
 export type ContactKind =
   | 'email'
   | 'github'
   | 'linkedin'
-  | 'x'
-  | 'scholar'
   | 'cv'
   | 'newsletter';
 
@@ -59,15 +60,16 @@ export const contacts: readonly Contact[] = [
     handle: 'mperfetti4',
     url: 'https://www.linkedin.com/in/mperfetti4/',
   },
-  {
-    kind: 'cv',
-    label: 'CV (PDF)',
-    handle: 'download',
-    // File served from /public/cv/. Space in the filename is URL-encoded
-    // here so the link is unambiguous across browsers. Update both the
-    // filename on disk and this URL together if you rename it.
-    url: '/cv/Perfetti%20Resume.pdf',
-  },
+  // CV entry disabled until the PDF actually exists — public/cv/ contains
+  // only a README, so this link 404'd from the persistent sidebar on every
+  // page. Drop the file at public/cv/Perfetti%20Resume.pdf (URL-encoded
+  // space) and uncomment to restore the sidebar icon.
+  // {
+  //   kind: 'cv',
+  //   label: 'CV (PDF)',
+  //   handle: 'download',
+  //   url: '/cv/Perfetti%20Resume.pdf',
+  // },
   {
     kind: 'newsletter',
     label: 'Newsletter',

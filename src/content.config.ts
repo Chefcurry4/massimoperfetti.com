@@ -33,10 +33,17 @@ const projects = defineCollection({
     date: z.coerce.date(),
     status: z.enum(['live', 'archived', 'in-progress']),
     tags: z.array(z.string()).default([]),
-    cover: z.string(),
+    // cover/coverPosition are OPTIONAL and currently unread — every card
+    // and hero renders the deterministic gradient + initial instead. The
+    // fields stay in the schema for forks that ship real cover art; a
+    // previous `cover: z.string()` (required) forced every entry to carry
+    // a path to a file that didn't exist.
+    cover: z.string().optional(),
     coverPosition: z.string().default('center'),
     links: z.array(linkSchema).optional(),
     featured: z.boolean().default(false),
+    // Fork-facing hint only — BentoGrid currently slots featured projects
+    // by array position, not by this field.
     bentoSize: z.enum(['sm', 'md', 'lg']).optional(),
     draft: z.boolean().default(false),
   }),
@@ -106,6 +113,10 @@ const gallery = defineCollection({
       title: z.string().min(1),
       date: z.coerce.date(),
       image: image(),
+      /** Real image description for alt text. Falls back to caption/title
+          where absent — but captions are editorial asides ("my bbq secret
+          spot!"), not descriptions, so prefer setting this. */
+      alt: z.string().optional(),
       caption: z.string().optional(),
       location: z.string().optional(),
       exif: z

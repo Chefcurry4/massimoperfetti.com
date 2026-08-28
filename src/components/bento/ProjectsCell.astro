@@ -106,7 +106,7 @@ const hasActions = Boolean(ghLink || liLink);
     <div class:list={['card-actions', `card-actions-${variant}`]}>
       {ghLink && (
         <a
-          class="action-btn"
+          class="icon-btn action-btn"
           href={ghLink.url}
           target="_blank"
           rel="noopener noreferrer"
@@ -117,7 +117,7 @@ const hasActions = Boolean(ghLink || liLink);
       )}
       {liLink && (
         <a
-          class="action-btn"
+          class="icon-btn action-btn"
           href={liLink.url}
           target="_blank"
           rel="noopener noreferrer"
@@ -161,9 +161,6 @@ const hasActions = Boolean(ghLink || liLink);
 </style>
 
 <style>
-  .muted {
-    color: var(--text-muted);
-  }
 
   /* Card shell — wraps the morph anchor + the optional github icon as
      siblings, since nesting <a> in <a> is invalid. The shell takes the full
@@ -178,17 +175,6 @@ const hasActions = Boolean(ghLink || liLink);
      poster across navigation. Keep it transparent — Cell.astro owns the
      visual chrome. `display: block; height: 100%` so the anchor occupies
      the same grid slot as the previous <article>. */
-  .card-link {
-    display: block;
-    height: 100%;
-    color: inherit;
-    text-decoration: none;
-    border-radius: var(--radius-lg);
-  }
-  .card-link:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
 
   /* Action cluster — corner row of social/repo icon buttons. Sits above
      the morphing card-link via z-index, with its own hit area so a click
@@ -199,7 +185,9 @@ const hasActions = Boolean(ghLink || liLink);
     position: absolute;
     top: var(--space-3);
     right: var(--space-3);
-    z-index: 2;
+    /* No z-index needed: the cluster is a positioned later sibling of the
+       card-link, so it paints above it in natural order. (A raw z-index: 2
+       here also bypassed the token scale.) */
     display: inline-flex;
     align-items: center;
     gap: var(--space-1);
@@ -210,24 +198,13 @@ const hasActions = Boolean(ghLink || liLink);
     right: var(--space-2);
   }
 
-  /* Individual icon button — glass-pill, theme-aware. */
+  /* Glass-pill modifier over the global .icon-btn skeleton (size, pill,
+     tap-pad, focus ring). Only the glass surface + card hover live here. */
   .action-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: var(--control-h-sm);
-    height: var(--control-h-sm);
-    border-radius: var(--radius-pill);
     background: var(--surface-glass);
     backdrop-filter: blur(8px) saturate(140%);
     -webkit-backdrop-filter: blur(8px) saturate(140%);
-    border: 1px solid var(--border);
-    color: var(--text-muted);
-    text-decoration: none;
-    transition:
-      color var(--duration-fast) var(--ease-out-expo),
-      border-color var(--duration-fast) var(--ease-out-expo),
-      transform var(--duration-fast) var(--ease-out-expo);
+    border-color: var(--border);
   }
   .action-btn :global(svg) {
     width: var(--icon-sm);
@@ -245,14 +222,9 @@ const hasActions = Boolean(ghLink || liLink);
       transform: none;
     }
   }
-  .action-btn:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-  .card-actions-sm .action-btn {
-    width: 28px;
-    height: 28px;
-  }
+  /* sm cards keep the smaller glyph but the button itself stays at
+     --control-h-sm — the previous 28px override was both off-scale and a
+     sub-44 tap target even with padding. */
   .card-actions-sm .action-btn :global(svg) {
     width: var(--icon-xs);
     height: var(--icon-xs);
@@ -269,12 +241,7 @@ const hasActions = Boolean(ghLink || liLink);
     display: flex;
     align-items: center;
     justify-content: center;
-    background:
-      radial-gradient(
-        circle at 30% 30%,
-        oklch(70% 0.18 var(--hue) / 0.85),
-        oklch(35% 0.14 var(--hue-alt) / 0.95) 70%
-      );
+    background: var(--gradient-cover);
     color: var(--on-cover);
   }
   /* Bare variant: drop the gradient + frame so a project mark sits on the

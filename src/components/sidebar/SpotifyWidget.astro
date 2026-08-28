@@ -22,7 +22,7 @@ const playlistUrl = site.spotifyEmbedUrl.replace('/embed/playlist/', '/playlist/
   <p class="text-caption muted">listening</p>
 
   <a
-    class="card-link"
+    class="spotify-link"
     href={playlistUrl}
     target="_blank"
     rel="noopener noreferrer"
@@ -64,9 +64,6 @@ const playlistUrl = site.spotifyEmbedUrl.replace('/embed/playlist/', '/playlist/
 </section>
 
 <style>
-  .muted {
-    color: var(--text-muted);
-  }
   .spotify {
     /* Sized to its content — no flex-grow. The remaining sidebar space
        cleanly pushes the footer down via the footer's `margin-top: auto`. */
@@ -76,7 +73,7 @@ const playlistUrl = site.spotifyEmbedUrl.replace('/embed/playlist/', '/playlist/
     gap: var(--space-3);
   }
 
-  .card-link {
+  .spotify-link {
     display: inline-flex;
     align-items: center;
     gap: var(--space-3);
@@ -91,13 +88,13 @@ const playlistUrl = site.spotifyEmbedUrl.replace('/embed/playlist/', '/playlist/
       border-color var(--duration-normal) var(--ease-out-expo),
       transform var(--duration-normal) var(--ease-out-expo);
   }
-  .card-link:hover,
-  .card-link:focus-visible {
+  .spotify-link:hover,
+  .spotify-link:focus-visible {
     color: var(--accent);
     border-color: var(--accent);
     transform: translateY(-1px);
   }
-  .card-link:focus-visible {
+  .spotify-link:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
   }
@@ -111,16 +108,16 @@ const playlistUrl = site.spotifyEmbedUrl.replace('/embed/playlist/', '/playlist/
     color: var(--text);
     transition: color var(--duration-normal) var(--ease-out-expo);
   }
-  .card-link:hover .label,
-  .card-link:focus-visible .label {
+  .spotify-link:hover .label,
+  .spotify-link:focus-visible .label {
     color: var(--accent);
   }
   .arrow {
     flex-shrink: 0;
     transition: transform var(--duration-normal) var(--ease-out-expo);
   }
-  .card-link:hover .arrow,
-  .card-link:focus-visible .arrow {
+  .spotify-link:hover .arrow,
+  .spotify-link:focus-visible .arrow {
     transform: translate(2px, -2px);
   }
 
@@ -129,12 +126,12 @@ const playlistUrl = site.spotifyEmbedUrl.replace('/embed/playlist/', '/playlist/
      transform still applies; explicitly resetting transform here matches
      the canonical pattern from RelatedProjects. */
   @media (prefers-reduced-motion: reduce) {
-    .card-link:hover,
-    .card-link:focus-visible {
+    .spotify-link:hover,
+    .spotify-link:focus-visible {
       transform: none;
     }
-    .card-link:hover .arrow,
-    .card-link:focus-visible .arrow {
+    .spotify-link:hover .arrow,
+    .spotify-link:focus-visible .arrow {
       transform: none;
     }
   }

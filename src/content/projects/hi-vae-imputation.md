@@ -4,8 +4,6 @@ summary: 'PyTorch reimplementation of HI-VAE (Nazabal et al. 2020) for tabular d
 date: 2025-02-15
 status: 'archived'
 tags: ['ai', 'generative-models', 'pytorch', 'research']
-cover: '/projects/hi-vae-imputation-cover.png'
-coverPosition: 'center'
 featured: true
 bentoSize: 'sm'
 links:

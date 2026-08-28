@@ -28,7 +28,7 @@ Identity, content, and colors — without touching code:
 
 - **Identity** — `src/data/site.ts`, `src/data/about.ts`, `src/data/contacts.ts`.
 - **Content** — markdown in `src/content/{projects,work,writing,places,gallery}/`. Add a file, the bento grid and detail pages update automatically. Schemas are typed with [Zod](https://zod.dev) in [`src/content.config.ts`](src/content.config.ts).
-- **Colors** — pick a preset (`default`, `linen`, `sapphire`, `forest`) by editing one `@import` line in `src/styles/global.css`. Custom palettes: duplicate any preset and edit the nine palette + accent-halo tokens (both light and dark blocks).
+- **Colors** — pick a preset (`default`, `linen`, `sapphire`, `forest`) by editing one `@import` line in `src/styles/global.css`. Custom palettes: duplicate any preset and edit the nine palette + accent-halo tokens (dark-only).
 - **Images** — drop files into `public/`. Missing media falls back to gradient placeholders automatically — no broken-icon states.
 - **Template credit** — the bottom-right "MIT-licensed template →" chip points at this repo by default; change `site.templateRepoUrl` to your fork's URL, or set it to an empty string to hide.
 
@@ -62,7 +62,7 @@ pnpm images:webp  # convert /public images to webp
 ## License
 
 - Code: [MIT](./LICENSE) — fork freely, ship your own site, no attribution required (a kind word in the footer is appreciated, never demanded).
-- Content under `src/content/*` and personal images under `public/about/`, `src/assets/me.webp`, `src/assets/in.png`, `public/work/`, etc.: © Massimo Perfetti, [CC BY-NC-ND 4.0](./src/content/LICENSE-CONTENT.md). Read for inspiration; replace with your own before publishing.
+- Content under `src/content/*` and personal images under `src/assets/me.webp`, `src/assets/in.png`, `public/work/`, etc.: © Massimo Perfetti, [CC BY-NC-ND 4.0](./src/content/LICENSE-CONTENT.md). Read for inspiration; replace with your own before publishing.
 
 If something is unclear about what you can or can't reuse, [open a `template-question` issue](.github/ISSUE_TEMPLATE/template-question.md) and I'll clarify.
 

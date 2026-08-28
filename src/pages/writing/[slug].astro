@@ -45,6 +45,8 @@ const dateLabel = date.toLocaleString('en-US', {
   description={summary}
   ogImage={`/og/writing/${entry.id}.png`}
   ogImageAlt={`${title} — note by ${site.author}`}
+  ogType="article"
+  article={{ publishedTime: date, tags }}
 >
   <JsonLd
     slot="head"
@@ -104,9 +106,6 @@ const dateLabel = date.toLocaleString('en-US', {
      classes — only the page-specific layout is local. */
   .page {
     max-width: 720px;
-  }
-  .muted {
-    color: var(--text-muted);
   }
 
   .essay {

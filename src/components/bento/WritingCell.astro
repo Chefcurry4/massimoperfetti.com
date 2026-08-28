@@ -45,7 +45,7 @@ const newsletter = site.newsletter;
           notes →
         </a>
         <a
-          class="subscribe"
+          class="icon-btn subscribe"
           href={newsletter.url}
           target="_blank"
           rel="noopener noreferrer"
@@ -81,9 +81,6 @@ const newsletter = site.newsletter;
 </Cell>
 
 <style>
-  .muted {
-    color: var(--text-muted);
-  }
   .title {
     margin: 0;
     color: var(--text);
@@ -142,31 +139,13 @@ const newsletter = site.newsletter;
     border-radius: var(--radius-sm);
   }
 
-  .subscribe {
-    /* Icon-only link — same visual language as the sidebar contacts row. */
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: var(--control-h-sm);
-    height: var(--control-h-sm);
-    border-radius: var(--radius-pill);
-    border: 1px solid var(--border-strong);
-    color: var(--text-muted);
-    text-decoration: none;
-    transition:
-      color var(--duration-fast) var(--ease-out-expo),
-      border-color var(--duration-fast) var(--ease-out-expo),
-      transform var(--duration-fast) var(--ease-out-expo);
-  }
+  /* Icon-only link — skeleton (size, pill, tap-pad, focus ring) from the
+     global .icon-btn base; accent hover matches the sidebar contacts row. */
   .subscribe:hover,
   .subscribe:focus-visible {
     color: var(--accent);
     border-color: var(--accent);
     transform: translateY(-1px);
-  }
-  .subscribe:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
   }
   @media (prefers-reduced-motion: reduce) {
     .subscribe:hover,

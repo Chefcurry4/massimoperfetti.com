@@ -1,0 +1,141 @@
+---
+/**
+ * AdjacentNav — shared two-column prev/next link strip for detail pages.
+ *
+ * Purely presentational: callers (NextPrev for projects, WorkNextPrev for
+ * work) compute the newer/older siblings from their collection's own sort
+ * order and pass plain link descriptors. The two callers previously
+ * duplicated this whole file's markup + CSS, differing only by an optional
+ * subtitle line.
+ *
+ * Edge cases:
+ *   - only newer or only older → the missing side renders an invisible
+ *     spacer so the grid stays balanced
+ *   - both absent → callers omit the component entirely
+ */
+
+export interface AdjacentLink {
+  href: string;
+  title: string;
+  /** Optional second line (e.g. the work entry's org). */
+  subtitle?: string;
+}
+
+interface Props {
+  /** aria-label for the <nav>, e.g. "Adjacent projects". */
+  label: string;
+  /** Eyebrow text for the left (newer) link, e.g. "← newer project". */
+  newerLabel: string;
+  /** Eyebrow text for the right (older) link, e.g. "older project →". */
+  olderLabel: string;
+  newer?: AdjacentLink | null;
+  older?: AdjacentLink | null;
+}
+
+const { label, newerLabel, olderLabel, newer = null, older = null } = Astro.props;
+---
+
+<nav class="nextprev" aria-label={label}>
+  {
+    newer ? (
+      <a class="link prev" href={newer.href} rel="prev">
+        <span class="text-caption muted">{newerLabel}</span>
+        <span class="title text-h3">{newer.title}</span>
+        {newer.subtitle && <span class="subtitle text-small muted">{newer.subtitle}</span>}
+      </a>
+    ) : (
+      <span class="link spacer" aria-hidden="true" />
+    )
+  }
+
+  {
+    older ? (
+      <a class="link next" href={older.href} rel="next">
+        <span class="text-caption muted">{olderLabel}</span>
+        <span class="title text-h3">{older.title}</span>
+        {older.subtitle && <span class="subtitle text-small muted">{older.subtitle}</span>}
+      </a>
+    ) : (
+      <span class="link spacer" aria-hidden="true" />
+    )
+  }
+</nav>
+
+<style>
+  .nextprev {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+    margin-top: var(--space-5);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--border);
+  }
+  .link {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    text-decoration: none;
+    color: inherit;
+    padding: var(--space-3);
+    border-radius: var(--radius-md);
+    border: 1px solid transparent;
+    transition:
+      border-color var(--duration-fast) var(--ease-out-quad),
+      background var(--duration-fast) var(--ease-out-quad),
+      transform var(--duration-fast) var(--ease-out-quad);
+  }
+  /* Spacer keeps the grid balanced when only one side has content. */
+  .link.spacer {
+    pointer-events: none;
+  }
+  .link.next {
+    align-items: flex-end;
+    text-align: right;
+  }
+  /* Lift matches the RelatedProjects card hover so detail-page surfaces
+     share one hover language. */
+  .link:hover:not(.spacer),
+  .link:focus-visible:not(.spacer) {
+    border-color: var(--border);
+    background: var(--surface);
+    transform: translateY(-2px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .link:hover:not(.spacer),
+    .link:focus-visible:not(.spacer) {
+      transform: none;
+    }
+  }
+  .link:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .title {
+    margin: 0;
+    color: var(--text);
+    transition: color var(--duration-fast) var(--ease-out-quad);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .link:hover .title,
+  .link:focus-visible .title {
+    color: var(--accent);
+  }
+
+  @media (max-width: 600px) {
+    .nextprev {
+      grid-template-columns: 1fr;
+      gap: var(--space-2);
+    }
+    .link.next {
+      align-items: flex-start;
+      text-align: left;
+    }
+    .link.spacer {
+      display: none;
+    }
+  }
+</style>

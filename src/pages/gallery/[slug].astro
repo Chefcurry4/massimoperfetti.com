@@ -13,7 +13,7 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { Picture } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
-import { hashHue } from '../../lib/cover-color';
+import { coverHues } from '../../lib/cover-color';
 
 export async function getStaticPaths() {
   const entries = await getCollection('gallery');
@@ -30,9 +30,8 @@ interface Props {
 const { entry } = Astro.props;
 const { title, image, caption } = entry.data;
 
-// 60° spread mirrors GalleryCell so source + destination gradients agree.
-const hue = hashHue(title);
-const hueAlt = (hue + 60) % 360;
+// Shared coverHues spread so source + destination gradients agree.
+const { hue, hueAlt } = coverHues(title);
 const fallbackStyle = `--hue: ${hue}; --hue-alt: ${hueAlt};`;
 ---
 
@@ -43,6 +42,9 @@ const fallbackStyle = `--hue: ${hue}; --hue-alt: ${hueAlt};`;
   ogImageAlt={caption ?? title}
 >
   <main id="main" class="photo-view" transition:name={`poster-gallery-${entry.id}`}>
+    {/* The page had no <h1> at all — the photo title lived only in <title>.
+        Visually the photo IS the page, so the heading is screen-reader-only. */}
+    <h1 class="sr-only">{title}</h1>
     <a href="/" class="corner back text-caption" aria-label="Back to wall">
       ← back
     </a>
@@ -67,7 +69,7 @@ const fallbackStyle = `--hue: ${hue}; --hue-alt: ${hueAlt};`;
           source's ~1400, cutting bytes substantially. */}
       <Picture
         src={image}
-        alt={caption ?? title}
+        alt={entry.data.alt ?? caption ?? title}
         widths={[600, 1000, 1600]}
         sizes="(max-width: 1023.98px) 95vw, min(95vw, 1280px)"
         formats={['avif', 'webp']}
@@ -124,7 +126,8 @@ const fallbackStyle = `--hue: ${hue}; --hue-alt: ${hueAlt};`;
     align-items: center;
     color: var(--on-cover);
     text-decoration: none;
-    z-index: 1;
+    /* Positioned element over static siblings — natural paint order
+       suffices, no z-index (token discipline). */
     /* Slight contrast shadow against any photo color that bleeds near the
        corners — same trick the lightbox caption used. */
     text-shadow: 0 1px 2px var(--scrim-soft);
@@ -161,12 +164,6 @@ const fallbackStyle = `--hue: ${hue}; --hue-alt: ${hueAlt};`;
     flex-direction: column;
     gap: var(--space-3);
     align-items: center;
-    /* Gradient fallback applies if <img> 404s — matches the bento source. */
-    --gradient: linear-gradient(
-      135deg,
-      oklch(72% 0.16 var(--hue) / 0.9),
-      oklch(40% 0.12 var(--hue-alt) / 0.95)
-    );
   }
   .frame img {
     max-width: 100%;
@@ -176,7 +173,9 @@ const fallbackStyle = `--hue: ${hue}; --hue-alt: ${hueAlt};`;
     height: auto;
     object-fit: contain;
     border-radius: var(--radius-md);
-    background: var(--gradient);
+    /* Gradient fallback applies if the image 404s — shared token, same
+       hues as the bento source so the morph reads continuously. */
+    background: var(--gradient-photo);
     box-shadow:
       0 1px 0 0 var(--glass-highlight) inset,
       0 24px 64px var(--scrim-medium);

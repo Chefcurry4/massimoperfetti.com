@@ -12,11 +12,10 @@ const role = 'MSc Mechanical Engineering MIT | TUDelft';
 ---
 
 <div class="identity">
-  <div
-    class="avatar"
-    role="img"
-    aria-label={`Portrait of ${site.name}`}
-  ></div>
+  {/* Decorative gradient disc — NOT a portrait, so no role="img": a
+      previous aria-label announced a photo that doesn't exist. The name
+      text beside it carries the identity. */}
+  <div class="avatar" aria-hidden="true"></div>
   <div class="text">
     <p class="name text-body">{site.name}</p>
     <p class="role text-caption muted">{role}</p>
@@ -24,18 +23,16 @@ const role = 'MSc Mechanical Engineering MIT | TUDelft';
 </div>
 
 <style>
-  .muted {
-    color: var(--text-muted);
-  }
   .identity {
     display: grid;
-    grid-template-columns: 36px 1fr;
+    grid-template-columns: var(--control-h-md) 1fr;
     align-items: center;
     gap: var(--space-3);
   }
   .avatar {
-    width: 36px;
-    height: 36px;
+    /* 36px = --control-h-md; consume the token instead of the raw value. */
+    width: var(--control-h-md);
+    height: var(--control-h-md);
     border-radius: var(--radius-pill);
     background-image: var(--gradient-cool);
     flex-shrink: 0;

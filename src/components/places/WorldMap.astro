@@ -111,7 +111,11 @@ const DOT_R = isMini ? 1.8 : 3.5;
         <g class="pin" transform={`translate(${m.x} ${m.y})`}>
           <circle class="pin-halo" r={HALO_R} />
           <circle class="pin-dot" r={DOT_R} />
-          {/* Native browser tooltip — no JS, accessible by default. */}
+          {/* Native mouse tooltip only. The parent svg's role="img" makes
+              descendants presentational, so these <title>s are NOT exposed
+              to assistive tech — that's deliberate: the summary aria-label
+              above plus the card list on /places carry the accessible
+              content; per-pin AT announcements would be noise. */}
           <title>{`${m.country} — ${m.date}`}</title>
         </g>
       ))

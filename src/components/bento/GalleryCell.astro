@@ -23,7 +23,7 @@
 import Cell from '../ui/Cell.astro';
 import type { CollectionEntry } from 'astro:content';
 import { Image, getImage } from 'astro:assets';
-import { hashHue } from '../../lib/cover-color';
+import { coverHues } from '../../lib/cover-color';
 
 interface Props {
   entries: CollectionEntry<'gallery'>[];
@@ -51,23 +51,22 @@ const optimizedSwaps = await Promise.all(
 // the rest at runtime. Hues precomputed here so the gradient fallback stays
 // in lockstep with the active photo across cycles.
 const cycleData = entries.map((e, i) => {
-  const hue = hashHue(e.data.title);
+  const hues = coverHues(e.data.title);
   return {
     slug: e.id,
     image: optimizedSwaps[i].src,
-    alt: e.data.caption ?? e.data.title,
+    alt: e.data.alt ?? e.data.caption ?? e.data.title,
     title: e.data.title,
     caption: e.data.caption ?? '',
     location: e.data.location ?? '',
-    hue,
-    hueAlt: (hue + 60) % 360,
+    hue: hues.hue,
+    hueAlt: hues.hueAlt,
   };
 });
 
 const first = entries[0];
 const { title, image, caption, location } = first.data;
-const hue = hashHue(title);
-const hueAlt = (hue + 60) % 360;
+const { hue, hueAlt } = coverHues(title);
 
 const linkStyle = `view-transition-name: poster-gallery-${first.id}`;
 const frameStyle = `--hue: ${hue}; --hue-alt: ${hueAlt}; view-transition-name: poster-gallery-${first.id}-image`;
@@ -94,7 +93,7 @@ const shouldCycle = entries.length > 1;
           portrait, not this — `loading="lazy"` is fine. */}
       <Image
         src={image}
-        alt={caption ?? title}
+        alt={first.data.alt ?? caption ?? title}
         widths={[400, 600, 900]}
         sizes="(max-width: 1023.98px) 95vw, 540px"
         loading="lazy"
@@ -120,20 +119,6 @@ const shouldCycle = entries.length > 1;
 </a>
 
 <style>
-  .muted {
-    color: var(--text-muted);
-  }
-  .card-link {
-    display: block;
-    height: 100%;
-    color: inherit;
-    text-decoration: none;
-    border-radius: var(--radius-lg);
-  }
-  .card-link:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
   .gallery-cell {
     padding: 0;
     overflow: hidden;
@@ -143,11 +128,7 @@ const shouldCycle = entries.length > 1;
     flex: 1 1 60%;
     min-height: 0;
     overflow: hidden;
-    background: linear-gradient(
-      135deg,
-      oklch(72% 0.16 var(--hue) / 0.9),
-      oklch(40% 0.12 var(--hue-alt) / 0.95)
-    );
+    background: var(--gradient-photo);
     border-bottom: 1px solid var(--border);
   }
   .frame img {

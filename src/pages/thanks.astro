@@ -13,11 +13,14 @@ import Base from '../layouts/Base.astro';
 import { site } from '../data/site';
 ---
 
-<Base title="Thanks" description={`Message received. ${site.name} will reply.`}>
+<Base title="Thanks" description={`Message received. ${site.name} will reply.`} noindex>
   <main id="main" class="detail-page page">
     <article class="card">
       <p class="text-caption muted">contact</p>
-      <h1 class="text-display headline">Got it.</h1>
+      {/* text-h1, not text-display — display is reserved for page heroes
+          (/about, /design per the type scale); index/confirmation pages
+          share the h1 tier. */}
+      <h1 class="text-h1 headline">Got it.</h1>
       <p class="lede text-body muted">
         Your message reached the inbox. {site.firstName} replies within a few days,
         usually faster.
@@ -39,9 +42,6 @@ import { site } from '../data/site';
     align-items: center;
     justify-content: center;
     text-align: center;
-  }
-  .muted {
-    color: var(--text-muted);
   }
 
   .card {
@@ -69,10 +69,15 @@ import { site } from '../data/site';
   }
   .book {
     color: var(--text-muted);
-    transition: color var(--duration-fast) var(--ease-out-expo);
+    transition: color var(--duration-fast) var(--ease-out-quad);
   }
   .book:hover,
   .book:focus-visible {
     color: var(--accent);
+  }
+  .book:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
   }
 </style>

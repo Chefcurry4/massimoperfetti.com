@@ -27,7 +27,9 @@ export interface CoverHues {
 
 /**
  * Two hues: a primary derived from the title hash and a complementary
- * secondary 40° away for the gradient endpoints.
+ * secondary 40° away for the gradient endpoints. The 40° spread is THE
+ * site-wide value — the gallery surfaces used to hand-roll +60°, which
+ * split one visual system into two.
  */
 export function coverHues(input: string): CoverHues {
   const hue = hashHue(input);

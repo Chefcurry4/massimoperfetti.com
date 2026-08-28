@@ -250,6 +250,84 @@
   }
 
   /*
+   * Muted text — the single most repeated declaration on the site (it was
+   * re-declared per-component ~27 times before being hoisted here).
+   */
+  .muted {
+    color: var(--text-muted);
+  }
+
+  /* Screen-reader-only content (e.g. the /gallery/[slug] photo <h1>). */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /*
+   * Card link — the anchor that wraps a bento cell so the whole poster is
+   * one click target and one View Transition group. Was copy-pasted
+   * verbatim in five bento components. (SpotifyWidget's former unrelated
+   * `.card-link` was renamed `.spotify-link`.)
+   */
+  .card-link {
+    display: block;
+    height: 100%;
+    color: inherit;
+    text-decoration: none;
+    border-radius: var(--radius-lg);
+  }
+  .card-link:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /*
+   * Icon-button skeleton — shared chrome for every round icon control
+   * (sidebar contacts, card action buttons, newsletter subscribe, rail
+   * chevron, design-page demo). The visible control stays --control-h-sm
+   * for editorial density; ::before extends the hit region to the 44px tap
+   * floor (32 + 2 × --tap-pad). Components layer their own colors,
+   * background, and icon sizing on top — scoped styles out-specify this.
+   */
+  .icon-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--control-h-sm);
+    height: var(--control-h-sm);
+    padding: 0;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--border-strong);
+    background: transparent;
+    color: var(--text-muted);
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      color var(--duration-fast) var(--ease-out-quad),
+      border-color var(--duration-fast) var(--ease-out-quad),
+      transform var(--duration-fast) var(--ease-out-quad);
+  }
+  .icon-btn::before {
+    /* Invisible tap-target pad. Same shape as the visible pill. */
+    content: '';
+    position: absolute;
+    inset: calc(var(--tap-pad) * -1);
+    border-radius: var(--radius-pill);
+  }
+  .icon-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  /*
    * Liquid glass — cross-browser-safe recipe (no SVG displacement).
    * Source: CLAUDE.md §Liquid glass. Highlight + shadow flow from tokens
    * so the recipe re-tunes per theme.
@@ -357,16 +435,20 @@
   }
   .status-pill.status-archived {
     color: var(--status-archived);
-    border-color: var(--border);
+    /* border-strong, not --border — the 8% hairline was ~1.08:1 against
+       --surface, so archived pills read as bare unstyled text next to
+       their fully-outlined live/in-progress siblings. */
+    border-color: var(--border-strong);
     background: var(--status-archived-bg);
   }
 
   /* Tag chip — used by ProjectsCell, WritingCell, project + writing detail
-     pages. Smaller than a status-pill and the border is the soft variant. */
+     pages. Smaller than a status-pill. border-strong for the same contrast
+     reason as .status-archived above: the soft border was invisible. */
   .tag-chip {
     display: inline-block;
     padding: var(--space-1) var(--space-2);
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-strong);
     border-radius: var(--radius-pill);
     color: var(--text-muted);
   }
@@ -622,32 +704,14 @@ canvas {
  * Bento cells press as a whole via :has() on the invisible card-link
  * overlay — scaling the overlay itself would be invisible.
  */
-:where(
-    .action-btn,
-    .book-cta,
-    .icon-link,
-    .subscribe,
-    .rail-chevron,
-    .submit,
-    .notes-link,
-    .drawer-toggle
-  ):active {
+:where(.icon-btn, .book-cta, .submit, .notes-link, .drawer-toggle):active {
   transform: scale(0.96);
 }
 .bento-cell:has(.card-link:active) {
   transform: scale(0.99);
 }
 @media (prefers-reduced-motion: reduce) {
-  :where(
-      .action-btn,
-      .book-cta,
-      .icon-link,
-      .subscribe,
-      .rail-chevron,
-      .submit,
-      .notes-link,
-      .drawer-toggle
-    ):active,
+  :where(.icon-btn, .book-cta, .submit, .notes-link, .drawer-toggle):active,
   .bento-cell:has(.card-link:active) {
     transform: none;
   }

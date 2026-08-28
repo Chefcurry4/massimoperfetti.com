@@ -74,7 +74,7 @@ import SpotifyWidget from './SpotifyWidget.astro';
       .expanded. */}
   <button
     type="button"
-    class="rail-chevron"
+    class="icon-btn rail-chevron"
     data-rail-chevron
     aria-label="Expand sidebar"
     aria-expanded="false"
@@ -226,7 +226,7 @@ import SpotifyWidget from './SpotifyWidget.astro';
    * Section dividers — each section after the first gets a border-top and
    * padding-top so the divider has integrated breathing room. Adjacent-
    * sibling selector means there's no border above the first section
-   * (NowSnippet).
+   * (currently ContactsCluster).
    */
   .content > * + * {
     padding-top: var(--space-4);
@@ -242,25 +242,16 @@ import SpotifyWidget from './SpotifyWidget.astro';
     transition: visibility 0s linear var(--duration-normal);
   }
 
-  /* === Rail chevron ==================================================== */
+  /* === Rail chevron ====================================================
+     Skeleton (size, pill, tap-pad, focus ring) from the global .icon-btn
+     base; this block owns placement and the sidebar's calmer timing. */
   .rail-chevron {
-    /* Bottom-center of the rail. Theme toggle removed — chevron sits at
-       the bottom edge with just one --space-4 inset from the bottom. */
+    /* Bottom-center of the rail — one --space-4 inset from the bottom. */
     position: absolute;
     bottom: var(--space-4);
     left: 0;
     right: 0;
     margin: 0 auto;
-    width: var(--control-h-sm);
-    height: var(--control-h-sm);
-    border-radius: var(--radius-pill);
-    border: 1px solid var(--border-strong);
-    background: transparent;
-    color: var(--text-muted);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
     transition:
       color var(--duration-normal) var(--ease-out-expo),
       border-color var(--duration-normal) var(--ease-out-expo),
@@ -272,8 +263,6 @@ import SpotifyWidget from './SpotifyWidget.astro';
     border-color: var(--text-muted);
   }
   .rail-chevron:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
     color: var(--accent);
     border-color: var(--accent);
   }

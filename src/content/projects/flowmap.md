@@ -4,15 +4,11 @@ summary: 'Neural surrogate models for Nek5000-generated CFD trajectories. Curric
 date: 2026-04-12
 status: 'in-progress'
 tags: ['ai', 'cfd', 'research', 'pytorch']
-cover: '/projects/flowmap-cover.png'
-coverPosition: 'center'
 featured: true
 bentoSize: 'lg'
-links:
-  - label: 'Repository'
-    url: 'https://github.com/example/flowmap'
-  - label: 'Notes'
-    url: 'https://example.com/flowmap-notes'
+# No links yet — the previous placeholders (github.com/example,
+# example.com) rendered a dead GitHub button on the home wall. Add real
+# URLs when the repository / notes are public.
 ---
 
 ## Overview

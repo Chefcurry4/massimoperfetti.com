@@ -4,8 +4,6 @@ summary: 'Short-term, turbine-level forecasting on the SDWPF dataset. Spatio-tem
 date: 2025-06-15
 status: 'archived'
 tags: ['ai', 'graph-neural-networks', 'pytorch', 'research', 'energy']
-cover: '/projects/wind-power-gnn-cover.png'
-coverPosition: 'center'
 featured: true
 bentoSize: 'sm'
 links:

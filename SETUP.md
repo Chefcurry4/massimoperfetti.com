@@ -12,11 +12,11 @@ Run these in order on a fresh fork. Each step is independent — if you skip one
 
 ### 1. Replace identity
 
-Edit four files in `src/data/`. Each is a single TypeScript object with inline comments — no schemas to look up.
+Edit three files in `src/data/`. Each is a single TypeScript object with inline comments — no schemas to look up.
 
 ```sh
 $EDITOR src/data/site.ts        # name, firstName, URL, description, author, locale, Spotify, Cal.com, newsletter
-$EDITOR src/data/about.ts       # headline, role, body paragraphs, photos
+$EDITOR src/data/about.ts       # headline, role, body paragraphs
 $EDITOR src/data/contacts.ts    # email(s), GitHub, LinkedIn, CV link, newsletter
 ```
 
@@ -52,7 +52,6 @@ summary: "Replace this with a real project summary in 1–2 sentences."
 date: 2025-01-01
 status: "live"
 tags: ["placeholder"]
-cover: "/me.webp"
 featured: true
 bentoSize: "lg"
 ---
@@ -91,16 +90,16 @@ EOF
 
 ```sh
 # the portrait shown on the bento wall (processed by Astro's image
-# pipeline — keep the filename so src/lib/portraits.ts keeps working)
+# pipeline — keep the filenames so src/lib/portraits.ts keeps working)
 mv ~/Pictures/your-headshot.webp src/assets/me.webp
 mv ~/Pictures/your-headshot-square.png src/assets/in.png
 
-# about-page photos (referenced from src/data/about.ts)
-rm public/about/*.jpg
-cp ~/Pictures/your-photo-*.jpg public/about/
-
 # work logos (optional — gradient initials render automatically if missing)
 rm public/work/*.svg
+
+# CV (optional — the sidebar CV icon is commented out in
+# src/data/contacts.ts until this file exists)
+cp ~/Documents/your-cv.pdf "public/cv/Perfetti Resume.pdf"
 ```
 
 The architecture handles missing media: cells with no cover image render a `--gradient-cool` placeholder hue-shifted from the entry's title (see [`src/lib/cover-color.ts`](src/lib/cover-color.ts)). You'll never see a broken-icon state.
@@ -170,22 +169,22 @@ export const site: SiteConfig = {
 
 ## Theme presets
 
-The design is fully tokenized in [`src/styles/tokens.css`](src/styles/tokens.css). Presets in [`src/styles/themes/`](src/styles/themes/) override 9 palette tokens — `--bg`, `--surface`, `--text`, `--text-muted`, `--accent`, `--border`, `--border-strong`, `--border-hover`, `--hover-shadow` — for both light and dark mode. Everything else (status colors, gradient, glass recipe, motion) is preset-invariant, so a new preset is one self-contained ~40-line file.
+The design is fully tokenized in [`src/styles/tokens.css`](src/styles/tokens.css). Presets in [`src/styles/themes/`](src/styles/themes/) override 9 palette tokens — `--bg`, `--surface`, `--text`, `--text-muted`, `--accent`, `--border`, `--border-strong`, `--border-hover`, `--hover-shadow`. The site is **dark-only** (the light theme and toggle were removed); each preset is one self-contained ~25-line dark palette. Everything else (status colors, gradient, glass recipe, motion) is preset-invariant.
 
 Bundled presets:
 
-| Preset | Vibe | Dark accent | Light accent |
-|---|---|---|---|
-| `_default` | Editorial neon-on-coal | `#d4ff3a` (lime-yellow) | `#1a4dff` (electric blue) |
-| `_linen` | Warm cream + ink | Deep amber | Burnt sienna |
-| `_sapphire` | Deep blue + bone | Pale gold | Royal blue |
-| `_forest` | Mossy green + parchment | Bright moss | Forest |
+| Preset | Vibe | Accent |
+|---|---|---|
+| `_default` | Editorial neon-on-coal | `#d4ff3a` (lime-yellow) |
+| `_linen` | Warm coal + amber | Deep amber |
+| `_sapphire` | Deep blue + bone | Pale gold |
+| `_forest` | Mossy green + parchment | Bright moss |
 
 To write your own:
 
 ```sh
 cp src/styles/themes/_default.css src/styles/themes/_yours.css
-$EDITOR src/styles/themes/_yours.css     # edit the 9 palette tokens, both modes
+$EDITOR src/styles/themes/_yours.css     # edit the 9 palette tokens
 ```
 
 Then point `global.css` at it:
@@ -327,7 +326,7 @@ Every integration is opt-out — leave the URL empty in `site.ts` and the corres
 The repo is MIT-licensed for **code**. The following are not yours to republish:
 
 - Anything under `src/content/*` — case studies, notes, place descriptions, gallery captions.
-- Photos under `public/about/`, `src/assets/me.webp`, `src/assets/in.png`, `public/work/`.
+- Photos under `src/assets/me.webp`, `src/assets/in.png`, `src/assets/gallery/`, `public/work/`.
 - The OG-image generator's text content (auto-generated from your `site.ts`, but the original copy is Massimo's).
 
 If you keep the example content while you're scaffolding, that's fine — replace it before you publish. See [`src/content/LICENSE-CONTENT.md`](src/content/LICENSE-CONTENT.md).

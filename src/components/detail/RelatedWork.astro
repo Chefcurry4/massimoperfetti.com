@@ -75,9 +75,6 @@ const related = relatedWork(current, all, max);
 }
 
 <style>
-  .muted {
-    color: var(--text-muted);
-  }
   .related {
     display: flex;
     flex-direction: column;
@@ -147,12 +144,8 @@ const related = relatedWork(current, all, max);
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    background:
-      radial-gradient(
-        circle at 30% 30%,
-        oklch(70% 0.18 var(--hue) / 0.85),
-        oklch(35% 0.14 var(--hue-alt) / 0.95) 70%
-      );
+    background: var(--gradient-cover);
+
     color: var(--on-cover);
     border-bottom: 1px solid var(--border);
   }

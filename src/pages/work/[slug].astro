@@ -105,7 +105,12 @@ const periodLabel = formatPeriod(period);
               <ul class="links" aria-label="links">
                 {links.map((l) => (
                   <li>
-                    <a class="link text-small" href={l.url} rel="noopener">
+                    <a
+                      class="link text-small"
+                      href={l.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       {l.label}
                       <span aria-hidden="true">↗</span>
                     </a>
@@ -135,9 +140,6 @@ const periodLabel = formatPeriod(period);
     max-width: 1080px;
     gap: var(--space-4);
   }
-  .muted {
-    color: var(--text-muted);
-  }
 
   .hero {
     display: grid;
@@ -156,12 +158,8 @@ const periodLabel = formatPeriod(period);
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    background:
-      radial-gradient(
-        circle at 30% 30%,
-        oklch(70% 0.18 var(--hue) / 0.85),
-        oklch(35% 0.14 var(--hue-alt) / 0.95) 70%
-      );
+    background: var(--gradient-cover);
+
     color: var(--on-cover);
   }
   .cover--logo {
@@ -250,6 +248,11 @@ const periodLabel = formatPeriod(period);
   .link:hover,
   .link:focus-visible {
     color: var(--accent);
+  }
+  .link:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
   }
 
   @media (max-width: 767px) {

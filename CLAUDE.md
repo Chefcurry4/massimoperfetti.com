@@ -79,25 +79,32 @@ Do not introduce: Next.js, server components, a database, a CMS, shadcn/ui (woul
 │   │   │   └── WorldMap.astro      # SSR-rendered SVG world (d3-geo + topojson)
 │   │   ├── sidebar/
 │   │   │   ├── Sidebar.astro       # persistent; rail/panel hover-expand
-│   │   │   ├── Identity.astro      # avatar + name + role + availability ring
-│   │   │   ├── NowSnippet.astro
+│   │   │   ├── Identity.astro      # avatar + name + role
 │   │   │   ├── ContactsCluster.astro  # contacts row + "Book a call" + email popover
-│   │   │   └── SpotifyWidget.astro
+│   │   │   └── SpotifyWidget.astro # outbound playlist link (deliberately not an embed)
+│   │   ├── detail/                 # detail-page shared pieces:
+│   │   │   ├── AdjacentNav.astro   # shared prev/next strip (NextPrev + WorkNextPrev render it)
+│   │   │   ├── NextPrev.astro / WorkNextPrev.astro
+│   │   │   ├── RelatedProjects.astro / RelatedWork.astro
+│   │   │   └── ReadingProgress.astro
 │   │   └── ui/                     # primitives:
-│   │       ├── Cell.astro          # bento cell wrapper (chrome, padding, hover-lift)
+│   │       ├── Cell.astro          # bento cell wrapper (chrome, padding, hover overlay)
+│   │       ├── TemplateCredit.astro
 │   │       └── Tooltip.astro       # site-wide hover label primitive
 │   ├── pages/
 │   │   ├── index.astro             # the bento wall (home)
+│   │   ├── 404.astro               # branded not-found page
 │   │   ├── projects/[slug].astro   # project detail pages
 │   │   ├── projects/index.astro    # full projects index
 │   │   ├── work/[slug].astro       # work detail pages (logo hero or gradient fallback)
 │   │   ├── work/index.astro        # full work index
 │   │   ├── writing/[slug].astro
+│   │   ├── writing/index.astro     # full notes index
 │   │   ├── gallery/index.astro     # Instagram-style photo feed
 │   │   ├── gallery/[slug].astro    # fullscreen photo on liquid-glass
 │   │   ├── about.astro             # standalone about page
 │   │   ├── book.astro              # /book — Cal.com booking embed
-│   │   ├── design.astro            # /design — internal design system reference (sitemap-excluded)
+│   │   ├── design.astro            # /design — internal design system reference (sitemap-excluded, noindex)
 │   │   ├── places/index.astro      # full places map page (Phase 6)
 │   │   └── contact.astro           # contact form (Phase 7, Netlify Forms)
 │   └── styles/

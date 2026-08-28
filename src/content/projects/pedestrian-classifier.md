@@ -4,8 +4,6 @@ summary: 'A 3-month TU Delft project on real-time pedestrian detection, tracking
 date: 2025-01-29
 status: 'archived'
 tags: ['computer-vision', 'deep-learning', 'autonomous-vehicles', 'research']
-cover: '/projects/pedestrian-classifier-cover.png'
-coverPosition: 'center'
 featured: true
 bentoSize: 'sm'
 links:

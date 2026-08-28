@@ -4,8 +4,6 @@ summary: 'A 3-month engagement with E2 Power Systems — a TU Delft hydrogen-tur
 date: 2025-01-31
 status: 'archived'
 tags: ['cfd', 'turbomachinery', 'hydrogen', 'energy', 'ansys']
-cover: '/projects/e2-power-hydrogen-turbine-cover.png'
-coverPosition: 'center'
 featured: true
 bentoSize: 'sm'
 links:

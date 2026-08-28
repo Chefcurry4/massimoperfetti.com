@@ -63,6 +63,11 @@ const projSm: ReadonlyArray<typeof allProjects[number] | null> = [
 
 ---
 
+{/* tabindex/role/aria-label are managed by the script below: on mobile the
+    wall is a plain vertical stack, so the focusable region (and its
+    "arrow keys scroll horizontally" instructions) would be a meaningless
+    tab stop with wrong guidance. Server-rendered with the desktop
+    attributes since desktop is the primary morph surface. */}
 <div
   class="bento-wall"
   tabindex="0"
@@ -597,6 +602,27 @@ const projSm: ReadonlyArray<typeof allProjects[number] | null> = [
     const schedule = () => {
       if (!rafId) rafId = requestAnimationFrame(update);
     };
+
+    // Region semantics are desktop-only: on the mobile vertical stack the
+    // focusable region + "arrow keys scroll horizontally" label would be a
+    // meaningless tab stop with wrong instructions.
+    const desktopQuery = window.matchMedia('(min-width: 1024px)');
+    const syncRegionSemantics = () => {
+      if (desktopQuery.matches) {
+        wall.setAttribute('tabindex', '0');
+        wall.setAttribute('role', 'region');
+        wall.setAttribute(
+          'aria-label',
+          'Project wall — use arrow keys to scroll horizontally',
+        );
+      } else {
+        wall.removeAttribute('tabindex');
+        wall.removeAttribute('role');
+        wall.removeAttribute('aria-label');
+      }
+    };
+    syncRegionSemantics();
+    desktopQuery.addEventListener('change', syncRegionSemantics, { signal });
 
     measure();
     update();
