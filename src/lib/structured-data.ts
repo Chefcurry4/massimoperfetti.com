@@ -19,10 +19,7 @@ const absolute = (path: string): string => new URL(path, site.url).toString();
  */
 const personSameAs: readonly string[] = contacts
   .filter((c) => c.audience !== "academic")
-  .filter(
-    (c) =>
-      c.kind === "github" || c.kind === "linkedin" || c.kind === "newsletter",
-  )
+  .filter((c) => c.kind === "github" || c.kind === "linkedin" || c.kind === "x")
   .map((c) => c.url);
 
 // Schema.org Person.email expects the bare address; the contacts list

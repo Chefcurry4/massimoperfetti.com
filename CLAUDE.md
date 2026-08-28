@@ -468,7 +468,7 @@ A single component, `src/components/sidebar/Sidebar.astro`, used in `Base.astro`
 Contents, top to bottom:
 
 1. **Identity** — avatar + name + one-line role. (The Now snippet and availability ring were retired; `src/data/now.ts` was removed with them.)
-2. **Contacts cluster** — two subsections: a public-audience icon row (email, GitHub, LinkedIn, newsletter, LeetCode) wrapped in `<Tooltip side="right">`, and a "Book a 30-min call" CTA pill linking to `/book`. The email icon opens a popover listing all three addresses (personal / MIT / TU Delft); academic emails are folded back in only via that popover so the row stays compact.
+2. **Contacts cluster** — two subsections: a public-audience icon row (email, GitHub, LinkedIn, X, CV) wrapped in `<Tooltip side="top">`, and a "Book a 30-min call" CTA pill linking to `/book`. The email icon opens a popover listing all three addresses (personal / MIT / TU Delft); academic emails are folded back in only via that popover so the row stays compact. (The newsletter icon was retired from the row — the newsletter's surface is the bento WritingCell via `site.newsletter`.)
 3. **Spotify link** — an outbound link pill (deliberately downgraded from the iframe embed: zero third-party network on first paint).
 
 (There is no theme toggle — the site is dark-only, see §Theme.)

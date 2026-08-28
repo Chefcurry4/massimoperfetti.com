@@ -8,9 +8,8 @@
  */
 
 // Kinds map 1:1 to icon paths in ContactsCluster.astro — add the icon
-// there when adding a kind here. ('x' and 'scholar' were removed as dead:
-// no contact entry used them and the x icon was a plain ✕, not the logo.)
-export type ContactKind = "email" | "github" | "linkedin" | "cv" | "newsletter";
+// there when adding a kind here.
+export type ContactKind = "email" | "github" | "linkedin" | "x" | "cv";
 
 export type ContactAudience = "public" | "academic";
 
@@ -56,6 +55,12 @@ export const contacts: readonly Contact[] = [
     url: "https://www.linkedin.com/in/mperfetti4/",
   },
   {
+    kind: "x",
+    label: "X",
+    handle: "@chefcurry4L",
+    url: "https://x.com/chefcurry4L",
+  },
+  {
     kind: "cv",
     label: "CV (PDF)",
     handle: "download",
@@ -64,10 +69,7 @@ export const contacts: readonly Contact[] = [
     // and this URL together.
     url: "/cv/Perfetti%20Resume.pdf",
   },
-  {
-    kind: "newsletter",
-    label: "Newsletter",
-    handle: "perfettis-notes",
-    url: "https://perfettis-notes.beehiiv.com",
-  },
+  // The newsletter icon was retired from the sidebar row (2026-08) — the
+  // newsletter keeps its dedicated surface in the bento WritingCell via
+  // site.newsletter, which is a better pitch than an unlabeled icon.
 ];
