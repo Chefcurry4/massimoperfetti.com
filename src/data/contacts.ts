@@ -55,16 +55,15 @@ export const contacts: readonly Contact[] = [
     handle: "mperfetti4",
     url: "https://www.linkedin.com/in/mperfetti4/",
   },
-  // CV entry disabled until the PDF actually exists — public/cv/ contains
-  // only a README, so this link 404'd from the persistent sidebar on every
-  // page. Drop the file at public/cv/Perfetti%20Resume.pdf (URL-encoded
-  // space) and uncomment to restore the sidebar icon.
-  // {
-  //   kind: 'cv',
-  //   label: 'CV (PDF)',
-  //   handle: 'download',
-  //   url: '/cv/Perfetti%20Resume.pdf',
-  // },
+  {
+    kind: "cv",
+    label: "CV (PDF)",
+    handle: "download",
+    // Served from public/cv/ — the space in the filename is URL-encoded so
+    // the link is unambiguous across browsers. Rename both the file on disk
+    // and this URL together.
+    url: "/cv/Perfetti%20Resume.pdf",
+  },
   {
     kind: "newsletter",
     label: "Newsletter",

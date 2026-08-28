@@ -1,7 +1,8 @@
 ---
 title: "Co-founder & CTO"
 org: "DualEnergy"
-period: {}
+period:
+  start: 2025-09-01
 location: "Switzerland"
 summary: "Building the foundation model for dual-use land — bankable software for developers paired with a sensor network on every project we touch."
 logo: "/work/dualenergy.svg"
