@@ -34,9 +34,10 @@
 @import "@fontsource-variable/geist-mono";
 
 /*
- * Map runtime CSS variables (theme-aware) into Tailwind utilities.
- * `@theme inline` keeps the var() reference in generated utilities,
- * so toggling [data-theme] on <html> reflows colors automatically.
+ * Map runtime CSS variables into Tailwind utilities. `@theme inline`
+ * keeps the var() reference in generated utilities, so swapping the
+ * preset @import above reflows colors automatically. (Dark-only — there
+ * is no runtime theme switch.)
  */
 @theme inline {
   --color-bg: var(--bg);
@@ -169,7 +170,7 @@
   /*
    * Tooltip — pure-CSS hover label for icon-only controls. Host wraps the
    * trigger; bubble is absolutely positioned and faded on hover/focus-within.
-   * Themed via tokens so dark/light flips automatically. Touch devices skip
+   * Themed via tokens. Touch devices skip
    * the bubble (no hover affordance) — interactive children must carry their
    * own aria-label for screen readers.
    *

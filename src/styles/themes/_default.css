@@ -1,10 +1,10 @@
 /*
  * _default — Editorial neon-on-coal.
  *
- * Massimo's shipping palette. Dark mode is coal + lime accent; light mode
- * is paper + electric blue. Values copied verbatim from the pre-Phase-C
- * tokens.css so swapping presets back to default produces a byte-identical
- * render.
+ * Massimo's shipping palette: coal + lime accent. Dark-only — the light
+ * palette was removed with the theme toggle (2026-08). Values copied
+ * verbatim from the pre-Phase-C tokens.css so swapping presets back to
+ * default produces a byte-identical render.
  *
  * The 9 tokens below are the palette + accent-derived halos; everything
  * else (status colors, glass recipe, fonts, spacing, motion) lives in
@@ -25,18 +25,4 @@
   --border-hover: oklch(92% 0.18 117 / 0.36);
   --hover-shadow:
     0 12px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px oklch(92% 0.18 117 / 0.06);
-}
-
-[data-theme="light"] {
-  --bg: #f5f5f3;
-  --surface: #ffffff;
-  --text: #0a0a0a;
-  --text-muted: #6a6a6a;
-  --accent: #1a4dff; /* electric blue */
-  --border: rgba(0, 0, 0, 0.08);
-  --border-strong: rgba(0, 0, 0, 0.16);
-
-  --border-hover: oklch(48% 0.22 263 / 0.32);
-  --hover-shadow:
-    0 12px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px oklch(48% 0.22 263 / 0.1);
 }

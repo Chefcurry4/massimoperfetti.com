@@ -1,9 +1,8 @@
 /*
  * _sapphire — Bone + royal blue / deep blue + pale gold.
  *
- * Disciplined editorial luxury. Light mode: cool bone paper with a
- * royal-blue accent for links and CTAs. Dark mode: deep blue-black
- * field with a pale-gold accent — restrained, archival, museum-label.
+ * Disciplined editorial luxury (dark-only): deep blue-black field with a
+ * pale-gold accent — restrained, archival, museum-label.
  */
 
 [data-theme="dark"] {
@@ -28,28 +27,4 @@
     0 12px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(220, 192, 96, 0.06);
   --hover-shadow:
     0 12px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px oklch(86% 0.14 88 / 0.06);
-}
-
-[data-theme="light"] {
-  --bg: #f0f0f4; /* sRGB fallback */
-  --bg: oklch(96% 0.005 240); /* cool bone */
-  --surface: #fbfbfc; /* sRGB fallback */
-  --surface: oklch(99% 0.003 240);
-  --text: #141828; /* sRGB fallback */
-  --text: oklch(15% 0.02 250); /* deep blue-ink */
-  --text-muted: #585e78; /* sRGB fallback */
-  --text-muted: oklch(45% 0.04 250);
-  --accent: #1a4dff; /* sRGB fallback */
-  --accent: oklch(48% 0.22 263); /* royal blue */
-  --border: rgba(20, 24, 40, 0.08); /* sRGB fallback */
-  --border: oklch(15% 0.02 250 / 0.08);
-  --border-strong: rgba(20, 24, 40, 0.16); /* sRGB fallback */
-  --border-strong: oklch(15% 0.02 250 / 0.16);
-
-  --border-hover: rgba(26, 77, 255, 0.32); /* sRGB fallback */
-  --border-hover: oklch(48% 0.22 263 / 0.32);
-  --hover-shadow:
-    0 12px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(26, 77, 255, 0.1);
-  --hover-shadow:
-    0 12px 40px rgba(0, 0, 0, 0.1), 0 0 0 1px oklch(48% 0.22 263 / 0.1);
 }

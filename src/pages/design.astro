@@ -16,7 +16,6 @@
  */
 import Base from '../layouts/Base.astro';
 import Tooltip from '../components/ui/Tooltip.astro';
-import ThemeToggle from '../components/ui/ThemeToggle.astro';
 
 // Spacing scale — value strings drive the visual swatches.
 const spaceScale = [
@@ -123,8 +122,8 @@ const typeScale = [
     <section class="block">
       <h2 class="text-h2 section-title">Color</h2>
       <p class="text-small muted section-lead">
-        Both themes. Toggle in the sidebar to see the inversion. All tokens are
-        semantic — never reference raw colors in components.
+        Dark-only palette. All tokens are semantic — never reference raw
+        colors in components.
       </p>
       <ul class="color-list">
         {colorTokens.map((c) => (
@@ -223,7 +222,6 @@ const typeScale = [
             </svg>
           </button>
         </Tooltip>
-        <ThemeToggle />
         <a href="/book" class="demo-cta text-ui">
           <span>Demo CTA</span>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

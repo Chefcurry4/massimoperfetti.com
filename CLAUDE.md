@@ -14,7 +14,7 @@ Implication for tone and content: this is an academic-editorial profile, not a g
 
 ## Project vision
 
-A personal site shaped like a wall of posters. The home page is a horizontally-scrolling **bento grid** of variable-size cards on desktop, vertical on mobile. Each card is a "poster" — a project, a piece of writing, a place visited, a photo entry, a work item. Clicking a poster triggers a **shared-element zoom** transition into a full project page. Clicking back zooms out to the wall. A persistent **liquid-glass sidebar** holds the Now snippet, contacts, theme toggle, and a Spotify widget.
+A personal site shaped like a wall of posters. The home page is a horizontally-scrolling **bento grid** of variable-size cards on desktop, vertical on mobile. Each card is a "poster" — a project, a piece of writing, a place visited, a photo entry, a work item. Clicking a poster triggers a **shared-element zoom** transition into a full project page. Clicking back zooms out to the wall. A persistent **liquid-glass sidebar** holds identity, contacts, and a Spotify link.
 
 The aesthetic reference is editorial print design crossed with iOS 26 Liquid Glass. The functional reference is `gianmarcocavallo.com` (especially for the expandable world map of places visited).
 
@@ -27,7 +27,7 @@ The aesthetic reference is editorial print design crossed with iOS 26 Liquid Gla
 - **Content**: Markdown / MDX in Astro Content Collections (content-layer API with `glob` loaders), typed with Zod imported from `'zod'` directly (the `astro:content` re-export of `z` is deprecated in v6). Config lives at `src/content.config.ts` — Astro 6 hard-removed the legacy `src/content/config.ts` location.
 - **Transitions**: Native browser View Transitions API via Astro's `<ClientRouter />` from `astro:transitions` (this is the renamed `<ViewTransitions />`; the old name is still exported but deprecated). No Framer Motion unless we hit a wall the API cannot solve.
 - **Hosting**: Netlify. Static output. Netlify Forms for the contact form (no functions, no DB). `NODE_VERSION = "22"` in `netlify.toml` (Astro 6 floor is Node ≥ 22.12).
-- **Interactive islands**: Vanilla JS or a small React component, only where needed (theme toggle, Spotify widget, world map).
+- **Interactive islands**: Vanilla JS or a small React component, only where needed (sidebar drawer, gallery cycle, world map).
 - **Package manager**: pnpm 10 (faster, less disk).
 
 Do not introduce: Next.js, server components, a database, a CMS, shadcn/ui (would make the site look generic), Three.js, Spline, GSAP, or animation libraries beyond what the View Transitions API gives us natively. If something tempts you to add one of these, push back to Massimo first.
@@ -55,7 +55,6 @@ Do not introduce: Next.js, server components, a database, a CMS, shadcn/ui (woul
 │   │   └── gallery/                # *.md — photo entries
 │   ├── data/
 │   │   ├── about.ts                # singleton: about content
-│   │   ├── now.ts                  # singleton: what I'm doing now
 │   │   ├── contacts.ts             # singleton: socials & contact details
 │   │   └── site.ts                 # site-wide config (name, links, meta)
 │   ├── layouts/
@@ -86,7 +85,6 @@ Do not introduce: Next.js, server components, a database, a CMS, shadcn/ui (woul
 │   │   │   └── SpotifyWidget.astro
 │   │   └── ui/                     # primitives:
 │   │       ├── Cell.astro          # bento cell wrapper (chrome, padding, hover-lift)
-│   │       ├── ThemeToggle.astro   # sun/moon, persists to localStorage
 │   │       └── Tooltip.astro       # site-wide hover label primitive
 │   ├── pages/
 │   │   ├── index.astro             # the bento wall (home)
@@ -103,12 +101,12 @@ Do not introduce: Next.js, server components, a database, a CMS, shadcn/ui (woul
 │   │   ├── places/index.astro      # full places map page (Phase 6)
 │   │   └── contact.astro           # contact form (Phase 7, Netlify Forms)
 │   └── styles/
-│       ├── tokens.css              # CSS custom properties (theme tokens, both themes)
+│       ├── tokens.css              # CSS custom properties (structural + dark recipe)
 │       └── global.css              # @import 'tailwindcss' source(none); @theme inline; type scale + .glass; reset; font @imports
 └── package.json
 ```
 
-Tokens flow: `tokens.css` declares `--bg`, `--surface`, `--text`, `--font-display`, … on `:root` and inside `[data-theme='dark|light']`. `global.css` re-exposes them to Tailwind via `@theme inline { --color-bg: var(--bg); … }`, so utilities like `bg-bg`, `text-text-muted`, `font-display` flip with the theme attribute without conditional logic. See [Tailwind discipline](#tailwind-discipline).
+Tokens flow: `tokens.css` declares structural tokens on `:root` and the dark recipe inside `[data-theme='dark']`; the palette lives in the active preset under `src/styles/themes/`. `global.css` re-exposes them to Tailwind via `@theme inline { --color-bg: var(--bg); … }`, so utilities like `bg-bg`, `text-text-muted`, `font-display` follow the preset without conditional logic. See [Tailwind discipline](#tailwind-discipline).
 
 This layout is the canonical map. If a need arises that doesn't fit, propose a change explicitly rather than silently scattering files.
 
@@ -200,7 +198,7 @@ All long-form content lives in `src/content/`. Each collection has a strict Zod 
 
 ### Singletons (`src/data/*.ts`)
 
-`about.ts`, `now.ts`, `contacts.ts`, `site.ts` are typed TypeScript objects, not collections. They change too rarely to deserve markdown.
+`about.ts`, `contacts.ts`, `site.ts` are typed TypeScript objects, not collections. They change too rarely to deserve markdown. (`now.ts` was removed along with the sidebar Now snippet.)
 
 ---
 
@@ -250,11 +248,11 @@ Every bento card that links somewhere participates in a View Transition. See the
 
 ### Theme
 
-Dark by default. Toggle to light. Theme is persisted in `localStorage` and respects `prefers-color-scheme` on first load only.
+**Dark-only** (decision 2026-08). The theme toggle, light palette, `localStorage` persistence, and `prefers-color-scheme` bootstrap were removed — no visitor-facing theme switch existed and the machinery was dead weight. `<html data-theme="dark">` is static; `color-scheme: dark` on `:root`; `<meta name="theme-color">` in `Base.astro` is a single constant that must match the active preset's `--bg`.
 
-Implement via `data-theme="dark" | "light"` attribute on `<html>`. All tokens are CSS custom properties defined in `src/styles/tokens.css` and re-read by Tailwind via `theme.extend.colors` referencing `var(--color-*)`. This means **Tailwind classes like `bg-surface` work in both themes without conditional logic**.
+Color **presets** still exist: `src/styles/themes/_{default,linen,sapphire,forest}.css` each define the dark palette; global.css imports one. All tokens are CSS custom properties defined in `src/styles/tokens.css` (recipe) + the active preset (palette), re-exposed to Tailwind via `@theme inline`.
 
-### Color tokens (illustrative — refine in tokens.css)
+### Color tokens (illustrative — canonical values in themes/_default.css)
 
 ```css
 [data-theme="dark"] {
@@ -265,17 +263,7 @@ Implement via `data-theme="dark" | "light"` attribute on `<html>`. All tokens ar
   --border-strong: rgba(255, 255, 255, 0.16);
   --text:          #ededed;
   --text-muted:    #8a8a8a;
-  --accent:        #d4ff3a;     /* placeholder — Massimo to confirm */
-}
-[data-theme="light"] {
-  --bg:            #f5f5f3;
-  --surface:       #ffffff;
-  --surface-glass: rgba(255, 255, 255, 0.65);
-  --border:        rgba(0, 0, 0, 0.08);
-  --border-strong: rgba(0, 0, 0, 0.16);
-  --text:          #0a0a0a;
-  --text-muted:    #6a6a6a;
-  --accent:        #1a4dff;     /* placeholder */
+  --accent:        #d4ff3a;     /* lime — shipping accent */
 }
 ```
 
@@ -457,14 +445,14 @@ These are wired in `src/pages/projects/[slug].astro` — adding a new project en
 A single component, `src/components/sidebar/Sidebar.astro`, used in `Base.astro`. Marked `transition:persist="sidebar"` so it does not unmount across navigations — animations and state survive page changes.
 
 Contents, top to bottom:
-1. **Identity** — avatar (with availability ring) + name + one-line role. The ring around the avatar is colored by `now.availability` so the collapsed rail still signals real-time state without needing to expand.
-2. **Now snippet** — pulled from `src/data/now.ts`. Single sentence: what I'm working on, where I am, availability state. Updated by editing the file.
-3. **Contacts cluster** — two subsections: a public-audience icon row (email, GitHub, LinkedIn, newsletter, LeetCode) wrapped in `<Tooltip side="right">`, and a "Book a 30-min call" CTA pill linking to `/book`. The email icon opens a popover listing all three addresses (personal / MIT / TU Delft); academic emails are folded back in only via that popover so the row stays compact.
-4. **Spotify widget** — embed of currently-playing or last-played. Spotify's official iframe (no API key, no backend).
-5. **Theme toggle** — sun/moon icon. Persists to `localStorage`. Reads `prefers-color-scheme` on first visit. Sits in the footer; on the collapsed rail it floats absolutely at bottom-center.
+1. **Identity** — avatar + name + one-line role. (The Now snippet and availability ring were retired; `src/data/now.ts` was removed with them.)
+2. **Contacts cluster** — two subsections: a public-audience icon row (email, GitHub, LinkedIn, newsletter, LeetCode) wrapped in `<Tooltip side="right">`, and a "Book a 30-min call" CTA pill linking to `/book`. The email icon opens a popover listing all three addresses (personal / MIT / TU Delft); academic emails are folded back in only via that popover so the row stays compact.
+3. **Spotify link** — an outbound link pill (deliberately downgraded from the iframe embed: zero third-party network on first paint).
+
+(There is no theme toggle — the site is dark-only, see §Theme.)
 
 **Hover-rail model (desktop ≥ 1024px).** The sidebar has two states:
-- **Collapsed (rail, `--sidebar-rail` = 64px):** avatar + a vertical accent edge on the right + a chevron trigger near the bottom + the theme toggle. The wall and `/book` page anchor their left margin to the rail width so they never reflow.
+- **Collapsed (rail, `--sidebar-rail` = 64px):** avatar + a vertical accent edge on the right + a chevron trigger near the bottom. The wall and `/book` page anchor their left margin to the rail width so they never reflow.
 - **Expanded (panel, `--sidebar-width` = 280px):** full content. Triggered by clicking the chevron (or anywhere on the rail). Mouseleave schedules collapse after 1s; mouseenter cancels it; ESC collapses immediately. The expanded panel floats above the wall via `z-index: var(--z-sidebar)` with a soft shadow so the layout doesn't reflow.
 
 **Mobile (< 1024px).** Bottom drawer with Identity peek and a drag-handle grip. Drawer expands to 80dvh on tap; body scroll is locked while open via window.scrollY preservation.
@@ -610,7 +598,7 @@ Contact form uses Netlify Forms — declarative, no functions:
 ## Open questions / pending decisions
 
 Surface these instead of inventing answers:
-- Final accent color(s) for dark and light themes. Placeholders are in tokens.
+- Final accent color for the (dark-only) theme. The shipping lime (`#d4ff3a` in `themes/_default.css`) is still nominally a placeholder; the OG generator duplicates it as RGB.
 - Third typeface interpretation: confirm Geist Mono vs. a second humanist serif (Source Serif 4) for "the rest."
 - Spotify widget exact format: now-playing API (needs token rotation, more work) vs. embedded iframe of a curated playlist (zero-config, less personal).
 - World map library for Places. Investigate before Phase 6.

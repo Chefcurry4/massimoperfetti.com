@@ -17,7 +17,6 @@ Edit four files in `src/data/`. Each is a single TypeScript object with inline c
 ```sh
 $EDITOR src/data/site.ts        # name, firstName, URL, description, author, locale, Spotify, Cal.com, newsletter
 $EDITOR src/data/about.ts       # headline, role, body paragraphs, photos
-$EDITOR src/data/now.ts         # current status, location, availability
 $EDITOR src/data/contacts.ts    # email(s), GitHub, LinkedIn, CV link, newsletter
 ```
 
@@ -338,7 +337,6 @@ If you keep the example content while you're scaffolding, that's fine — replac
 ## Troubleshooting
 
 - **`pnpm check` fails on a content entry.** The error message includes the file path and the failing field — the Zod schema is your contract. Open [`src/content.config.ts`](src/content.config.ts) and the failing file side by side.
-- **Theme toggle doesn't persist.** Clear `localStorage` for the dev origin once; it stores `theme` and reads on first paint.
 - **View Transitions don't fire.** Check that `<ClientRouter />` is still imported in [`src/layouts/Base.astro`](src/layouts/Base.astro). Without it, navigation is a hard reload and `transition:name` is a no-op.
 - **Contact form 404s in dev.** Expected — Astro's dev server doesn't intercept POST. The form works on the deployed Netlify build.
 - **A logo is missing for a work entry.** Either set `logo: '/work/your-logo.svg'` in the entry's frontmatter, or do nothing and the monogram fallback (initials over `--gradient-cool`) renders. Bespoke inline-SVG logos go in [`src/components/work/logos/`](src/components/work/logos/) and dispatch by slug from [`WorkLogo.astro`](src/components/work/WorkLogo.astro).

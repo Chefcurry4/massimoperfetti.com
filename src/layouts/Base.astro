@@ -1,11 +1,12 @@
 ---
 /**
  * Base layout: HTML shell, head metadata, View Transitions wired,
- * theme bootstrap inlined to avoid FOUC, persistent sidebar mounted.
+ * persistent sidebar mounted. Dark-only — data-theme="dark" is static
+ * on <html>; there is no theme toggle or bootstrap script.
  *
  * The Sidebar uses `transition:persist` so it stays alive across all
  * Astro View Transitions navigations (Phase 4 morphs, Phase 5 detail
- * pages). Spotify keeps playing, theme toggle state survives.
+ * pages).
  */
 import { ClientRouter } from 'astro:transitions';
 import { site } from '../data/site';
@@ -65,12 +66,12 @@ const portraitMobile = isHome ? await getPortraitMobile() : null;
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
-    {/* color-scheme tells the UA which form-control / scrollbar palette to
-        use; theme-color paints the mobile address-bar / browser chrome to
-        match. The theme bootstrap script below overwrites theme-color
-        imperatively so it tracks the user's *chosen* theme, not just the
-        system one. */}
-    <meta name="color-scheme" content="dark light" />
+    {/* Dark-only site: color-scheme tells the UA to use its dark
+        form-control / scrollbar palette; theme-color paints the mobile
+        address-bar to match. The theme-color value must equal the active
+        preset's --bg (src/styles/themes/_default.css) — update it if the
+        preset @import in global.css changes. */}
+    <meta name="color-scheme" content="dark" />
     <meta name="theme-color" content="#0a0a0a" />
     <meta name="generator" content={Astro.generator} />
 
@@ -136,28 +137,8 @@ const portraitMobile = isHome ? await getPortraitMobile() : null;
         but head is canonical. */}
     <slot name="head" />
 
-    {/* Theme bootstrap: synchronous, runs before first paint. Also syncs
-        the <meta name="theme-color"> so the mobile browser chrome matches
-        the resolved theme — without this the address bar would lock to the
-        SSR-emitted dark color even after the user picks light. Values must
-        stay in sync with --bg in tokens.css. */}
-    <script is:inline>
-      (function () {
-        try {
-          var stored = localStorage.getItem('theme');
-          var prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-          var theme = stored === 'light' || stored === 'dark'
-            ? stored
-            : (prefersLight ? 'light' : 'dark');
-          document.documentElement.dataset.theme = theme;
-          var meta = document.querySelector('meta[name="theme-color"]');
-          if (meta) meta.setAttribute('content', theme === 'light' ? '#f5f5f3' : '#0a0a0a');
-        } catch (e) {
-          document.documentElement.dataset.theme = 'dark';
-        }
-      })();
-    </script>
-
+    {/* Dark-only: data-theme="dark" is baked into the <html> tag above —
+        no bootstrap script, no localStorage, no FOUC window. */}
     <ClientRouter />
   </head>
   <body>

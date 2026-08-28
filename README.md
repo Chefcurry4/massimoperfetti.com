@@ -1,6 +1,6 @@
 # Editorial bento — a forkable personal site
 
-Source for [`massimoperfetti.com`](https://massimoperfetti.com), and the template behind it. An Astro + Tailwind v4 personal site shaped like a wall of posters: a horizontally-scrolling [bento grid](https://github.com/Ladvace/astro-bento-portfolio) of variable-size cards on desktop, vertical on mobile, with native View Transitions zooming each card into its own detail page. A persistent liquid-glass sidebar holds identity, a "now" snippet, contacts, a Spotify embed, and the theme toggle.
+Source for [`massimoperfetti.com`](https://massimoperfetti.com), and the template behind it. An Astro + Tailwind v4 personal site shaped like a wall of posters: a horizontally-scrolling [bento grid](https://github.com/Ladvace/astro-bento-portfolio) of variable-size cards on desktop, vertical on mobile, with native View Transitions zooming each card into its own detail page. A persistent liquid-glass sidebar holds identity, contacts, and a Spotify link. Dark-only by design.
 
 The aesthetic reference is editorial print crossed with iOS 26 Liquid Glass. The functional reference is [`gianmarcocavallo.com`](https://gianmarcocavallo.com) for the expandable map of places visited.
 
@@ -26,7 +26,7 @@ On your first push, a one-shot workflow opens a **"Welcome — follow SETUP.md t
 
 Identity, content, and colors — without touching code:
 
-- **Identity** — `src/data/site.ts`, `src/data/about.ts`, `src/data/now.ts`, `src/data/contacts.ts`.
+- **Identity** — `src/data/site.ts`, `src/data/about.ts`, `src/data/contacts.ts`.
 - **Content** — markdown in `src/content/{projects,work,writing,places,gallery}/`. Add a file, the bento grid and detail pages update automatically. Schemas are typed with [Zod](https://zod.dev) in [`src/content.config.ts`](src/content.config.ts).
 - **Colors** — pick a preset (`default`, `linen`, `sapphire`, `forest`) by editing one `@import` line in `src/styles/global.css`. Custom palettes: duplicate any preset and edit the nine palette + accent-halo tokens (both light and dark blocks).
 - **Images** — drop files into `public/`. Missing media falls back to gradient placeholders automatically — no broken-icon states.

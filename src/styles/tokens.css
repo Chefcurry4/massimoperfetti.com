@@ -4,9 +4,11 @@
  * Structural tokens (fonts, spacing, radii, motion, gradients, scrims) live
  * in `:root` and never change between themes or presets.
  *
- * Theme-keyed blocks (`[data-theme="dark"]` / `[data-theme="light"]`) hold
- * the *recipe* — glass surfaces, status colors, availability dots — that
- * stays consistent regardless of which color preset is loaded.
+ * The `[data-theme="dark"]` block holds the *recipe* — glass surfaces,
+ * status colors, availability dots — that stays consistent regardless of
+ * which color preset is loaded. The site is dark-only (decision 2026-08):
+ * the light theme, toggle, and localStorage persistence were removed;
+ * <html data-theme="dark"> is static.
  *
  * The *palette* (bg, surface, text, accent, border, hover halos) is NOT
  * here — it lives in `src/styles/themes/*.css`. `global.css` imports one
@@ -15,7 +17,8 @@
  */
 
 :root {
-  color-scheme: dark light;
+  /* Dark-only: UA form controls / scrollbars render dark everywhere. */
+  color-scheme: dark;
 
   /* Type families (theme-invariant) */
   --font-display: "Lora Variable", "Lora", ui-serif, Georgia, serif;
@@ -187,30 +190,7 @@
   --glass-highlight: rgba(255, 255, 255, 0.06);
   --glass-shadow: rgba(0, 0, 0, 0.25);
 
-  /* Foreground color used on top of cover/photo gradients. Theme-invariant
-     in feel (we always sit on a colored medium) but defined per-theme so a
-     light-mode redesign can swap it without code changes. */
-  --on-cover: oklch(98% 0 0);
-}
-
-[data-theme="light"] {
-  /* See note in [data-theme="dark"] — palette lives in the active preset. */
-  --surface-glass: rgba(255, 255, 255, 0.65);
-  --surface-glass-strong: rgba(255, 255, 255, 0.94);
-
-  --status-live: oklch(54% 0.16 152);
-  --status-live-bg: oklch(54% 0.16 152 / 0.1);
-  --status-progress: oklch(48% 0.22 263);
-  --status-progress-bg: oklch(48% 0.22 263 / 0.1);
-  --status-archived: var(--text-muted);
-  --status-archived-bg: transparent;
-
-  --availability-available: var(--status-live);
-  --availability-limited: oklch(60% 0.16 75);
-  --availability-unavailable: oklch(50% 0.2 25);
-
-  --glass-highlight: rgba(255, 255, 255, 0.45);
-  --glass-shadow: rgba(0, 0, 0, 0.08);
-
+  /* Foreground color used on top of cover/photo gradients — we always sit
+     on a colored medium, so this stays near-white. */
   --on-cover: oklch(98% 0 0);
 }
