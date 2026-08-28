@@ -57,7 +57,6 @@ const cycleData = entries.map((e, i) => {
     image: optimizedSwaps[i].src,
     alt: e.data.alt ?? e.data.caption ?? e.data.title,
     title: e.data.title,
-    caption: e.data.caption ?? "",
     location: e.data.location ?? "",
     hue: hues.hue,
     hueAlt: hues.hueAlt,
@@ -108,13 +107,11 @@ const shouldCycle = entries.length > 1;
       <p class="text-caption muted">photograph</p>
       <h2 class="text-h3 title" data-gallery-title>{title}</h2>
       {
-        /* Caption + location always render — never `hidden` — so the cycle
-          can't change the meta block height when a photo without one swaps
-          in. CSS min-height reserves the space; empty text just renders blank. */
+        /* Minimalism pass (2026-08): the caption line was dropped from the
+          cell — title + location only; captions live on /gallery/[slug].
+          Location always renders (never `hidden`) so the cycle can't change
+          the meta height when a photo without one swaps in. */
       }
-      <p class="caption text-small muted" data-gallery-caption>
-        {caption ?? ""}
-      </p>
       <p class="exif-line text-caption muted" data-gallery-location>
         {location ?? ""}
       </p>
@@ -150,11 +147,12 @@ const shouldCycle = entries.length > 1;
   }
   .meta {
     /* Lock the meta block's vertical footprint so the .frame above it
-       can't shift when the cycle swaps content of varying length. 132 px
-       is the sum of: eyebrow (~17) + title (~26) + 2-line caption (~42)
-       + exif-line (~17) + 3 × gap (12) + 2 × padding (~16) ≈ 130 px,
-       with a hair of headroom. flex: 0 0 fixes the basis. */
-    flex: 0 0 132px;
+       can't shift when the cycle swaps content of varying length. 88 px
+       is the sum of: eyebrow (~17) + title (~26) + exif-line (~17) +
+       2 × gap (8) + 2 × padding (~16) ≈ 84 px, with a hair of headroom
+       (the caption line was dropped in the minimalism pass — the photo
+       absorbs the reclaimed height). flex: 0 0 fixes the basis. */
+    flex: 0 0 88px;
     padding: clamp(var(--space-2), 1.2vw, var(--space-3));
     display: flex;
     flex-direction: column;
@@ -167,24 +165,6 @@ const shouldCycle = entries.length > 1;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-  }
-  .caption {
-    margin: 0;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    /* Reserve 2 lines of vertical space even when the text is shorter or
-       absent — keeps the cell envelope stable as the cycle swaps content. */
-    min-height: 2lh;
-  }
-  @media (max-height: 800px) {
-    .caption {
-      -webkit-line-clamp: 1;
-      line-clamp: 1;
-      min-height: 1lh;
-    }
   }
   .exif-line {
     margin: 0;
@@ -218,7 +198,6 @@ const shouldCycle = entries.length > 1;
     image: string;
     alt: string;
     title: string;
-    caption: string;
     location: string;
     hue: number;
     hueAlt: number;
@@ -244,7 +223,6 @@ const shouldCycle = entries.length > 1;
     const frame = link.querySelector<HTMLElement>("[data-gallery-frame]");
     const img = link.querySelector<HTMLImageElement>("[data-gallery-img]");
     const titleEl = link.querySelector<HTMLElement>("[data-gallery-title]");
-    const captionEl = link.querySelector<HTMLElement>("[data-gallery-caption]");
     const locationEl = link.querySelector<HTMLElement>(
       "[data-gallery-location]",
     );
@@ -292,10 +270,9 @@ const shouldCycle = entries.length > 1;
         frame.style.setProperty("--hue-alt", String(e.hueAlt));
         if (titleEl) titleEl.textContent = e.title;
         // Always set textContent (empty string when absent) and never toggle
-        // `hidden` — the CSS `min-height` on .caption / .exif-line reserves
-        // the row's vertical space, so swapping to a photo without a caption
-        // or location doesn't shrink the meta block and reflow the frame.
-        if (captionEl) captionEl.textContent = e.caption;
+        // `hidden` — the CSS `min-height` on .exif-line reserves the row's
+        // vertical space, so swapping to a photo without a location doesn't
+        // shrink the meta block and reflow the frame.
         if (locationEl) locationEl.textContent = e.location;
         img.style.opacity = "1";
         index = next;

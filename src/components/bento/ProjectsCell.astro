@@ -26,7 +26,7 @@ interface Props {
 }
 
 const { entry, variant = "lg", slot } = Astro.props;
-const { title, summary, status, tags, links } = entry.data;
+const { title, summary, links } = entry.data;
 
 const initial = title.trim().charAt(0).toUpperCase() || "·";
 const hasIcon = entry.id === "unidiary";
@@ -34,12 +34,6 @@ const hasIcon = entry.id === "unidiary";
 // Deterministic hue pair, shared with /projects/[slug] so the View Transitions
 // morph (Phase 4) interpolates the gradient continuously.
 const coverStyle = coverHueVars(title);
-
-const statusLabel: Record<typeof status, string> = {
-  live: "live",
-  archived: "archived",
-  "in-progress": "in progress",
-};
 
 const detailHref = `/projects/${entry.id}`;
 
@@ -77,13 +71,12 @@ const hasActions = Boolean(ghLink || liLink);
       }
 
       <div class="meta">
-        <div class="row">
-          <p class="text-caption muted">project</p>
-          <span
-            class:list={["status-pill", "text-mono-small", `status-${status}`]}
-            >{statusLabel[status]}</span
-          >
-        </div>
+        {
+          /* Minimalism pass (2026-08): no status pill and no tag chips on
+            the wall — cards read as eyebrow + title + summary. Status and
+            tags remain on /projects and the detail hero. */
+        }
+        <p class="text-caption muted">project</p>
 
         {
           /* Title morph only from the lg variant: the sm title is 14px/3-line
@@ -101,16 +94,6 @@ const hasActions = Boolean(ghLink || liLink);
         </h2>
 
         {variant === "lg" && <p class="summary text-small muted">{summary}</p>}
-
-        {
-          tags.length > 0 && variant === "lg" && (
-            <ul class="tags" aria-label="tags">
-              {tags.slice(0, 3).map((t) => (
-                <li class="tag-chip text-caption">{t}</li>
-              ))}
-            </ul>
-          )
-        }
       </div>
     </Cell>
   </a>
@@ -328,15 +311,6 @@ const hasActions = Boolean(ghLink || liLink);
     justify-content: center;
   }
 
-  .row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: var(--space-2);
-  }
-  /* .status-pill + .status-{kind} variants live in global.css; no local
-     redefinition needed. */
-
   .title {
     margin: 0;
     color: var(--text);
@@ -404,13 +378,4 @@ const hasActions = Boolean(ghLink || liLink);
       line-clamp: 3;
     }
   }
-  .tags {
-    list-style: none;
-    padding: 0;
-    margin: auto 0 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-1);
-  }
-  /* .tag-chip lives in global.css. */
 </style>

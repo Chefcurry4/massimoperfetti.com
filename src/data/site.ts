@@ -83,5 +83,7 @@ export const site: SiteConfig = {
     title: "Perfettis' Notes",
     url: "https://perfettis-notes.beehiiv.com/",
   },
-  templateRepoUrl: "https://github.com/Chefcurry4/massimoperfetti.com",
+  // Chip hidden per Massimo (2026-08, minimalism pass) — restore the URL
+  // to bring back the bottom-right "MIT-licensed template →" pill.
+  templateRepoUrl: "",
 };

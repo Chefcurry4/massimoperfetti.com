@@ -86,13 +86,9 @@ const dateLabel = date.toLocaleString("en-US", {
         </p>
 
         {
-          tags.length > 0 && (
-            <ul class="tags" aria-label="tags">
-              {tags.map((t) => (
-                <li class="tag-chip text-caption">{t}</li>
-              ))}
-            </ul>
-          )
+          /* Minimalism pass (2026-08): tag chips dropped from the essay
+            header — tags still feed JSON-LD keywords. Header reads
+            eyebrow + title + date · reading time. */
         }
       </header>
 
@@ -135,13 +131,5 @@ const dateLabel = date.toLocaleString("en-US", {
   }
   .dot {
     opacity: 0.6;
-  }
-  .tags {
-    list-style: none;
-    padding: 0;
-    margin: var(--space-1) 0 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-1);
   }
 </style>

@@ -7,8 +7,9 @@
  *   left  — cover gradient (same coverHueVars(title) as the bento source so
  *           the morph is continuous) plus the title's first letter as the
  *           graphic centerpiece, just like the card.
- *   right — eyebrow + status pill + title (text-display) + summary + tags
- *           + links.
+ *   right — eyebrow + status pill + title (text-display) + summary + date
+ *           + links. (Tag chips were dropped in the 2026-08 minimalism
+ *           pass; tags still feed JSON-LD + related-project matching.)
  *
  * Body is `<Content />` from Astro's content-layer `render()`, rendering
  * the markdown body with the body type scale.
@@ -166,13 +167,9 @@ const otherLinks = links?.filter((l) => l !== ghLink && l !== liLink) ?? [];
           <p class="meta-line text-caption muted">{dateLabel}</p>
 
           {
-            tags.length > 0 && (
-              <ul class="tags" aria-label="tags">
-                {tags.map((t) => (
-                  <li class="tag-chip text-caption">{t}</li>
-                ))}
-              </ul>
-            )
+            /* Minimalism pass (2026-08): tag chips dropped from the hero —
+              tags still feed JSON-LD keywords and the related-projects
+              matching; the hero reads title + summary + date + links. */
           }
 
           {
@@ -334,15 +331,6 @@ const otherLinks = links?.filter((l) => l !== ghLink && l !== liLink) ?? [];
   }
   .meta-line {
     margin: 0;
-  }
-
-  .tags {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-1);
   }
 
   .links {

@@ -5,7 +5,8 @@
  * Pinned newsletter announcement when `site.newsletter` is set: the cell
  * body is non-interactive editorial copy, with one clickable subscribe
  * icon in the bottom-right corner that opens the newsletter URL in a new
- * tab (same destination the sidebar newsletter icon points at).
+ * tab. (This cell is the newsletter's only surface — the sidebar icon was
+ * retired 2026-08.)
  *
  * Forker fallback: when `site.newsletter` is undefined, the cell renders
  * a plain entry point to `/writing` — no subscribe CTA, no italian/free
@@ -31,14 +32,11 @@ const newsletter = site.newsletter;
       <>
         <p class="text-caption muted">newsletter</p>
         <h2 class="text-h3 title">{newsletter.title}</h2>
+        {/* Minimalism pass (2026-08): one tightened lede — the previous
+            two-paragraph pitch lives on in spirit at the newsletter itself. */}
         <p class="lede text-body muted">
-          My brother Matteo and I launched a newsletter — free, in Italian. We
-          write about academic choices, engineering, AI and ML, motivation, work
-          experience, and the advice we wish we'd had along the way.
-        </p>
-        <p class="closer text-small">
-          If it helps a few Italian students find their way a bit better, that's
-          already a win.
+          My brother Matteo and I write about academic choices, engineering, AI,
+          and the advice we wish we'd had.
         </p>
         <div class="meta-row">
           <p class="meta text-caption muted">free · in italian</p>
@@ -106,11 +104,6 @@ const newsletter = site.newsletter;
       line-clamp: 2;
     }
   }
-  .closer {
-    margin: 0;
-    color: var(--text);
-  }
-
   .meta-row {
     /* margin-top: auto pushes the meta line + subscribe icon to the bottom
        of the cell so the announcement reads as anchored editorial copy. */

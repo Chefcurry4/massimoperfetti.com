@@ -11,8 +11,8 @@
  *   2. Eyebrow caption.
  *   3. Name (display serif, h1).
  *   4. Role line.
- *   5. Body line (clamped to 2).
- *   6. "→ read more" CTA — links to /about.
+ *   5. "→ read more" CTA — links to /about. (The body teaser paragraph was
+ *      removed in the 2026-08 minimalism pass.)
  *
  * Glass surface (per CLAUDE.md §Liquid glass selective use).
  *
@@ -60,7 +60,11 @@ const portraitMobile = await getPortraitMobile();
     }
     <h1 class="text-h1 name">{site.name}</h1>
     <p class="role text-small">{about.role}</p>
-    <p class="body text-small muted">{about.body[0]}</p>
+    {
+      /* Minimalism pass (2026-08): the body teaser paragraph was removed —
+        portrait + name + role carry the cell; the story lives at /about
+        behind the CTA below. */
+    }
 
     <a href="/about" class="cta text-caption" data-astro-prefetch>
       <span aria-hidden="true">→</span>
@@ -137,23 +141,6 @@ const portraitMobile = await getPortraitMobile();
   .role {
     margin: 0;
     color: var(--text);
-  }
-
-  .body {
-    /* clamp tightly so the cell never overflows even at small viewport heights;
-       phase-7 popup will surface the full body. */
-    margin: 0;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  @media (max-height: 800px) {
-    .body {
-      -webkit-line-clamp: 1;
-      line-clamp: 1;
-    }
   }
 
   .cta {
