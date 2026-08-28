@@ -91,8 +91,10 @@ EOF
 ### 3. Replace personal images
 
 ```sh
-# the avatar shown in the sidebar
-mv ~/Pictures/your-headshot.webp public/me.webp
+# the portrait shown on the bento wall (processed by Astro's image
+# pipeline — keep the filename so src/lib/portraits.ts keeps working)
+mv ~/Pictures/your-headshot.webp src/assets/me.webp
+mv ~/Pictures/your-headshot-square.png src/assets/in.png
 
 # about-page photos (referenced from src/data/about.ts)
 rm public/about/*.jpg
@@ -246,15 +248,18 @@ All images live under `public/` (served verbatim) or `src/assets/` (processed by
 Naming convention used by the live site, not enforced anywhere:
 
 ```
+src/assets/
+├── me.webp                       # bento portrait, desktop crop (pipeline-processed)
+├── in.png                        # bento portrait, mobile square crop
+└── gallery/                      # photo originals (referenced from src/content/gallery/*.md)
+
 public/
-├── me.webp                       # sidebar avatar
 ├── favicon.{ico,svg}
 ├── robots.txt
 ├── about/                        # photos referenced from src/data/about.ts
 ├── projects/{slug}/              # project covers + body images
 ├── work/                         # work logos (optional)
-├── places/{slug}/                # photos for /places/[slug] (none of the sample entries use these)
-└── gallery/                      # photo originals (referenced from src/content/gallery/*.md)
+└── places/{slug}/                # photos for /places/[slug] (none of the sample entries use these)
 ```
 
 Convert big JPGs to WebP before committing — `pnpm images:webp` walks `public/` and emits `.webp` siblings via [`sharp`](https://sharp.pixelplumbing.com). The script is idempotent.
@@ -323,7 +328,7 @@ Every integration is opt-out — leave the URL empty in `site.ts` and the corres
 The repo is MIT-licensed for **code**. The following are not yours to republish:
 
 - Anything under `src/content/*` — case studies, notes, place descriptions, gallery captions.
-- Photos under `public/about/`, `public/me.webp`, `public/work/`.
+- Photos under `public/about/`, `src/assets/me.webp`, `src/assets/in.png`, `public/work/`.
 - The OG-image generator's text content (auto-generated from your `site.ts`, but the original copy is Massimo's).
 
 If you keep the example content while you're scaffolding, that's fine — replace it before you publish. See [`src/content/LICENSE-CONTENT.md`](src/content/LICENSE-CONTENT.md).

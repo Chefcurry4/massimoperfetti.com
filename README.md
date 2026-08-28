@@ -62,7 +62,7 @@ pnpm images:webp  # convert /public images to webp
 ## License
 
 - Code: [MIT](./LICENSE) — fork freely, ship your own site, no attribution required (a kind word in the footer is appreciated, never demanded).
-- Content under `src/content/*` and personal images under `public/about/`, `public/me.webp`, `public/work/`, etc.: © Massimo Perfetti, [CC BY-NC-ND 4.0](./src/content/LICENSE-CONTENT.md). Read for inspiration; replace with your own before publishing.
+- Content under `src/content/*` and personal images under `public/about/`, `src/assets/me.webp`, `src/assets/in.png`, `public/work/`, etc.: © Massimo Perfetti, [CC BY-NC-ND 4.0](./src/content/LICENSE-CONTENT.md). Read for inspiration; replace with your own before publishing.
 
 If something is unclear about what you can or can't reuse, [open a `template-question` issue](.github/ISSUE_TEMPLATE/template-question.md) and I'll clarify.
 

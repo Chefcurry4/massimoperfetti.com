@@ -44,14 +44,19 @@ interface PersonSchema {
   readonly sameAs: readonly string[];
 }
 
-export function personSchema(): PersonSchema {
+/**
+ * @param imagePath Site-relative path to the portrait (the hashed URL from
+ * `getPortraitDesktop()` in src/lib/portraits.ts — the old /public copy no
+ * longer exists, the portrait is pipeline-served).
+ */
+export function personSchema(imagePath: string): PersonSchema {
   return {
     '@context': 'https://schema.org',
     '@type': 'Person',
     '@id': `${site.url}/#person`,
     name: site.author,
     url: site.url,
-    image: absolute('/me.webp'),
+    image: absolute(imagePath),
     jobTitle: about.role,
     description: site.description,
     email: personEmail,

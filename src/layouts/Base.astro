@@ -8,11 +8,10 @@
  * pages). Spotify keeps playing, theme toggle state survives.
  */
 import { ClientRouter } from 'astro:transitions';
-import { getImage } from 'astro:assets';
 import { site } from '../data/site';
 import Sidebar from '../components/sidebar/Sidebar.astro';
 import TemplateCredit from '../components/ui/TemplateCredit.astro';
-import portraitMobileSrc from '../assets/in.png';
+import { getPortraitDesktop, getPortraitMobile } from '../lib/portraits';
 import '../styles/global.css';
 
 interface Props {
@@ -41,23 +40,18 @@ const ogImageAltText =
 // candidate above the fold, so giving it `fetchpriority="high"` cuts ~600ms
 // off the first paint vs. waiting for the bento grid to lay out first.
 //
-// Two variants:
-//   Desktop (≥1024px) — /me.webp, the square 280×280 portrait composed for
-//     the bento rail. Pre-built; ships from /public.
-//   Mobile  (<1024px) — src/assets/in.png, a wider crop suited to the
-//     full-width × 280 mobile cell. Run through getImage() to a hashed WebP
-//     (~1200px) so phones don't pull the 962KB source PNG.
+// Two variants (params centralized in src/lib/portraits.ts so these
+// preloads and AboutCell's CSS backgrounds can't drift):
+//   Desktop (≥1024px) — src/assets/me.webp resized to 560px (2× the fixed
+//     280px bento box).
+//   Mobile  (<1024px) — src/assets/in.png, a square crop for the
+//     full-width 1:1 mobile cell, served as WebP at its native 800px.
 //
 // The two preload <link>s carry `media="..."` so only the variant the
 // visitor will actually paint gets fetched — no double-download.
 const isHome = Astro.url.pathname === '/';
-const portraitMobile = isHome
-  ? await getImage({
-      src: portraitMobileSrc,
-      width: 1200,
-      format: 'webp',
-    })
-  : null;
+const portraitDesktop = isHome ? await getPortraitDesktop() : null;
+const portraitMobile = isHome ? await getPortraitMobile() : null;
 ---
 
 <!doctype html>
@@ -111,15 +105,17 @@ const portraitMobile = isHome
       isHome && (
         <>
           {/* Desktop variant — square portrait, only fetched on ≥1024px. */}
-          <link
-            rel="preload"
-            as="image"
-            href="/me.webp"
-            type="image/webp"
-            media="(min-width: 1024px)"
-            fetchpriority="high"
-          />
-          {/* Mobile variant — wider crop, only fetched on <1024px. */}
+          {portraitDesktop && (
+            <link
+              rel="preload"
+              as="image"
+              href={portraitDesktop.src}
+              type="image/webp"
+              media="(min-width: 1024px)"
+              fetchpriority="high"
+            />
+          )}
+          {/* Mobile variant — square crop, only fetched on <1024px. */}
           {portraitMobile && (
             <link
               rel="preload"

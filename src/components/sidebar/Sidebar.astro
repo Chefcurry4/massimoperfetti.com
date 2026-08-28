@@ -225,9 +225,13 @@ import SpotifyWidget from './SpotifyWidget.astro';
     border-top: 1px solid var(--border);
   }
 
-  /* Hide content when sidebar is collapsed — chevron handles expand. */
+  /* Hide content when sidebar is collapsed — chevron handles expand.
+     visibility (not display) so it also drops the collapsed content out of
+     the tab order; the 0s-delayed transition holds the flip until the
+     opacity fade completes so collapse doesn't blink the content away. */
   .sidebar:not(.expanded) .content > * {
     visibility: hidden;
+    transition: visibility 0s linear var(--duration-normal);
   }
 
   /* === Rail chevron ==================================================== */
@@ -310,6 +314,17 @@ import SpotifyWidget from './SpotifyWidget.astro';
       -webkit-backdrop-filter: blur(var(--glass-blur-mobile)) saturate(var(--glass-saturate-mobile));
       /* Contain rubber-band so internal scroll doesn't bubble up to body. */
       overscroll-behavior: contain;
+    }
+    /* Re-assert the reduce-transparency fallback — the mobile blur above
+       re-declares backdrop-filter later in source order than the global
+       fallback near the top of this file, which silently won the cascade
+       and gave reduce-transparency users a translucent blurred drawer. */
+    @media (prefers-reduced-transparency: reduce) {
+      .sidebar {
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        background: var(--surface-glass-strong);
+      }
     }
     .sidebar.open {
       max-height: 80dvh;
@@ -435,10 +450,18 @@ import SpotifyWidget from './SpotifyWidget.astro';
       max-height: none;
       overflow: visible;
     }
-    /* Reset the desktop rail-content visibility trick on mobile. */
-    .sidebar:not(.expanded) .content > *,
-    .sidebar:not(.open) .content > * {
+    /* Content visibility keys on .open on mobile (desktop keys on
+       .expanded). The closed drawer's links must be visibility: hidden so
+       keyboard/switch users can't tab into invisible controls — a previous
+       blanket `visibility: visible` reset left every contact icon and CTA
+       focusable while the drawer was shut. The delayed flip mirrors the
+       desktop rule so closing doesn't blink the content away. */
+    .sidebar.open .content > * {
       visibility: visible;
+    }
+    .sidebar:not(.open) .content > * {
+      visibility: hidden;
+      transition: visibility 0s linear var(--duration-normal);
     }
 
     .drawer-scrim {

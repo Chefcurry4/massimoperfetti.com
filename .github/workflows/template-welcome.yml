@@ -62,7 +62,7 @@ jobs:
 
             1. **Replace identity** — edit `src/data/{site,about,now,contacts}.ts`. Update `site.url`, `site.author`, `site.firstName`, your contacts, your "now" snippet.
             2. **Wipe the example content** — `rm src/content/{projects,work,writing,places,gallery}/*` and drop in your own. Schemas in [`src/content.config.ts`](./src/content.config.ts).
-            3. **Replace personal images** — `public/me.webp`, `public/about/*`, `public/work/*`. Missing media falls back to gradient placeholders automatically.
+            3. **Replace personal images** — `src/assets/me.webp` + `src/assets/in.png` (bento portraits — replace the files, keep the names), `public/about/*`, `public/work/*`. Missing `/public` media falls back to gradient placeholders automatically.
             4. **Pick a theme preset** — change the one `@import` line in [`src/styles/global.css`](./src/styles/global.css). Bundled: `_default`, `_linen`, `_sapphire`, `_forest`.
             5. **Update `<head>` defaults** — `site.url`, `public/robots.txt`, `astro.config.mjs:site`.
             6. **Boot it** — `pnpm install && pnpm dev`. Open [http://localhost:4321](http://localhost:4321).

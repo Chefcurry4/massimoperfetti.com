@@ -9,8 +9,9 @@
  *
  * Forker fallback: when `site.newsletter` is undefined, the cell renders
  * a plain entry point to `/writing` — no subscribe CTA, no italian/free
- * meta line. Edit the body copy directly here when the announcement
- * changes.
+ * meta line. No transition:name on that link: /writing has no matching
+ * destination element, so a name would be a source-less orphan (broken
+ * morph). Edit the body copy directly here when the announcement changes.
  */
 import Cell from '../ui/Cell.astro';
 import { site } from '../../data/site';
@@ -40,6 +41,9 @@ const newsletter = site.newsletter;
       </p>
       <div class="meta-row">
         <p class="meta text-caption muted">free · in italian</p>
+        <a class="notes-link text-caption" href="/writing" data-astro-prefetch>
+          notes →
+        </a>
         <a
           class="subscribe"
           href={newsletter.url}
@@ -64,7 +68,7 @@ const newsletter = site.newsletter;
       </div>
     </>
   ) : (
-    <a class="entry" href="/writing" transition:name="poster-writing">
+    <a class="entry" href="/writing" data-astro-prefetch>
       <p class="text-caption muted">writing</p>
       <h2 class="text-h3 title">Notes</h2>
       <p class="lede text-body muted">
@@ -115,6 +119,27 @@ const newsletter = site.newsletter;
   }
   .meta {
     margin: 0;
+    /* Push notes-link + subscribe to the right edge as one cluster. */
+    margin-right: auto;
+  }
+
+  .notes-link {
+    /* Quiet text link into /writing — the icon stays the primary CTA. */
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap-min);
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-out-expo);
+  }
+  .notes-link:hover,
+  .notes-link:focus-visible {
+    color: var(--accent);
+  }
+  .notes-link:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
   }
 
   .subscribe {
@@ -173,5 +198,10 @@ const newsletter = site.newsletter;
   .entry:hover .entry-cta,
   .entry:focus-visible .entry-cta {
     color: var(--accent);
+  }
+  .entry:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
   }
 </style>

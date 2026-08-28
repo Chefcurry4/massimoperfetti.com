@@ -10,10 +10,13 @@ import Base from '../layouts/Base.astro';
 import BentoGrid from '../components/bento/BentoGrid.astro';
 import JsonLd from '../components/ui/JsonLd.astro';
 import { personSchema, webSiteSchema } from '../lib/structured-data';
+import { getPortraitDesktop } from '../lib/portraits';
+
+const portrait = await getPortraitDesktop();
 ---
 
 <Base>
-  <JsonLd slot="head" data={[personSchema(), webSiteSchema()]} />
+  <JsonLd slot="head" data={[personSchema(portrait.src), webSiteSchema()]} />
   <main id="main">
     <BentoGrid />
   </main>

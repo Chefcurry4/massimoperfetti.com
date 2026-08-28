@@ -170,7 +170,12 @@ const projSm: ReadonlyArray<typeof allProjects[number] | null> = [
      exists; other pages keep their natural scroll behaviour. Mobile is
      excluded because the bento flattens to a vertical stack and is
      supposed to scroll. */
-  @media (min-width: 1024px) {
+  /* min-height guard: the wall has a 560px content floor (see .bento-wall).
+     On viewports shorter than floor + gutters (~620px — e.g. a laptop with
+     devtools docked bottom) hiding body overflow made the wall's bottom row
+     unreachable. Below the guard the page falls back to normal vertical
+     scrolling. */
+  @media (min-width: 1024px) and (min-height: 620px) {
     :global(html),
     :global(body) {
       overflow: hidden;

@@ -5,9 +5,11 @@
  * Two variants:
  *   - mono   → every path fills with currentColor; theme-flips automatically.
  *             Used on the bento WorkCell as a small wordmark beside the org.
- *   - color  → original brand palette (#8AE932 lime, #0E5747 deep teal, black
- *             text). Used on the /work/dualenergy detail-page hero where the
- *             green pops against --bg.
+ *   - color  → brand palette for the mark (#8AE932 lime, #0E5747 deep teal)
+ *             with theme-aware wordmark text (var(--text), not the brand's
+ *             black — black text on the dark theme's near-black --surface
+ *             rendered the whole wordmark invisible). Used on the
+ *             /work/dualenergy detail-page hero.
  *
  * Inline (not <img>) so currentColor works without filter hacks. Sized by the
  * `height` prop in px; the component preserves the natural 1238×214 aspect.
@@ -30,7 +32,9 @@ const {
 const isColor = variant === 'color';
 const markFill = isColor ? '#8AE932' : 'currentColor';
 const teal = isColor ? '#0E5747' : 'currentColor';
-const text = isColor ? 'black' : 'currentColor';
+// Wordmark follows the theme text token so it stays legible on --surface
+// in dark mode (the brand's original black was invisible there).
+const text = isColor ? 'var(--text)' : 'currentColor';
 
 const role = ariaLabel ? 'img' : 'presentation';
 ---

@@ -16,40 +16,36 @@
  *
  * Glass surface (per CLAUDE.md §Liquid glass selective use).
  *
- * Portrait file: public/me.webp.
+ * Portrait files: src/assets/me.webp (desktop) + src/assets/in.png (mobile),
+ * both served through astro:assets via src/lib/portraits.ts — the same
+ * helper Base.astro uses for its preload <link>s, so URLs can't drift.
  * Preload directive (`<link rel="preload" as="image" fetchpriority="high">`)
  * lives in Base.astro for the home route — speeds up LCP since the bento
  * AboutCell sits above the fold and its portrait is the largest contentful
  * paint candidate on the wall.
  */
 import Cell from '../ui/Cell.astro';
-import { getImage } from 'astro:assets';
 import { about } from '../../data/about';
 import { site } from '../../data/site';
-import portraitMobileSrc from '../../assets/in.png';
+import { getPortraitDesktop, getPortraitMobile } from '../../lib/portraits';
 
-// Mobile gets a different portrait — desktop's /me.webp is composed for the
-// 280×280 square in the bento rail; the mobile cell renders full-width × 280
-// (a wide rectangle) and benefits from a different crop. Run through Astro's
-// asset pipeline so the user-supplied PNG is served as a hashed WebP at a
-// width sized for retina phones (1080px effective at 360×3x; 1200 gives
-// headroom). Build-time only — zero client cost.
-const portraitMobile = await getImage({
-  src: portraitMobileSrc,
-  width: 1200,
-  format: 'webp',
-});
+// Mobile gets a different portrait — the desktop square is composed for the
+// 280×280 box in the bento rail; the mobile cell renders a full-width 1:1
+// square and benefits from a different crop. Build-time only — zero client
+// cost. Sizing rationale lives in src/lib/portraits.ts.
+const portraitDesktop = await getPortraitDesktop();
+const portraitMobile = await getPortraitMobile();
 ---
 
 <Cell glass slot="cell-about" class="about-cell">
-  {/* --portrait-mobile carries the build-hashed WebP URL into the scoped
-      stylesheet so the @media block below can swap the background-image
-      without inlining the URL twice or duplicating the rule. */}
+  {/* --portrait / --portrait-mobile carry the build-hashed WebP URLs into
+      the scoped stylesheet so the @media block below can swap the
+      background-image without inlining the URLs twice. */}
   <div
     class="portrait"
     role="img"
     aria-label={`Portrait of ${site.name}`}
-    style={`--portrait-mobile: url('${portraitMobile.src}');`}
+    style={`--portrait: url('${portraitDesktop.src}'); --portrait-mobile: url('${portraitMobile.src}');`}
   ></div>
 
   <div class="content">
@@ -93,13 +89,11 @@ const portraitMobile = await getImage({
     height: 280px;
     border-radius: var(--radius-md);
     overflow: hidden;
-    /* Layered: gradient fallback below, photo on top. If /me.webp 404s, the
-       gradient remains visible. The first background-color sits underneath
+    /* Layered: gradient below, photo on top — the gradient paints while the
+       photo is still in flight. The first background-color sits underneath
        both for further safety in older renderers. */
     background-color: var(--surface);
-    background-image:
-      url('/me.webp'),
-      var(--gradient-cool);
+    background-image: var(--portrait), var(--gradient-cool);
     background-size: cover, cover;
     background-position: center top, center;
     background-repeat: no-repeat, no-repeat;

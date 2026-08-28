@@ -8,7 +8,7 @@ Everything under the following paths is **personal content authored by Massimo P
 - `src/content/places/**` — place descriptions and travel notes.
 - `src/content/gallery/**` — photo captions and metadata.
 - `src/data/about.ts` — the about-page body copy.
-- `public/me.webp`, `public/about/**`, `public/work/**` — personal photographs and bespoke logos. (Note: third-party org logos under `public/work/` belong to their respective owners and are used here under fair use; they are not redistributable under either license.)
+- `src/assets/me.webp`, `src/assets/in.png`, `public/about/**`, `public/work/**` — personal photographs and bespoke logos. (Note: third-party org logos under `public/work/` belong to their respective owners and are used here under fair use; they are not redistributable under either license.)
 
 These are licensed under [Creative Commons BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
 

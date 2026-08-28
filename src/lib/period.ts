@@ -33,7 +33,12 @@ export function formatPeriod(period: PeriodLike): string {
   return `${fmt(period.start)} — ${period.end ? fmt(period.end) : 'Present'}`;
 }
 
-/** Numeric key for date-desc sorts; missing start is treated as "now". */
+/**
+ * Numeric key for date-desc sorts; a missing start sorts above every dated
+ * entry. MAX_SAFE_INTEGER (not Date.now()) so the build output is
+ * deterministic — a wall-clock key made the sort order depend on when the
+ * site was built.
+ */
 export function periodSortKey(period: PeriodLike): number {
-  return period.start ? period.start.getTime() : Date.now();
+  return period.start ? period.start.getTime() : Number.MAX_SAFE_INTEGER;
 }

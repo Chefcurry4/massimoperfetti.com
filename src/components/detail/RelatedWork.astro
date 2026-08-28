@@ -93,8 +93,21 @@ const related = relatedWork(current, all, max);
     padding: 0;
     margin: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    /* Deterministic 1→2→auto-fit ladder, mirroring RelatedProjects — bare
+       `auto-fit minmax(220px, 1fr)` squashes to one distorted card on
+       narrow viewports. */
+    grid-template-columns: 1fr;
     gap: var(--space-4);
+  }
+  @media (min-width: 520px) {
+    .grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 900px) {
+    .grid {
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
   }
   .card {
     display: flex;

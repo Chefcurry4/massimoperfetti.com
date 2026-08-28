@@ -26,9 +26,8 @@ Workflow when adding a new photo:
      image: '../../assets/gallery/<filename>.webp'
 
 Astro's pipeline does NOT generate sources for files in /public — they
-ship as-is. For the AboutCell portrait (public/me.webp) we accept that
-trade-off because there's only one file and it's pre-sized for retina.
-For the gallery, srcset wins outweigh the build-time cost.
+ship as-is. The AboutCell portraits (src/assets/me.webp + in.png) also
+go through the pipeline, via src/lib/portraits.ts.
 
 Currently expected (referenced by markdown):
   III.webp
