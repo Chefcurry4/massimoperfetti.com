@@ -7,7 +7,8 @@
  * §Liquid glass — about, see-all CTA). Pass `class` to extend with a
  * cell-slot identifier so mobile `order:` rules can grab it.
  *
- * The hover-lift rule lives here so every cell gets the same affordance.
+ * Hover feedback is an opacity-only ::after overlay (see below) so every
+ * cell gets the same affordance without layout or paint cost.
  * `.bento-cell.stub` is the "intentional empty slot" modifier, also styled
  * here so it picks up component scoping (avoids specificity ties with
  * `:global` overrides defined elsewhere).
@@ -54,6 +55,40 @@ const classes = [
     height: 100%;
     min-width: 0;
     overflow: hidden;
+    /* Anchor for the ::after hover overlay. */
+    position: relative;
+  }
+
+  /*
+   * Hover affordance — history: every layout-affecting variant (translateY
+   * lift, border+shadow swap) caused a visible cascade as the wall
+   * scrolled past the cursor, because the retrigger cost layout/paint.
+   * This version fades ONE compositor-cheap property (opacity) on a
+   * pseudo-element: an accent-tinted inset ring plus a 4% wash. Opacity
+   * retriggers during scroll are free, so the cascade can't come back.
+   * pointer-events: none keeps the card-link fully clickable; the pseudo
+   * is positioned, so it paints above the cell's static content without
+   * needing a z-index.
+   */
+  .bento-cell::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    /* Matches the cell's own radius (the stylelint radius allow-list
+       doesn't accept `inherit`). */
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-hover);
+    background: var(--hover-wash);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--duration-fast) var(--ease-out-quad);
+  }
+  /* Hover-capable, precise pointers only — no sticky hover on touch. */
+  @media (hover: hover) and (pointer: fine) {
+    .bento-cell:hover::after,
+    .bento-cell:focus-within::after {
+      opacity: 1;
+    }
   }
 
   /* `.glass` is defined globally in styles/global.css; redeclaring background
@@ -63,19 +98,10 @@ const classes = [
   }
 
   /*
-   * No hover or focus-within paint state on bento cells — every prior
-   * variant of the affordance (translateY lift, then border+shadow swap,
-   * then border+shadow swap with pointer-events suppressed during scroll)
-   * caused a visible cascade as the wall scrolled past the cursor. The
-   * cells are entirely static. Interaction feedback is handled by the
-   * inner `<a class="card-link">` (cursor: pointer) and the cell's
-   * focus-visible outline at the link level.
-   */
-
-  /*
    * Stub modifier — empty slots styled as dashed-border placeholders.
    * Lives here (rather than in StubCell.astro) so the data-astro-cid
-   * scoping wins specificity against any global override.
+   * scoping wins specificity against any global override. Stubs are not
+   * interactive, so no hover overlay.
    */
   .bento-cell.stub {
     background: transparent;
@@ -83,5 +109,8 @@ const classes = [
     align-items: center;
     justify-content: center;
     box-shadow: none;
+  }
+  .bento-cell.stub::after {
+    display: none;
   }
 </style>

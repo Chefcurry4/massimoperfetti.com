@@ -16,6 +16,15 @@ export default defineConfig({
       filter: (page) => !page.includes('/design') && !page.includes('/thanks'),
     }),
   ],
+  // Prefetch every internal link as it enters the viewport. Static MPA +
+  // small HTML pages, so this is cheap — and the card→detail View
+  // Transition otherwise blocks on a cold network fetch of the destination
+  // (the "morph hangs then snaps" feel). Explicit data-astro-prefetch
+  // attributes can still override per-link strategy.
+  prefetch: {
+    prefetchAll: true,
+    defaultStrategy: 'viewport',
+  },
   vite: {
     plugins: [tailwindcss()],
   },

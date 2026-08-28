@@ -162,7 +162,8 @@ const portraitMobile = await getPortraitMobile();
   }
 
   .cta {
-    /* Same eyebrow caption sizing, transitions to accent on hover. */
+    /* Same eyebrow caption sizing, transitions to accent on hover; the
+       arrow span nudges right, matching the SpotifyWidget idiom. */
     margin-top: auto;
     display: inline-flex;
     align-items: center;
@@ -188,5 +189,18 @@ const portraitMobile = await getPortraitMobile();
     outline: 2px solid var(--accent);
     outline-offset: 4px;
     border-radius: var(--radius-sm);
+  }
+  .cta > span[aria-hidden] {
+    transition: transform var(--duration-fast) var(--ease-out-quad);
+  }
+  .cta:hover > span[aria-hidden],
+  .cta:focus-visible > span[aria-hidden] {
+    transform: translateX(3px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cta:hover > span[aria-hidden],
+    .cta:focus-visible > span[aria-hidden] {
+      transform: none;
+    }
   }
 </style>

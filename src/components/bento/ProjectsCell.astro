@@ -78,9 +78,13 @@ const hasActions = Boolean(ghLink || liLink);
         <span class:list={['status-pill', 'text-mono-small', `status-${status}`]}>{statusLabel[status]}</span>
       </div>
 
+      {/* Title morph only from the lg variant: the sm title is 14px/3-line
+          clamped, and morphing it into the 56px display hero produced a
+          blurry 4× cross-fade snap. Without the name the destination title
+          simply fades in as its own group — much calmer. */}
       <h2
         class:list={['title', variant === 'lg' ? 'text-h2' : 'text-small']}
-        transition:name={`poster-projects-${entry.id}-title`}
+        transition:name={variant === 'lg' ? `poster-projects-${entry.id}-title` : undefined}
       >{title}</h2>
 
       {variant === 'lg' && <p class="summary text-small muted">{summary}</p>}
@@ -235,6 +239,12 @@ const hasActions = Boolean(ghLink || liLink);
     border-color: var(--border-strong);
     transform: translateY(-1px);
   }
+  @media (prefers-reduced-motion: reduce) {
+    .action-btn:hover,
+    .action-btn:focus-visible {
+      transform: none;
+    }
+  }
   .action-btn:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
@@ -296,8 +306,10 @@ const hasActions = Boolean(ghLink || liLink);
     line-height: 1;
     letter-spacing: -0.04em;
     text-align: center;
-    opacity: 0.95;
-    mix-blend-mode: screen;
+    /* Plain color + opacity, no mix-blend-mode: this element is inside a
+       View Transition group, and blend modes are lost in the flattened
+       snapshot — the glyph visibly changed brightness at morph start/end. */
+    opacity: 0.9;
     pointer-events: none;
     user-select: none;
   }

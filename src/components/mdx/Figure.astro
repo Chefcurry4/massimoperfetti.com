@@ -18,8 +18,11 @@
  *   alt       Required. Empty string = decorative; pass real text otherwise.
  *   caption   Optional. Renders as <figcaption> below the image with the
  *             prose recipe's mono-small treatment.
- *   aspect    Optional aspect ratio (e.g. "16/9", "4/3", "3/2", "1"). If
- *             omitted the image's natural aspect ratio is used.
+ *   aspect    Aspect ratio (e.g. "16/9", "4/3", "3/2", "1"). Defaults to
+ *             "3/2" so the frame reserves space before the image loads —
+ *             an unreserved frame was an unbounded layout-shift source in
+ *             long bodies. Pass aspect="auto" to opt into the image's
+ *             natural ratio (accepting the CLS).
  *
  * If the file 404s the layered gradient fallback (--gradient-cool-soft)
  * stays visible — same broken-icon-free pattern used in AboutCell and
@@ -33,13 +36,14 @@ interface Props {
   aspect?: string;
 }
 
-const { src, alt, caption, aspect } = Astro.props;
+const { src, alt, caption, aspect = '3/2' } = Astro.props;
+const aspectValue = aspect === 'auto' ? undefined : aspect;
 ---
 
 <figure class="mdx-figure">
   <div
     class="frame"
-    style={aspect ? `aspect-ratio: ${aspect};` : undefined}
+    style={aspectValue ? `aspect-ratio: ${aspectValue};` : undefined}
   >
     <img src={src} alt={alt} loading="lazy" decoding="async" />
   </div>

@@ -81,8 +81,9 @@ const hasAny = Boolean(newer || older);
     border-radius: var(--radius-md);
     border: 1px solid transparent;
     transition:
-      border-color var(--duration-fast) var(--ease-out-expo),
-      background var(--duration-fast) var(--ease-out-expo);
+      border-color var(--duration-fast) var(--ease-out-quad),
+      background var(--duration-fast) var(--ease-out-quad),
+      transform var(--duration-fast) var(--ease-out-quad);
   }
   /* Spacer keeps the grid balanced when only one side has content. */
   .link.spacer {
@@ -92,10 +93,19 @@ const hasAny = Boolean(newer || older);
     align-items: flex-end;
     text-align: right;
   }
+  /* Lift matches the RelatedProjects card hover so detail-page surfaces
+     share one hover language. */
   .link:hover:not(.spacer),
   .link:focus-visible:not(.spacer) {
     border-color: var(--border);
     background: var(--surface);
+    transform: translateY(-2px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .link:hover:not(.spacer),
+    .link:focus-visible:not(.spacer) {
+      transform: none;
+    }
   }
   .link:focus-visible {
     outline: 2px solid var(--accent);

@@ -156,7 +156,11 @@ const shouldCycle = entries.length > 1;
     object-fit: cover;
     display: block;
     /* Opacity-only crossfade — compositor-safe and forgiving of mid-fade
-       clicks (the morph snapshot still captures a sensible image). */
+       clicks (the morph snapshot still captures a sensible image).
+       The cycle script reads this duration via getComputedStyle, so CSS
+       and JS can never desync. Off-token 400ms: the photo crossfade wants
+       to be slower than --duration-normal but calmer than --duration-slow's
+       expo tail. */
     transition: opacity 400ms var(--ease-out-expo);
   }
   .meta {
@@ -236,7 +240,6 @@ const shouldCycle = entries.length > 1;
   };
 
   const INTERVAL_MS = 10000;
-  const FADE_MS = 400;
 
   function initGalleryCycle(signal: AbortSignal) {
     const link = document.querySelector<HTMLAnchorElement>('a[data-gallery-cycle]');
@@ -260,11 +263,19 @@ const shouldCycle = entries.length > 1;
 
     let index = 0;
     let paused = false;
+    let pendingSwap = 0;
+
+    // Fade duration comes from the CSS transition on the image, so the
+    // stylesheet stays the single source of truth (previously a JS
+    // constant silently duplicated the CSS value).
+    const FADE_MS =
+      (parseFloat(getComputedStyle(img).transitionDuration) || 0.4) * 1000;
 
     const preload = (i: number) => {
       const e = entries[i];
       if (!e) return;
       const pre = new Image();
+      pre.decoding = 'async';
       pre.src = e.image;
     };
     preload((index + 1) % entries.length);
@@ -272,7 +283,8 @@ const shouldCycle = entries.length > 1;
     const swapTo = (next: number) => {
       const e = entries[next];
       img.style.opacity = '0';
-      window.setTimeout(() => {
+      pendingSwap = window.setTimeout(() => {
+        pendingSwap = 0;
         if (signal.aborted) return;
         // Clear srcset/sizes so the new single-resolution swap URL takes
         // effect — without this the browser would pick from the prior
@@ -302,8 +314,28 @@ const shouldCycle = entries.length > 1;
       }, FADE_MS);
     };
 
+    // A swap landing mid-navigation would rewrite href and the
+    // view-transition names AFTER ClientRouter has snapshotted the source,
+    // silently degrading the morph (or pointing it at the wrong slug).
+    // Freeze the cycle the moment a navigation is in flight — and on
+    // click, so the pending fade can't retarget the link under the finger.
+    const freeze = () => {
+      paused = true;
+      if (pendingSwap) {
+        window.clearTimeout(pendingSwap);
+        pendingSwap = 0;
+        // Un-fade whatever is currently shown; the click navigates to the
+        // slug the href still points at.
+        img.style.opacity = '1';
+      }
+    };
+    link.addEventListener('click', freeze, { signal });
+    document.addEventListener('astro:before-preparation', freeze, { signal });
+
     const tick = () => {
-      if (paused) return;
+      // Skip while paused or backgrounded — a hidden tab kept cycling and
+      // burning image decodes for nobody.
+      if (paused || document.hidden) return;
       swapTo((index + 1) % entries.length);
     };
 
@@ -320,7 +352,10 @@ const shouldCycle = entries.length > 1;
     link.addEventListener('pointerup', () => { paused = false; }, { signal });
     link.addEventListener('pointercancel', () => { paused = false; }, { signal });
 
-    signal.addEventListener('abort', () => window.clearInterval(timer));
+    signal.addEventListener('abort', () => {
+      window.clearInterval(timer);
+      if (pendingSwap) window.clearTimeout(pendingSwap);
+    });
   }
 
   let aborter: AbortController | null = null;

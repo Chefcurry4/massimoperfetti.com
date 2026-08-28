@@ -13,6 +13,13 @@ import { site } from '../data/site';
 import Sidebar from '../components/sidebar/Sidebar.astro';
 import TemplateCredit from '../components/ui/TemplateCredit.astro';
 import { getPortraitDesktop, getPortraitMobile } from '../lib/portraits';
+// Critical font files, resolved to the same hashed URLs the fontsource CSS
+// references (Vite dedupes the asset), so these preloads hit the cache the
+// stylesheet then reads from. Only the two latin normal-weight files — the
+// display serif and body sans are what visibly FOUT; Geist Mono (captions)
+// can arrive with the stylesheet.
+import loraLatinWoff2 from '@fontsource-variable/lora/files/lora-latin-wght-normal.woff2?url';
+import geistLatinWoff2 from '@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url';
 import '../styles/global.css';
 
 interface Props {
@@ -96,6 +103,23 @@ const portraitMobile = isHome ? await getPortraitMobile() : null;
     <meta name="twitter:image:alt" content={ogImageAltText} />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    {/* Font preloads — without these the woff2s are discovered only after
+        the render-blocking CSS parses, guaranteeing a flash of fallback
+        serif on every cold load. */}
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href={loraLatinWoff2}
+      crossorigin="anonymous"
+    />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href={geistLatinWoff2}
+      crossorigin="anonymous"
+    />
     <link
       rel="alternate"
       type="application/rss+xml"
@@ -139,6 +163,16 @@ const portraitMobile = isHome ? await getPortraitMobile() : null;
 
     {/* Dark-only: data-theme="dark" is baked into the <html> tag above —
         no bootstrap script, no localStorage, no FOUC window. */}
+    {/* Navigation-direction stamp — global.css keys the View Transition
+        on it so back navigations read as a zoom-out instead of being
+        visually identical to forward ones. Registered once per document;
+        the listener survives ClientRouter navigations. */}
+    <script is:inline>
+      document.addEventListener('astro:before-preparation', function (e) {
+        document.documentElement.dataset.navDirection =
+          e.direction === 'back' ? 'back' : 'forward';
+      });
+    </script>
     <ClientRouter />
   </head>
   <body>

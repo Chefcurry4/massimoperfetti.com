@@ -172,8 +172,10 @@ const statusLabel: Record<CollectionEntry<'projects'>['data']['status'], string>
     line-height: 1;
     letter-spacing: -0.04em;
     text-align: center;
-    opacity: 0.95;
-    mix-blend-mode: screen;
+    /* No mix-blend-mode — these cards carry View Transition names and blend
+       modes are lost in the flattened snapshot (glyph brightness popped at
+       morph start/end). */
+    opacity: 0.9;
     pointer-events: none;
     user-select: none;
   }

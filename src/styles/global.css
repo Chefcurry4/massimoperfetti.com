@@ -614,6 +614,77 @@ canvas {
   height: auto;
 }
 
+/*
+ * Press feedback — one site-wide :active treatment for every interactive
+ * control. Instant press-in (no transition on entry reads as responsive),
+ * spring-back rides each control's own transition where it has one.
+ * :where() keeps specificity at zero so component styles can override.
+ * Bento cells press as a whole via :has() on the invisible card-link
+ * overlay — scaling the overlay itself would be invisible.
+ */
+:where(
+    .action-btn,
+    .book-cta,
+    .icon-link,
+    .subscribe,
+    .rail-chevron,
+    .submit,
+    .notes-link,
+    .drawer-toggle
+  ):active {
+  transform: scale(0.96);
+}
+.bento-cell:has(.card-link:active) {
+  transform: scale(0.99);
+}
+@media (prefers-reduced-motion: reduce) {
+  :where(
+      .action-btn,
+      .book-cta,
+      .icon-link,
+      .subscribe,
+      .rail-chevron,
+      .submit,
+      .notes-link,
+      .drawer-toggle
+    ):active,
+  .bento-cell:has(.card-link:active) {
+    transform: none;
+  }
+}
+
+/*
+ * View Transition timing — every shared-element morph (poster-* names) and
+ * the root cross-fade run on the site's own motion tokens instead of the UA
+ * default (250ms ease). The geometry deltas here are large (bento card →
+ * full-bleed hero), so the slower duration + expo tail reads as one
+ * continuous zoom rather than a snap.
+ */
+::view-transition-group(*),
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation-duration: var(--duration-slow);
+  animation-timing-function: var(--ease-out-expo);
+}
+
+/*
+ * Back navigations (Base.astro stamps data-nav-direction from
+ * astro:before-preparation) get a gentle scale-down on the outgoing root —
+ * the detail page visually recedes toward the wall, giving the bento ↔
+ * detail loop a sense of place. Forward keeps the default cross-fade under
+ * the shared-element morphs.
+ */
+@keyframes vt-recede {
+  to {
+    transform: scale(0.985);
+    opacity: 0;
+  }
+}
+html[data-nav-direction="back"]::view-transition-old(root) {
+  animation-name: vt-recede;
+  animation-fill-mode: both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -622,5 +693,15 @@ canvas {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  /* ::view-transition-* pseudo-elements hang off the document root, NOT
+     the element tree — the `*` clamp above never matches them, so without
+     this block morphs ran at full amplitude for reduced-motion users. */
+  ::view-transition-group(*),
+  ::view-transition-image-pair(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 }

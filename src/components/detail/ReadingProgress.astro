@@ -11,16 +11,20 @@
  * AbortController-managed listeners ensure clean teardown across
  * View Transitions navigations (re-bound on every astro:page-load).
  *
- * Honors prefers-reduced-motion via the global rule in global.css —
- * the transform transition is shortened, but the value still updates
- * (a discrete progress signal stays useful even with motion off).
+ * No CSS transition on the bar — the transform is written per animation
+ * frame, so the value tracks scroll exactly (a discrete progress signal
+ * stays useful under prefers-reduced-motion too).
  */
 ---
 
+{/* transition:name keeps the bar out of the root View Transition snapshot
+    so it doesn't smear through the page cross-fade; between two detail
+    pages it simply stays put. */}
 <div
   class="reading-progress"
   data-reading-progress
   aria-hidden="true"
+  transition:name="reading-progress"
 ></div>
 
 <style>
@@ -34,8 +38,12 @@
     background: var(--accent);
     transform-origin: left;
     transform: scaleX(0);
-    transition: transform 90ms linear;
+    /* No transition — the value is written once per animation frame; a
+       tween on top of that only makes the bar lag the scroll. */
     pointer-events: none;
+    /* Long-lived, frequently-mutated transform — one of the two places
+       will-change is justified on this site. */
+    will-change: transform;
   }
 </style>
 
@@ -50,18 +58,37 @@
     abortController = new AbortController();
     const { signal } = abortController;
 
-    const update = () => {
-      const max = Math.max(
+    // scrollHeight is a forced-layout read — measure it once (and on
+    // resize) instead of on every scroll tick, and coalesce transform
+    // writes into rAF so scroll bursts cost one style write per frame.
+    let max = 1;
+    let rafId = 0;
+    const measure = () => {
+      max = Math.max(
         document.documentElement.scrollHeight - window.innerHeight,
         1,
       );
+    };
+    const update = () => {
+      rafId = 0;
       const ratio = Math.max(0, Math.min(1, window.scrollY / max));
       bar.style.transform = `scaleX(${ratio.toFixed(4)})`;
     };
+    const schedule = () => {
+      if (!rafId) rafId = requestAnimationFrame(update);
+    };
 
+    measure();
     update();
-    window.addEventListener('scroll', update, { passive: true, signal });
-    window.addEventListener('resize', update, { passive: true, signal });
+    window.addEventListener('scroll', schedule, { passive: true, signal });
+    window.addEventListener(
+      'resize',
+      () => {
+        measure();
+        schedule();
+      },
+      { passive: true, signal },
+    );
   }
 
   bindReadingProgress();

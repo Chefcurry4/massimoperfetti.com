@@ -156,9 +156,18 @@
   --scrim-medium: rgba(0, 0, 0, 0.6);
   --scrim-strong: rgba(0, 0, 0, 0.92);
 
-  /* Motion (theme-invariant) */
+  /* Motion (theme-invariant).
+     Easing pairing rule:
+       --ease-out-quad  → --duration-fast hover/color transitions. Expo at
+                          150ms collapses to "instant then nothing"; quad
+                          keeps a perceptible ramp.
+       --ease-out-expo  → --duration-normal+ reveals, panels, morphs.
+     --duration-slow is for large-geometry motion (View Transition morphs,
+     the sidebar panel). */
   --duration-fast: 150ms;
   --duration-normal: 280ms;
+  --duration-slow: 420ms;
+  --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -189,6 +198,10 @@
   /* Glass treatment — inset highlight + drop shadow per theme. */
   --glass-highlight: rgba(255, 255, 255, 0.06);
   --glass-shadow: rgba(0, 0, 0, 0.25);
+
+  /* Bento-cell hover wash — the opacity-only overlay Cell.astro fades in.
+     Deliberately faint: the ring (via --border-hover) carries the signal. */
+  --hover-wash: rgba(255, 255, 255, 0.04);
 
   /* Foreground color used on top of cover/photo gradients — we always sit
      on a colored medium, so this stays near-white. */

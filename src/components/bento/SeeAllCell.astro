@@ -2,9 +2,9 @@
 /**
  * "See all projects" CTA — the third tile in column 3's bottom row.
  *
- * Phase 4: anchor pointing at /projects index page. Hover lift comes from
- * `.bento-cell` in Cell.astro; the accent tint on the count + arrow on
- * hover is the local treatment.
+ * Phase 4: anchor pointing at /projects index page. The shared hover
+ * overlay comes from `.bento-cell::after` in Cell.astro; the accent tint
+ * on the count + the arrow nudge on hover are the local treatment.
  */
 import Cell from '../ui/Cell.astro';
 
@@ -70,15 +70,28 @@ const { count, slot } = Astro.props;
     margin-top: auto;
     align-self: flex-end;
     color: var(--text-muted);
-    transition: color var(--duration-normal) var(--ease-out-expo);
+    transition:
+      color var(--duration-fast) var(--ease-out-quad),
+      transform var(--duration-fast) var(--ease-out-quad);
   }
 
   /* Hover/focus tints fire off the anchor so keyboard users see the same
-     accent shift as mouse users. */
+     accent shift as mouse users. The arrow nudge matches the idiom in
+     SpotifyWidget / ContactsCluster. */
   .card-link:hover .num,
   .card-link:focus-visible .num,
   .card-link:hover .cta,
   .card-link:focus-visible .cta {
     color: var(--accent);
+  }
+  .card-link:hover .cta,
+  .card-link:focus-visible .cta {
+    transform: translateX(3px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .card-link:hover .cta,
+    .card-link:focus-visible .cta {
+      transform: none;
+    }
   }
 </style>

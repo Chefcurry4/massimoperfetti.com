@@ -33,10 +33,18 @@ import ContactsCluster from './ContactsCluster.astro';
 import SpotifyWidget from './SpotifyWidget.astro';
 ---
 
+{/* transition:persist keeps the DOM node alive across navigations, but it
+    does NOT exclude the element from the root View Transition snapshot —
+    without its own transition:name the sidebar was baked into both
+    ::view-transition-old(root) and -new(root) and visibly double-imaged
+    through every cross-fade. Naming it gives it its own group with
+    identical old/new geometry, so the browser animates nothing and the
+    sidebar sits rock-steady while the page transitions around it. */}
 <aside
   class="sidebar glass"
   data-sidebar
   transition:persist="sidebar"
+  transition:name="sidebar"
   aria-label="Site navigation and identity"
 >
   {/* Mobile-only peek row — Identity stays visible in the collapsed mobile
@@ -494,7 +502,10 @@ import SpotifyWidget from './SpotifyWidget.astro';
    * astro:page-load re-binds (sidebar DOM persists via transition:persist
    * but Astro re-runs scripts on each swap).
    */
-  const COLLAPSE_DELAY_MS = 1000;
+  // 450ms hover-intent-out: long enough to survive an accidental
+  // mouse-out, short enough that the panel doesn't feel like it hangs
+  // open. (The previous 1000ms read as unresponsive.)
+  const COLLAPSE_DELAY_MS = 450;
   const MOBILE_BREAKPOINT = 1024;
 
   let abortController: AbortController | null = null;
@@ -540,13 +551,16 @@ import SpotifyWidget from './SpotifyWidget.astro';
         collapseTimer = null;
       }
     };
+    // A collapse scheduled just before a navigation must not fire against
+    // the persisted sidebar 1s into the next page — clear it on teardown.
+    signal.addEventListener('abort', cancelCollapse);
     const scheduleCollapse = () => {
       cancelCollapse();
       collapseTimer = setTimeout(() => {
-        sidebar.classList.remove('expanded');
-        chevron?.setAttribute('aria-expanded', 'false');
-        chevron?.setAttribute('aria-label', 'Expand sidebar');
         collapseTimer = null;
+        // Shares collapseNow's focus-parking (defined below; the timer
+        // fires long after both consts initialize).
+        collapseNow();
       }, COLLAPSE_DELAY_MS);
     };
     const expand = () => {
@@ -557,6 +571,16 @@ import SpotifyWidget from './SpotifyWidget.astro';
     };
     const collapseNow = () => {
       cancelCollapse();
+      // If focus is inside the panel content, park it on the chevron —
+      // collapsing hides the content (visibility: hidden) and would
+      // otherwise strand keyboard focus on an invisible element.
+      if (
+        document.activeElement instanceof HTMLElement &&
+        sidebar.contains(document.activeElement) &&
+        document.activeElement !== chevron
+      ) {
+        chevron?.focus();
+      }
       sidebar.classList.remove('expanded');
       chevron?.setAttribute('aria-expanded', 'false');
       chevron?.setAttribute('aria-label', 'Expand sidebar');
@@ -704,6 +728,21 @@ import SpotifyWidget from './SpotifyWidget.astro';
         sidebar.classList.add('dragging');
       };
 
+      // Style writes are coalesced into rAF: pointermove can fire faster
+      // than the display refreshes, and max-height is a layout-triggering
+      // property on an element with backdrop-filter — writing it per event
+      // was the main source of drag jank on mid-range phones.
+      let dragRafId = 0;
+      let pendingClamped = 0;
+      const applyDragFrame = () => {
+        dragRafId = 0;
+        if (!drag) return;
+        const px = PEEK_PX + pendingClamped * drag.rangePx;
+        sidebar.style.maxHeight = `${px}px`;
+        // Fade scrim in proportionally so the tactile feedback is honest.
+        scrim.style.opacity = String(pendingClamped);
+        scrim.classList.toggle('visible', pendingClamped > 0.02);
+      };
       const onPointerMove = (e: PointerEvent) => {
         if (!drag) return;
         const dy = e.clientY - drag.startY;
@@ -715,12 +754,8 @@ import SpotifyWidget from './SpotifyWidget.astro';
           const progress = drag.startedOpen
             ? 1 - effective / drag.rangePx
             : -effective / drag.rangePx;
-          const clamped = Math.max(0, Math.min(1, progress));
-          const px = PEEK_PX + clamped * drag.rangePx;
-          sidebar.style.maxHeight = `${px}px`;
-          // Fade scrim in proportionally so the tactile feedback is honest.
-          scrim.style.opacity = String(clamped);
-          scrim.classList.toggle('visible', clamped > 0.02);
+          pendingClamped = Math.max(0, Math.min(1, progress));
+          if (!dragRafId) dragRafId = requestAnimationFrame(applyDragFrame);
         }
         drag.lastY = e.clientY;
         drag.lastTime = e.timeStamp;
@@ -737,6 +772,12 @@ import SpotifyWidget from './SpotifyWidget.astro';
           traveled / Math.max(1, drag.rangePx) > COMMIT_RATIO ||
           velocity > COMMIT_VELOCITY;
 
+        // Cancel any pending drag frame BEFORE clearing the inline
+        // overrides — a queued rAF firing after this would re-apply them.
+        if (dragRafId) {
+          cancelAnimationFrame(dragRafId);
+          dragRafId = 0;
+        }
         // Clear inline overrides so CSS takes back control of the animation.
         sidebar.style.maxHeight = '';
         scrim.style.opacity = '';

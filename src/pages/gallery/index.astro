@@ -138,9 +138,7 @@ const gallery = (await getCollection('gallery')).sort(
     display: block;
     aspect-ratio: 1 / 1;
     overflow: hidden;
-    transition:
-      opacity var(--duration-fast) var(--ease-out-expo),
-      transform var(--duration-fast) var(--ease-out-expo);
+    transition: opacity var(--duration-fast) var(--ease-out-quad);
   }
   .thumb:hover,
   .thumb:focus-visible {
@@ -168,12 +166,23 @@ const gallery = (await getCollection('gallery')).sort(
     height: 100%;
     object-fit: cover;
     display: block;
+    /* Photo-grid idiom: the image zooms gently inside its clipped frame.
+       Compositor-only (transform), clip via the frame's overflow: hidden. */
+    transition: transform var(--duration-normal) var(--ease-out-expo);
+  }
+  .thumb:hover .frame img,
+  .thumb:focus-visible .frame img {
+    transform: scale(1.03);
   }
 
   @media (prefers-reduced-motion: reduce) {
     .thumb:hover,
     .thumb:focus-visible {
       opacity: 1;
+    }
+    .thumb:hover .frame img,
+    .thumb:focus-visible .frame img {
+      transform: none;
     }
   }
 </style>

@@ -10,6 +10,10 @@
  * Driven entirely by `site.templateRepoUrl` — set to an empty string in
  * src/data/site.ts to hide on forks. Token-only styling, no exemption needed
  * from the stylelint palette discipline.
+ *
+ * transition:name pairs with transition:persist (set in Base.astro): persist
+ * keeps the node alive, the name excludes it from the root snapshot so it
+ * doesn't double-image through every page cross-fade.
  */
 import { site } from '../../data/site';
 
@@ -23,6 +27,7 @@ const repoUrl = site.templateRepoUrl;
     target="_blank"
     rel="noopener noreferrer"
     aria-label="View this site's open-source template on GitHub"
+    transition:name="template-credit"
   >
     <span class="text-mono-small">MIT-licensed template</span>
     <span class="arrow" aria-hidden="true">→</span>

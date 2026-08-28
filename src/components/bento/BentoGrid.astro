@@ -231,6 +231,12 @@ const projSm: ReadonlyArray<typeof allProjects[number] | null> = [
     scroll-snap-type: x proximity;
     scroll-padding-inline: var(--space-5);
     scrollbar-width: none; /* Firefox */
+    /* Keyboard arrow presses glide instead of jumping. Gated so
+       reduced-motion users keep instant jumps (the global clamp also
+       forces scroll-behavior: auto as a belt-and-braces). */
+    @media (prefers-reduced-motion: no-preference) {
+      scroll-behavior: smooth;
+    }
     /* No mask-image. Earlier iterations faded content at the left/right
        edges, but mask-image with a linear-gradient creates a stacking
        context and forces the wall onto its own compositor layer — that
@@ -324,7 +330,7 @@ const projSm: ReadonlyArray<typeof allProjects[number] | null> = [
     pointer-events: none;
     z-index: var(--z-progress);
     opacity: 1;
-    transition: opacity 600ms var(--ease-out-expo);
+    transition: opacity var(--duration-slow) var(--ease-out-expo);
   }
   .bento-hint.is-hidden {
     opacity: 0;
@@ -387,9 +393,13 @@ const projSm: ReadonlyArray<typeof allProjects[number] | null> = [
     background: var(--accent);
     transform-origin: left;
     transform: scaleX(0);
-    transition: transform 90ms linear;
+    /* No transition — the value is written once per animation frame from
+       the scroll handler; a tween on top of that made the bar lag the wall
+       by its own duration and stutter when events clustered. */
     z-index: var(--z-progress);
     pointer-events: none;
+    /* Long-lived, frequently-mutated transform — justified will-change. */
+    will-change: transform;
   }
 
   /* === Mobile stack (< 1024px) ===
@@ -485,8 +495,30 @@ const projSm: ReadonlyArray<typeof allProjects[number] | null> = [
    * arrive mid-animation.
    */
   const SCROLL_KEY = 'bento-wall-scrollLeft';
+  const HINT_KEY = 'bento-hint-dismissed';
+  const HINT_HIDE_PX = 80;
 
   let abortController: AbortController | null = null;
+
+  // Restore the saved wall position. Runs from astro:after-swap — after the
+  // new DOM is in place but BEFORE the first paint — so back-navigation
+  // never flashes the wall at scrollLeft 0 and then jumps. (The old code
+  // restored on astro:page-load, which fires post-paint.)
+  function restoreWallScroll() {
+    const wall = document.querySelector<HTMLElement>('.bento-wall');
+    if (!wall) return;
+    try {
+      const stored = sessionStorage.getItem(SCROLL_KEY);
+      if (!stored) return;
+      const v = parseInt(stored, 10);
+      if (!Number.isFinite(v)) return;
+      // 'instant' bypasses both the wall's scroll-behavior: smooth and the
+      // proximity snap re-evaluation nudging the restored offset.
+      wall.scrollTo({ left: v, behavior: 'instant' });
+    } catch {
+      /* storage blocked — first paint stays at scrollLeft 0 */
+    }
+  }
 
   function bindBentoProgress() {
     const wall = document.querySelector<HTMLElement>('.bento-wall');
@@ -501,11 +533,26 @@ const projSm: ReadonlyArray<typeof allProjects[number] | null> = [
     const { signal } = abortController;
 
     let storageDebounce: ReturnType<typeof setTimeout> | null = null;
-    // Hide-once latch: once the user has scrolled past the threshold the
-    // hint stays gone for the rest of the session, even if they scroll
-    // back to the start. Re-showing it would read as nagging.
+    // Hide-once latch, persisted per session — once the user has scrolled
+    // past the threshold the hint stays gone even across navigations.
+    // Re-showing it would read as nagging.
     let hintDismissed = false;
-    const HINT_HIDE_PX = 80;
+    try {
+      hintDismissed = sessionStorage.getItem(HINT_KEY) === '1';
+    } catch {
+      /* storage blocked — in-memory latch only */
+    }
+    if (hint && hintDismissed) hint.classList.add('is-hidden');
+
+    const dismissHint = () => {
+      hintDismissed = true;
+      hint?.classList.add('is-hidden');
+      try {
+        sessionStorage.setItem(HINT_KEY, '1');
+      } catch {
+        /* storage blocked */
+      }
+    };
 
     signal.addEventListener('abort', () => {
       if (storageDebounce !== null) {
@@ -514,19 +561,25 @@ const projSm: ReadonlyArray<typeof allProjects[number] | null> = [
       }
     });
 
+    // scrollWidth/clientWidth are forced-layout reads and don't change
+    // during a scroll — measure once (re-measure on resize) and coalesce
+    // the bar write into rAF so a scroll burst costs one write per frame.
+    let max = 0;
+    let rafId = 0;
+    const measure = () => {
+      max = wall.scrollWidth - wall.clientWidth;
+    };
+
     const update = () => {
-      const max = wall.scrollWidth - wall.clientWidth;
+      rafId = 0;
       const ratio = max > 0 ? wall.scrollLeft / max : 0;
       bar.style.transform = `scaleX(${ratio.toFixed(4)})`;
 
       // Hide the hint on first meaningful scroll, or immediately if there
       // is no horizontal overflow at all (small-screen edge case where the
       // wall fits the viewport without panning).
-      if (hint && !hintDismissed) {
-        if (max <= 8 || wall.scrollLeft > HINT_HIDE_PX) {
-          hint.classList.add('is-hidden');
-          hintDismissed = true;
-        }
+      if (!hintDismissed && (max <= 8 || wall.scrollLeft > HINT_HIDE_PX)) {
+        dismissHint();
       }
 
       // Debounced sessionStorage write — only the last position matters for
@@ -541,31 +594,21 @@ const projSm: ReadonlyArray<typeof allProjects[number] | null> = [
         storageDebounce = null;
       }, 200);
     };
+    const schedule = () => {
+      if (!rafId) rafId = requestAnimationFrame(update);
+    };
 
-    // Restore previously saved scrollLeft if present. Done before listeners
-    // attach so the first `update()` call already reflects the restored value.
-    try {
-      const stored = sessionStorage.getItem(SCROLL_KEY);
-      if (stored) {
-        const v = parseInt(stored, 10);
-        if (Number.isFinite(v)) {
-          wall.scrollLeft = v;
-          // Returning visitor — kill the hint without the fade so it
-          // doesn't flash in for one frame before update() sees the
-          // restored scroll position.
-          if (hint && v > HINT_HIDE_PX) {
-            hint.classList.add('is-hidden');
-            hintDismissed = true;
-          }
-        }
-      }
-    } catch {
-      /* storage blocked — first paint stays at scrollLeft 0 */
-    }
-
+    measure();
     update();
-    wall.addEventListener('scroll', update, { passive: true, signal });
-    window.addEventListener('resize', update, { passive: true, signal });
+    wall.addEventListener('scroll', schedule, { passive: true, signal });
+    window.addEventListener(
+      'resize',
+      () => {
+        measure();
+        schedule();
+      },
+      { passive: true, signal },
+    );
 
     // No wheel-to-horizontal handler. Earlier iterations intercepted
     // vertical wheel deltaY and translated it into wall.scrollBy(left, ...)
@@ -580,6 +623,11 @@ const projSm: ReadonlyArray<typeof allProjects[number] | null> = [
     // Mobile flattens to a vertical stack and scrolls naturally.
   }
 
+  // Initial (full) load: the DOM is already in place, restore immediately.
+  restoreWallScroll();
   bindBentoProgress();
+  // View Transitions: restore between swap and paint; rebind listeners
+  // after the page is fully loaded.
+  document.addEventListener('astro:after-swap', restoreWallScroll);
   document.addEventListener('astro:page-load', bindBentoProgress);
 </script>

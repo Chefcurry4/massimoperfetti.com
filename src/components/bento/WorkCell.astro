@@ -60,14 +60,7 @@ const detailHref = `/work/${entry.id}`;
               <WorkLogo entry={entry} variant="mono" height={18} />
             </span>
           ) : (
-            <>
-              <span
-                class="logo-slot empty"
-                transition:name={`poster-work-${entry.id}-image`}
-                aria-hidden="true"
-              />
-              <span>{org}</span>
-            </>
+            <span>{org}</span>
           )
         }
       </p>
@@ -124,12 +117,10 @@ const detailHref = `/work/${entry.id}`;
        baseline-aligned with the org text. */
     vertical-align: middle;
   }
-  .logo-slot.empty {
-    /* Zero-size when there's no logo, but the element still exists so the
-       View Transitions morph has a stable target on the destination. */
-    width: 0;
-    height: 0;
-  }
+  /* Note: the no-logo branch renders NO -image transition name. A 0×0
+     stub used to carry it "for morph stability", but morphing a 0×0 box
+     into the ~50dvh destination hero ballooned from nothing — a
+     destination-only fade-in reads far calmer. */
   .meta {
     display: flex;
     flex-wrap: wrap;

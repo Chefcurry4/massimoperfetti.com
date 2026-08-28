@@ -49,7 +49,12 @@ const WIDTH = 800;
 const HEIGHT = 410;
 
 const projection = geoNaturalEarth1().fitSize([WIDTH, HEIGHT], countries);
-const pathGen = geoPath(projection);
+// digits(1): one decimal of path precision. At an 800×410 viewBox a tenth
+// of a unit is sub-pixel at every rendered size, and the default 3-digit
+// output made the inline SVG the dominant weight of the homepage HTML
+// (~167 KB of ~250 KB) — this roughly halves the path bytes with zero
+// visible change.
+const pathGen = geoPath(projection).digits(1);
 
 // Build the static country path strings at build time.
 const countryPaths: readonly string[] = countries.features
@@ -75,8 +80,9 @@ const markers: readonly Marker[] = entries
     if (!xy) return null;
     return {
       id: e.id,
-      x: xy[0],
-      y: xy[1],
+      // Same 1-decimal precision as the country paths.
+      x: Math.round(xy[0] * 10) / 10,
+      y: Math.round(xy[1] * 10) / 10,
       country: e.data.country,
       date: dateFmt.format(e.data.visitedOn),
     };

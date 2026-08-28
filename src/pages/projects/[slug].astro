@@ -248,8 +248,9 @@ const otherLinks = links?.filter((l) => l !== ghLink && l !== liLink) ?? [];
     line-height: 1;
     letter-spacing: -0.04em;
     text-align: center;
-    opacity: 0.95;
-    mix-blend-mode: screen;
+    /* No mix-blend-mode — the hero cover is a View Transition group and
+       blend modes are lost in the flattened snapshot. */
+    opacity: 0.9;
     pointer-events: none;
     user-select: none;
   }
@@ -315,6 +316,12 @@ const otherLinks = links?.filter((l) => l !== ghLink && l !== liLink) ?? [];
     color: var(--text);
     border-color: var(--border-strong);
     transform: translateY(-1px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .action-btn:hover,
+    .action-btn:focus-visible {
+      transform: none;
+    }
   }
   .action-btn:focus-visible {
     outline: 2px solid var(--accent);
