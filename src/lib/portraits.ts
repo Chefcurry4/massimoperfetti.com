@@ -6,10 +6,10 @@
  * Both run at build time only; Astro dedupes identical getImage() calls,
  * so calling these from multiple components costs nothing.
  */
-import { getImage } from 'astro:assets';
-import type { GetImageResult } from 'astro';
-import portraitDesktopSrc from '../assets/me.webp';
-import portraitMobileSrc from '../assets/in.png';
+import { getImage } from "astro:assets";
+import type { GetImageResult } from "astro";
+import portraitDesktopSrc from "../assets/me.webp";
+import portraitMobileSrc from "../assets/in.png";
 
 /**
  * Desktop bento portrait — painted into a fixed 280×280 box in AboutCell;
@@ -17,7 +17,7 @@ import portraitMobileSrc from '../assets/in.png';
  * bytes of the old pass-through /public copy.
  */
 export function getPortraitDesktop(): Promise<GetImageResult> {
-  return getImage({ src: portraitDesktopSrc, width: 560, format: 'webp' });
+  return getImage({ src: portraitDesktopSrc, width: 560, format: "webp" });
 }
 
 /**
@@ -26,5 +26,5 @@ export function getPortraitDesktop(): Promise<GetImageResult> {
  * inline call did (an upscaled webp is all bytes, no detail).
  */
 export function getPortraitMobile(): Promise<GetImageResult> {
-  return getImage({ src: portraitMobileSrc, width: 800, format: 'webp' });
+  return getImage({ src: portraitMobileSrc, width: 800, format: "webp" });
 }

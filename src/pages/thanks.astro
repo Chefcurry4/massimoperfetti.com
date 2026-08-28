@@ -9,17 +9,23 @@
  * No JS, no telemetry, no autoredirect. Massimo can refine the copy in one
  * place when he wants a different voice.
  */
-import Base from '../layouts/Base.astro';
-import { site } from '../data/site';
+import Base from "../layouts/Base.astro";
+import { site } from "../data/site";
 ---
 
-<Base title="Thanks" description={`Message received. ${site.name} will reply.`} noindex>
+<Base
+  title="Thanks"
+  description={`Message received. ${site.name} will reply.`}
+  noindex
+>
   <main id="main" class="detail-page page">
     <article class="card">
       <p class="text-caption muted">contact</p>
-      {/* text-h1, not text-display — display is reserved for page heroes
+      {
+        /* text-h1, not text-display — display is reserved for page heroes
           (/about, /design per the type scale); index/confirmation pages
-          share the h1 tier. */}
+          share the h1 tier. */
+      }
       <h1 class="text-h1 headline">Got it.</h1>
       <p class="lede text-body muted">
         Your message reached the inbox. {site.firstName} replies within a few days,
@@ -28,7 +34,9 @@ import { site } from '../data/site';
 
       <div class="actions">
         <a href="/" class="text-caption back-link">← back to the wall</a>
-        <a href="/book" class="text-caption book" data-astro-prefetch>→ book a 30-min call instead</a>
+        <a href="/book" class="text-caption book" data-astro-prefetch
+          >→ book a 30-min call instead</a
+        >
       </div>
     </article>
   </main>

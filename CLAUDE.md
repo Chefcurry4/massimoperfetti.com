@@ -126,6 +126,7 @@ All long-form content lives in `src/content/`. Each collection has a strict Zod 
 **Collection schemas** (canonical — keep in sync with `config.ts`):
 
 ### `projects/`
+
 ```ts
 {
   title: string,
@@ -145,6 +146,7 @@ All long-form content lives in `src/content/`. Each collection has a strict Zod 
 ```
 
 ### `work/`
+
 ```ts
 {
   title: string,                   // role / title
@@ -167,6 +169,7 @@ All long-form content lives in `src/content/`. Each collection has a strict Zod 
 ```
 
 ### `writing/`
+
 ```ts
 {
   title: string,
@@ -180,6 +183,7 @@ All long-form content lives in `src/content/`. Each collection has a strict Zod 
 ```
 
 ### `places/`
+
 ```ts
 {
   city: string,
@@ -192,6 +196,7 @@ All long-form content lives in `src/content/`. Each collection has a strict Zod 
 ```
 
 ### `gallery/`
+
 ```ts
 {
   title: string,
@@ -231,6 +236,7 @@ Column 1                Column 2                Column 3              Column 4
 ```
 
 Concrete rules:
+
 - Use CSS Grid with explicit `grid-template-columns` and `grid-template-rows`. Do NOT use a uniform auto-fit grid.
 - Horizontal scroll with `scroll-snap-type: x proximity` on the outer container, snap points on column boundaries. Snap points should feel like "stations," not like a slideshow.
 - Total width: roughly 200–250vw on desktop. Tune to taste.
@@ -259,18 +265,18 @@ Every bento card that links somewhere participates in a View Transition. See the
 
 Color **presets** still exist: `src/styles/themes/_{default,linen,sapphire,forest}.css` each define the dark palette; global.css imports one. All tokens are CSS custom properties defined in `src/styles/tokens.css` (recipe) + the active preset (palette), re-exposed to Tailwind via `@theme inline`.
 
-### Color tokens (illustrative — canonical values in themes/_default.css)
+### Color tokens (illustrative — canonical values in themes/\_default.css)
 
 ```css
 [data-theme="dark"] {
-  --bg:            #0a0a0a;
-  --surface:       #141414;
+  --bg: #0a0a0a;
+  --surface: #141414;
   --surface-glass: rgba(20, 20, 20, 0.55);
-  --border:        rgba(255, 255, 255, 0.08);
+  --border: rgba(255, 255, 255, 0.08);
   --border-strong: rgba(255, 255, 255, 0.16);
-  --text:          #ededed;
-  --text-muted:    #8a8a8a;
-  --accent:        #d4ff3a;     /* lime — shipping accent */
+  --text: #ededed;
+  --text-muted: #8a8a8a;
+  --accent: #d4ff3a; /* lime — shipping accent */
 }
 ```
 
@@ -283,6 +289,7 @@ Color **presets** still exist: `src/styles/themes/_{default,linen,sapphire,fores
 Load via Fontsource or `@fontsource-variable/*` packages; do NOT load from Google Fonts CDN (privacy + perf). Subset to Latin + Latin-Extended.
 
 Type scale (apply via `.text-*` component classes in `global.css`; never override `font-size` in components):
+
 - `text-display`: 56px / 1.05 / -0.02em — Lora 500. Page hero (currently `/about`, `/_design`).
 - `text-h1`: 40px / 1.1 / -0.015em — Lora 500. Page headlines (`/book`, hero portrait name).
 - `text-h2`: 28px / 1.2 — Lora 500. Structural section headings only — NOT card titles.
@@ -312,6 +319,7 @@ Beyond colors and motion, the system has four numeric scales. Components MUST co
 Used selectively, not on every surface. Best targets: the sidebar, the "+ all projects" button, modal popups (about), maybe the place-detail card.
 
 The cross-browser-safe recipe (no SVG displacement, works everywhere):
+
 ```css
 .glass {
   background: var(--surface-glass);
@@ -319,8 +327,8 @@ The cross-browser-safe recipe (no SVG displacement, works everywhere):
   -webkit-backdrop-filter: blur(20px) saturate(140%);
   border: 1px solid var(--border-strong);
   box-shadow:
-    0 1px 0 0 rgba(255,255,255,0.06) inset,
-    0 8px 32px rgba(0,0,0,0.25);
+    0 1px 0 0 rgba(255, 255, 255, 0.06) inset,
+    0 8px 32px rgba(0, 0, 0, 0.25);
 }
 ```
 
@@ -341,13 +349,19 @@ Tailwind without rules → generic AI portfolio. The following are non-negotiabl
 1. **All colors come from tokens.** Never write `bg-zinc-900` or `text-gray-300`. Use `bg-bg`, `bg-surface`, `text-text`, `text-text-muted`, `border-border`. These map to CSS variables that swap with theme.
 
 2. **Type scale via component classes**, not utility soup. In `global.css`:
+
    ```css
    @layer components {
-     .text-display { @apply font-display text-[56px] leading-[1.05] tracking-[-0.02em]; }
-     .text-h1      { @apply font-display text-[40px] leading-[1.1] tracking-[-0.015em]; }
+     .text-display {
+       @apply font-display text-[56px] leading-[1.05] tracking-[-0.02em];
+     }
+     .text-h1 {
+       @apply font-display text-[40px] leading-[1.1] tracking-[-0.015em];
+     }
      /* ... */
    }
    ```
+
    Then use `<h1 class="text-h1">` — readable, reusable, refactorable.
 
 3. **`@apply` is allowed for true reusable abstractions only** (`.glass`, `.text-h1`, `.bento-cell`). Not for one-off compositions.
@@ -358,7 +372,7 @@ Tailwind without rules → generic AI portfolio. The following are non-negotiabl
 
 6. **Tokens-first rule.** No new component may introduce a hardcoded spacing, radius, color, or z-index value. If the design needs a value not in the scale, **add it to `tokens.css` first**, then consume it. Off-scale values require a comment justifying why (e.g. "matches Spotify iframe inner border, can't override"). Stylelint enforces hex colors, raw rgba backgrounds, and off-scale `border-radius` via `pnpm lint:css`. Run before commit.
 
-6. **Group classes by category** when stacking utilities: layout → box → typography → color → effects → interaction. This is a readability convention, not a linter rule, but follow it.
+7. **Group classes by category** when stacking utilities: layout → box → typography → color → effects → interaction. This is a readability convention, not a linter rule, but follow it.
 
 ---
 
@@ -369,6 +383,7 @@ The bento → project zoom is the signature interaction. It is fragile to wrong 
 ### Naming scheme
 
 For a card linking to `/projects/foo-bar`:
+
 ```
 view-transition-name: poster-projects-foo-bar          /* the whole card  */
 view-transition-name: poster-projects-foo-bar-image    /* cover image     */
@@ -403,9 +418,9 @@ For richer project bodies, write `.mdx` instead of `.md` and import the
 Phase 5 components at the top of the file. Three are available:
 
 ```mdx
-import Figure from '../../components/mdx/Figure.astro';
-import Pullquote from '../../components/mdx/Pullquote.astro';
-import Aside from '../../components/mdx/Aside.astro';
+import Figure from "../../components/mdx/Figure.astro";
+import Pullquote from "../../components/mdx/Pullquote.astro";
+import Aside from "../../components/mdx/Aside.astro";
 
 # Heading
 
@@ -427,9 +442,7 @@ Body continues. A pullquote can punctuate a section:
   Curriculum rollout + Sobolev loss together stabilize what either does alone.
 </Pullquote>
 
-<Aside>
-  Side note that doesn't deserve its own paragraph.
-</Aside>
+<Aside>Side note that doesn't deserve its own paragraph.</Aside>
 ```
 
 - **`<Figure>`** — props: `src`, `alt` (required), `caption?`, `aspect?` (e.g. `16/9`). Layered gradient fallback covers missing images so a 404'd `src` shows the gradient, not a broken-icon. Source: `src/components/mdx/Figure.astro`.
@@ -439,6 +452,7 @@ Body continues. A pullquote can punctuate a section:
 Default markdown elements (`> blockquote`, `---` hr, headings, lists, code, links) get the editorial `.prose` treatment automatically — no component needed. See `.prose` rules in `src/styles/global.css`.
 
 Project detail pages also auto-render:
+
 - A **reading-progress bar** at the top edge (`<ReadingProgress />`).
 - A **related projects** strip below the body (tag-overlap, hidden if no overlap).
 - A **prev / next** nav row at the bottom (date-desc adjacency).
@@ -452,6 +466,7 @@ These are wired in `src/pages/projects/[slug].astro` — adding a new project en
 A single component, `src/components/sidebar/Sidebar.astro`, used in `Base.astro`. Marked `transition:persist="sidebar"` so it does not unmount across navigations — animations and state survive page changes.
 
 Contents, top to bottom:
+
 1. **Identity** — avatar + name + one-line role. (The Now snippet and availability ring were retired; `src/data/now.ts` was removed with them.)
 2. **Contacts cluster** — two subsections: a public-audience icon row (email, GitHub, LinkedIn, newsletter, LeetCode) wrapped in `<Tooltip side="right">`, and a "Book a 30-min call" CTA pill linking to `/book`. The email icon opens a popover listing all three addresses (personal / MIT / TU Delft); academic emails are folded back in only via that popover so the row stays compact.
 3. **Spotify link** — an outbound link pill (deliberately downgraded from the iframe embed: zero third-party network on first paint).
@@ -459,6 +474,7 @@ Contents, top to bottom:
 (There is no theme toggle — the site is dark-only, see §Theme.)
 
 **Hover-rail model (desktop ≥ 1024px).** The sidebar has two states:
+
 - **Collapsed (rail, `--sidebar-rail` = 64px):** avatar + a vertical accent edge on the right + a chevron trigger near the bottom. The wall and `/book` page anchor their left margin to the rail width so they never reflow.
 - **Expanded (panel, `--sidebar-width` = 280px):** full content. Triggered by clicking the chevron (or anywhere on the rail). Mouseleave schedules collapse after 1s; mouseenter cancels it; ESC collapses immediately. The expanded panel floats above the wall via `z-index: var(--z-sidebar)` with a soft shadow so the layout doesn't reflow.
 
@@ -474,7 +490,7 @@ This is the suggested phasing. Work top-down. Don't run ahead.
 
 - [x] **Phase 0** — `pnpm create astro@latest`, Tailwind v4 install, design tokens scaffolded, fonts loaded, dark/light toggle works, `<ClientRouter />` enabled in `Base.astro`. _Done — commit `077bf71`._
 - [x] **Phase 1** — Content collections defined in `src/content.config.ts` with schemas above. One sample entry per collection. _Done — commit `ccddd7f`._
-- [x] **Phase 2** — Bento grid layout. 4-column wall (360 / 540 / 600 / 420 px) with per-column subgrids, 12 cells, real data + sparse stubs, proximity scroll snap, mobile re-ordering via CSS `order:`, scroll progress indicator, `role="region"` for keyboard a11y. New `.text-mono-small` type rung; `--glass-highlight` / `--glass-shadow` / `--on-cover` tokens. No transitions yet (Phase 4)._
+- [x] **Phase 2** — Bento grid layout. 4-column wall (360 / 540 / 600 / 420 px) with per-column subgrids, 12 cells, real data + sparse stubs, proximity scroll snap, mobile re-ordering via CSS `order:`, scroll progress indicator, `role="region"` for keyboard a11y. New `.text-mono-small` type rung; `--glass-highlight` / `--glass-shadow` / `--on-cover` tokens. No transitions yet (Phase 4).\_
 - [x] **Phase 3** — Sidebar built and persisted. Identity (avatar + name + role), Now snippet with availability dot, public-audience contacts cluster (Tooltip-wrapped icon row), Spotify embed (iframe), theme toggle slotted in. Mobile = bottom drawer with Identity peek, scroll-position-preserving body lock, AbortController-managed listeners. Bento ContactsCell retired; AboutCell expanded to full col-1.
 - [x] **Phase 4** — View Transitions. Card-to-detail morphs wired for projects (3-name: card/image/title), writing (2-name: card/title), gallery (2-name: card/image). Routes: /projects/[slug], /projects (list), /writing/[slug], /gallery/[slug]. Project detail uses a full-bleed split hero (cover left, meta right). Wall scrollLeft preserved across nav via sessionStorage. Cover-hue helper extracted to src/lib/cover-color.ts so source + destination gradients match continuously through the morph.
 - [x] **Phase 5** — Project detail polish. Editorial `.prose` upgrade (drop cap on first paragraph, blockquote, figure/figcaption, hr, 17px body, tighter h2/h3 rhythm). New components: `RelatedProjects` (tag-overlap, transition:names match bento for cross-detail morphs), `NextPrev` (date-desc adjacency), `ReadingProgress` (top-edge bar, used on /projects/[slug] + /writing/[slug]). MDX body components: `<Figure>`, `<Pullquote>`, `<Aside>` (in `src/components/mdx/`, opt-in per .mdx file — see §MDX body components).
@@ -493,16 +509,19 @@ Mark items done by editing this file when phases complete. Don't move on with TO
 These were vetted. Don't go searching for alternatives unless one of these has a known gap.
 
 **Layout**
+
 - [`Ladvace/astro-bento-portfolio`](https://github.com/Ladvace/astro-bento-portfolio) — closest stack match. Real, deployed personal site. Steal layout patterns, not branding.
 - [`withaarzoo/bento-portfolio`](https://github.com/withaarzoo/bento-portfolio) — vanilla HTML/CSS/JS bento. Useful for understanding the grid math without framework noise.
 
 **View Transitions**
+
 - [`Charca/astro-movies`](https://github.com/Charca/astro-movies) — primary reference for our setup. Astro + shared-element transitions, including poster zoom.
 - [`vito8916/Nextjs-ViewTransition-Demo`](https://github.com/vito8916/Nextjs-ViewTransition-Demo) — React 19 equivalent. Cross-reference for naming patterns.
 - [`AKanparia/img-zoom-to-next-page`](https://github.com/AKanparia/img-zoom-to-next-page) — minimal card-zoom example (Framer Motion). For mental model only.
 - [`a2rp/framer-motion-demos`](https://github.com/a2rp/framer-motion-demos) — broader pattern library. **Bookmark this.** Patterns to revisit: "grid → detail," "hero teleport," "command palette zoom-in."
 
 **Liquid glass**
+
 - [`rdev/liquid-glass-react`](https://github.com/rdev/liquid-glass-react) — drop-in component. Caveat: Chromium-only displacement.
 - [`lucasromerodb/liquid-glass-effect-macos`](https://github.com/lucasromerodb/liquid-glass-effect-macos) — pure CSS+SVG, no JS.
 - [kube.io's article on Liquid Glass in CSS+SVG](https://kube.io/blog/liquid-glass-css-svg/) — best technical writeup of the refraction math.
@@ -562,6 +581,7 @@ pnpm lint:css
 > **Author-owned lane.** Massimo deploys to Netlify and manages the custom domain himself. Claude maintains `netlify.toml` and the contact-form markup; Claude does **not** run Netlify CLI commands, edit DNS, propose redeploy steps, or chase build failures on the deployed site unless Massimo explicitly asks.
 
 `netlify.toml` at repo root:
+
 ```toml
 [build]
   command = "pnpm build"
@@ -581,10 +601,18 @@ pnpm lint:css
 ```
 
 Contact form uses Netlify Forms — declarative, no functions:
+
 ```html
-<form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+<form
+  name="contact"
+  method="POST"
+  data-netlify="true"
+  netlify-honeypot="bot-field"
+>
   <input type="hidden" name="form-name" value="contact" />
-  <p hidden><label>Don't fill: <input name="bot-field" /></label></p>
+  <p hidden>
+    <label>Don't fill: <input name="bot-field" /></label>
+  </p>
   <!-- real fields here -->
 </form>
 ```
@@ -605,6 +633,7 @@ Contact form uses Netlify Forms — declarative, no functions:
 ## Open questions / pending decisions
 
 Surface these instead of inventing answers:
+
 - Final accent color for the (dark-only) theme. The shipping lime (`#d4ff3a` in `themes/_default.css`) is still nominally a placeholder; the OG generator duplicates it as RGB.
 - Third typeface interpretation: confirm Geist Mono vs. a second humanist serif (Source Serif 4) for "the rest."
 - Spotify widget exact format: now-playing API (needs token rotation, more work) vs. embedded iframe of a curated playlist (zero-config, less personal).

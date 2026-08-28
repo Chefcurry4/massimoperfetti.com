@@ -17,9 +17,9 @@
  * already realises every entry server-side at build time.
  */
 
-import type { CollectionEntry } from 'astro:content';
+import type { CollectionEntry } from "astro:content";
 
-type ProjectEntry = CollectionEntry<'projects'>;
+type ProjectEntry = CollectionEntry<"projects">;
 
 interface Scored {
   readonly entry: ProjectEntry;

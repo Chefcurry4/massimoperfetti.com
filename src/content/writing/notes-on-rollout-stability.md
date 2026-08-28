@@ -1,8 +1,8 @@
 ---
-title: 'Notes on rollout stability for learned PDE surrogates'
+title: "Notes on rollout stability for learned PDE surrogates"
 date: 2026-05-01
-summary: 'Why one-step training error tells you almost nothing about long-horizon behavior, and three regularizers that actually move the needle.'
-tags: ['ml', 'cfd', 'training']
+summary: "Why one-step training error tells you almost nothing about long-horizon behavior, and three regularizers that actually move the needle."
+tags: ["ml", "cfd", "training"]
 readingTime: 6
 ---
 

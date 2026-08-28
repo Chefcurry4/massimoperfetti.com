@@ -32,7 +32,13 @@ interface Props {
   older?: AdjacentLink | null;
 }
 
-const { label, newerLabel, olderLabel, newer = null, older = null } = Astro.props;
+const {
+  label,
+  newerLabel,
+  olderLabel,
+  newer = null,
+  older = null,
+} = Astro.props;
 ---
 
 <nav class="nextprev" aria-label={label}>
@@ -41,7 +47,9 @@ const { label, newerLabel, olderLabel, newer = null, older = null } = Astro.prop
       <a class="link prev" href={newer.href} rel="prev">
         <span class="text-caption muted">{newerLabel}</span>
         <span class="title text-h3">{newer.title}</span>
-        {newer.subtitle && <span class="subtitle text-small muted">{newer.subtitle}</span>}
+        {newer.subtitle && (
+          <span class="subtitle text-small muted">{newer.subtitle}</span>
+        )}
       </a>
     ) : (
       <span class="link spacer" aria-hidden="true" />
@@ -53,7 +61,9 @@ const { label, newerLabel, olderLabel, newer = null, older = null } = Astro.prop
       <a class="link next" href={older.href} rel="next">
         <span class="text-caption muted">{olderLabel}</span>
         <span class="title text-h3">{older.title}</span>
-        {older.subtitle && <span class="subtitle text-small muted">{older.subtitle}</span>}
+        {older.subtitle && (
+          <span class="subtitle text-small muted">{older.subtitle}</span>
+        )}
       </a>
     ) : (
       <span class="link spacer" aria-hidden="true" />

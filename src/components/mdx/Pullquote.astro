@@ -33,7 +33,11 @@ const { attribution } = Astro.props as Props;
   <p class="quote text-h2">
     <slot />
   </p>
-  {attribution && <cite class="attribution text-caption muted">{attribution}</cite>}
+  {
+    attribution && (
+      <cite class="attribution text-caption muted">{attribution}</cite>
+    )
+  }
 </blockquote>
 
 <style>

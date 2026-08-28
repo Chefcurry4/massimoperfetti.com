@@ -1,16 +1,16 @@
 ---
-title: 'Hydrogen Turbine CFD at E2 Power Systems'
-summary: 'A 3-month engagement with E2 Power Systems — a TU Delft hydrogen-turbine startup — establishing a proof of concept for an axial combustion turbine. ANSYS Fluent and CFX cross-validation, blade-shape optimization, and SolidWorks integration of the rotor and fuel-injection components.'
+title: "Hydrogen Turbine CFD at E2 Power Systems"
+summary: "A 3-month engagement with E2 Power Systems — a TU Delft hydrogen-turbine startup — establishing a proof of concept for an axial combustion turbine. ANSYS Fluent and CFX cross-validation, blade-shape optimization, and SolidWorks integration of the rotor and fuel-injection components."
 date: 2025-01-31
-status: 'archived'
-tags: ['cfd', 'turbomachinery', 'hydrogen', 'energy', 'ansys']
+status: "archived"
+tags: ["cfd", "turbomachinery", "hydrogen", "energy", "ansys"]
 featured: true
-bentoSize: 'sm'
+bentoSize: "sm"
 links:
-  - label: 'E2 Power Systems'
-    url: 'https://e2powersystems.nl'
-  - label: 'E2 Power Systems on LinkedIn'
-    url: 'https://www.linkedin.com/company/e2-power-systems/'
+  - label: "E2 Power Systems"
+    url: "https://e2powersystems.nl"
+  - label: "E2 Power Systems on LinkedIn"
+    url: "https://www.linkedin.com/company/e2-power-systems/"
 ---
 
 ## Overview

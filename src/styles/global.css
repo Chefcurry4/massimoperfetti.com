@@ -17,7 +17,7 @@
  * `[file:line]`) into the bundle and trigger esbuild CSS-minify warnings.
  */
 @import "tailwindcss" source(none);
-@source '../**/*.{astro,html,js,jsx,ts,tsx,md,mdx}';
+@source "../**/*.{astro,html,js,jsx,ts,tsx,md,mdx}";
 
 @import "./tokens.css";
 
@@ -317,7 +317,7 @@
   }
   .icon-btn::before {
     /* Invisible tap-target pad. Same shape as the visible pill. */
-    content: '';
+    content: "";
     position: absolute;
     inset: calc(var(--tap-pad) * -1);
     border-radius: var(--radius-pill);

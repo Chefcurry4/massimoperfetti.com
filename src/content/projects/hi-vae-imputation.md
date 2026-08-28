@@ -1,14 +1,14 @@
 ---
-title: 'Heterogeneous Missing-Data Imputation with HI-VAE'
-summary: 'PyTorch reimplementation of HI-VAE (Nazabal et al. 2020) for tabular data with mixed real/count/categorical/ordinal columns, plus a head-to-head benchmark against GAIN, MICE, and mean/mode imputation.'
+title: "Heterogeneous Missing-Data Imputation with HI-VAE"
+summary: "PyTorch reimplementation of HI-VAE (Nazabal et al. 2020) for tabular data with mixed real/count/categorical/ordinal columns, plus a head-to-head benchmark against GAIN, MICE, and mean/mode imputation."
 date: 2025-02-15
-status: 'archived'
-tags: ['ai', 'generative-models', 'pytorch', 'research']
+status: "archived"
+tags: ["ai", "generative-models", "pytorch", "research"]
 featured: true
-bentoSize: 'sm'
+bentoSize: "sm"
 links:
-  - label: 'Repository'
-    url: 'https://github.com/sgol13/tudelft-generative-modelling-hi-vae'
+  - label: "Repository"
+    url: "https://github.com/sgol13/tudelft-generative-modelling-hi-vae"
 ---
 
 ## Overview

@@ -7,11 +7,11 @@
  * class sorting composes with the astro parser.
  */
 export default {
-  plugins: ['prettier-plugin-astro', 'prettier-plugin-tailwindcss'],
+  plugins: ["prettier-plugin-astro", "prettier-plugin-tailwindcss"],
   overrides: [
     {
-      files: '*.astro',
-      options: { parser: 'astro' },
+      files: "*.astro",
+      options: { parser: "astro" },
     },
   ],
 };

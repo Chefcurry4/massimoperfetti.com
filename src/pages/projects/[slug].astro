@@ -20,21 +20,21 @@
  *   poster-projects-{slug}-image  → cover gradient
  *   poster-projects-{slug}-title  → <h1>
  */
-import { getCollection, render, type CollectionEntry } from 'astro:content';
-import Base from '../../layouts/Base.astro';
-import { coverHueVars } from '../../lib/cover-color';
-import ReadingProgress from '../../components/detail/ReadingProgress.astro';
-import RelatedProjects from '../../components/detail/RelatedProjects.astro';
-import NextPrev from '../../components/detail/NextPrev.astro';
-import PandaIcon from '../../components/projects/icons/PandaIcon.astro';
-import GitHubIcon from '../../components/projects/icons/GitHubIcon.astro';
-import LinkedInIcon from '../../components/projects/icons/LinkedInIcon.astro';
-import JsonLd from '../../components/ui/JsonLd.astro';
-import { creativeWorkSchema } from '../../lib/structured-data';
-import { site } from '../../data/site';
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import { coverHueVars } from "../../lib/cover-color";
+import ReadingProgress from "../../components/detail/ReadingProgress.astro";
+import RelatedProjects from "../../components/detail/RelatedProjects.astro";
+import NextPrev from "../../components/detail/NextPrev.astro";
+import PandaIcon from "../../components/projects/icons/PandaIcon.astro";
+import GitHubIcon from "../../components/projects/icons/GitHubIcon.astro";
+import LinkedInIcon from "../../components/projects/icons/LinkedInIcon.astro";
+import JsonLd from "../../components/ui/JsonLd.astro";
+import { creativeWorkSchema } from "../../lib/structured-data";
+import { site } from "../../data/site";
 
 export async function getStaticPaths() {
-  const entries = await getCollection('projects', ({ data }) => !data.draft);
+  const entries = await getCollection("projects", ({ data }) => !data.draft);
   return entries.map((entry) => ({
     params: { slug: entry.id },
     props: { entry },
@@ -42,26 +42,26 @@ export async function getStaticPaths() {
 }
 
 interface Props {
-  entry: CollectionEntry<'projects'>;
+  entry: CollectionEntry<"projects">;
 }
 
 const { entry } = Astro.props;
 const { title, summary, status, tags, links, date } = entry.data;
 const { Content } = await render(entry);
 
-const initial = title.trim().charAt(0).toUpperCase() || '·';
-const hasIcon = entry.id === 'unidiary';
+const initial = title.trim().charAt(0).toUpperCase() || "·";
+const hasIcon = entry.id === "unidiary";
 const coverStyle = coverHueVars(title);
 
 const statusLabel: Record<typeof status, string> = {
-  live: 'live',
-  archived: 'archived',
-  'in-progress': 'in progress',
+  live: "live",
+  archived: "archived",
+  "in-progress": "in progress",
 };
 
-const dateLabel = date.toLocaleString('en-US', {
-  month: 'long',
-  year: 'numeric',
+const dateLabel = date.toLocaleString("en-US", {
+  month: "long",
+  year: "numeric",
 });
 
 // Pull github + linkedin links out of the generic links list — when
@@ -95,18 +95,21 @@ const otherLinks = links?.filter((l) => l !== ghLink && l !== liLink) ?? [];
   <main id="main" class="detail-page page">
     <a href="/" class="back-link text-caption">← back</a>
 
-    <article
-      class="project"
-      transition:name={`poster-projects-${entry.id}`}
-    >
+    <article class="project" transition:name={`poster-projects-${entry.id}`}>
       <div class="hero">
         <div
-          class:list={['cover', { 'cover-bare': hasIcon }]}
+          class:list={["cover", { "cover-bare": hasIcon }]}
           style={hasIcon ? undefined : coverStyle}
           aria-hidden="true"
           transition:name={`poster-projects-${entry.id}-image`}
         >
-          {hasIcon ? <PandaIcon class="cover-icon" /> : <span class="cover-initial">{initial}</span>}
+          {
+            hasIcon ? (
+              <PandaIcon class="cover-icon" />
+            ) : (
+              <span class="cover-initial">{initial}</span>
+            )
+          }
         </div>
 
         <div class="hero-meta">
@@ -139,7 +142,13 @@ const otherLinks = links?.filter((l) => l !== ghLink && l !== liLink) ?? [];
                   </a>
                 )
               }
-              <span class:list={['status-pill', 'text-mono-small', `status-${status}`]}>
+              <span
+                class:list={[
+                  "status-pill",
+                  "text-mono-small",
+                  `status-${status}`,
+                ]}
+              >
                 {statusLabel[status]}
               </span>
             </div>
@@ -148,7 +157,9 @@ const otherLinks = links?.filter((l) => l !== ghLink && l !== liLink) ?? [];
           <h1
             class="title text-display"
             transition:name={`poster-projects-${entry.id}-title`}
-          >{title}</h1>
+          >
+            {title}
+          </h1>
 
           <p class="summary text-body">{summary}</p>
 

@@ -20,17 +20,17 @@
  *   poster-work-{slug}-image  → cover container (logo or gradient)
  *   poster-work-{slug}-title  → <h1>
  */
-import { getCollection, render, type CollectionEntry } from 'astro:content';
-import Base from '../../layouts/Base.astro';
-import { coverHueVars } from '../../lib/cover-color';
-import { formatPeriod } from '../../lib/period';
-import ReadingProgress from '../../components/detail/ReadingProgress.astro';
-import RelatedWork from '../../components/detail/RelatedWork.astro';
-import WorkNextPrev from '../../components/detail/WorkNextPrev.astro';
-import WorkLogo from '../../components/work/WorkLogo.astro';
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import { coverHueVars } from "../../lib/cover-color";
+import { formatPeriod } from "../../lib/period";
+import ReadingProgress from "../../components/detail/ReadingProgress.astro";
+import RelatedWork from "../../components/detail/RelatedWork.astro";
+import WorkNextPrev from "../../components/detail/WorkNextPrev.astro";
+import WorkLogo from "../../components/work/WorkLogo.astro";
 
 export async function getStaticPaths() {
-  const entries = await getCollection('work', ({ data }) => !data.draft);
+  const entries = await getCollection("work", ({ data }) => !data.draft);
   return entries.map((entry) => ({
     params: { slug: entry.id },
     props: { entry },
@@ -38,7 +38,7 @@ export async function getStaticPaths() {
 }
 
 interface Props {
-  entry: CollectionEntry<'work'>;
+  entry: CollectionEntry<"work">;
 }
 
 const { entry } = Astro.props;
@@ -46,7 +46,7 @@ const { title, org, period, location, summary, links, logo } = entry.data;
 const { Content } = await render(entry);
 
 const hasLogo = Boolean(logo);
-const initial = org.trim().charAt(0).toUpperCase() || '·';
+const initial = org.trim().charAt(0).toUpperCase() || "·";
 const coverStyle = coverHueVars(org);
 
 const periodLabel = formatPeriod(period);
@@ -62,24 +62,28 @@ const periodLabel = formatPeriod(period);
   <main id="main" class="detail-page page">
     <a href="/" class="back-link text-caption">← back</a>
 
-    <article
-      class="work"
-      transition:name={`poster-work-${entry.id}`}
-    >
+    <article class="work" transition:name={`poster-work-${entry.id}`}>
       <div class="hero">
         <div
-          class:list={['cover', hasLogo && 'cover--logo']}
+          class:list={["cover", hasLogo && "cover--logo"]}
           style={hasLogo ? undefined : coverStyle}
           aria-hidden="true"
           transition:name={`poster-work-${entry.id}-image`}
         >
-          {hasLogo ? (
-            <div class="logo-wrap">
-              <WorkLogo entry={entry} variant="color" height={64} ariaLabel={org} />
-            </div>
-          ) : (
-            <span class="cover-initial">{initial}</span>
-          )}
+          {
+            hasLogo ? (
+              <div class="logo-wrap">
+                <WorkLogo
+                  entry={entry}
+                  variant="color"
+                  height={64}
+                  ariaLabel={org}
+                />
+              </div>
+            ) : (
+              <span class="cover-initial">{initial}</span>
+            )
+          }
         </div>
 
         <div class="hero-meta">
@@ -88,13 +92,21 @@ const periodLabel = formatPeriod(period);
           <h1
             class="title text-display"
             transition:name={`poster-work-${entry.id}-title`}
-          >{title}</h1>
+          >
+            {title}
+          </h1>
 
           <p class="org text-h3">{org}</p>
 
           <p class="period text-mono-small muted">
             <span>{periodLabel}</span>
-            {location && <span class="dot" aria-hidden="true">·</span>}
+            {
+              location && (
+                <span class="dot" aria-hidden="true">
+                  ·
+                </span>
+              )
+            }
             {location && <span>{location}</span>}
           </p>
 

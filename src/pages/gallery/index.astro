@@ -8,12 +8,12 @@
  * uses (`poster-gallery-{slug}` / `-image`); only one source page is visible
  * per navigation, so the names never collide.
  */
-import { getCollection } from 'astro:content';
-import { Picture } from 'astro:assets';
-import Base from '../../layouts/Base.astro';
-import { coverHues } from '../../lib/cover-color';
+import { getCollection } from "astro:content";
+import { Picture } from "astro:assets";
+import Base from "../../layouts/Base.astro";
+import { coverHues } from "../../lib/cover-color";
 
-const gallery = (await getCollection('gallery')).sort(
+const gallery = (await getCollection("gallery")).sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime(),
 );
 ---
@@ -31,7 +31,8 @@ const gallery = (await getCollection('gallery')).sort(
       <p class="text-caption muted">photographs</p>
       <h1 class="text-h1 headline">Gallery</h1>
       <p class="text-small muted">
-        {gallery.length} {gallery.length === 1 ? 'photo' : 'photos'}
+        {gallery.length}
+        {gallery.length === 1 ? "photo" : "photos"}
       </p>
     </header>
 
@@ -61,10 +62,12 @@ const gallery = (await getCollection('gallery')).sort(
                         page max-width clamping at 1080. */}
                     <Picture
                       src={entry.data.image}
-                      alt={entry.data.alt ?? entry.data.caption ?? entry.data.title}
+                      alt={
+                        entry.data.alt ?? entry.data.caption ?? entry.data.title
+                      }
                       widths={[300, 500, 800]}
                       sizes="(max-width: 480px) 50vw, (max-width: 768px) 33vw, (max-width: 1280px) 25vw, 216px"
-                      formats={['avif', 'webp']}
+                      formats={["avif", "webp"]}
                       fallbackFormat="webp"
                       loading="lazy"
                       decoding="async"

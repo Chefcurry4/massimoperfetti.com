@@ -17,33 +17,35 @@ You do **not** invent body content. If Massimo gives you raw notes, you format t
 These are the schemas you scaffold against. They mirror `src/content.config.ts`. Always cross-check against the actual `config.ts` before writing — schemas evolve.
 
 ### `projects/`
+
 ```yaml
 ---
 title: ""
-slug: ""                  # optional, derived from filename if absent
-summary: ""               # 1-2 sentences for the bento card
+slug: "" # optional, derived from filename if absent
+summary: "" # 1-2 sentences for the bento card
 date: YYYY-MM-DD
 status: live | archived | in-progress
-tags: []                  # e.g. [ai, cfd, research]
+tags: [] # e.g. [ai, cfd, research]
 cover: "/covers/foo.jpg"
-coverPosition: "center"   # optional, CSS object-position
+coverPosition: "center" # optional, CSS object-position
 links:
   - label: ""
     url: ""
-featured: false           # true = appears in bento grid (max 3-4)
-bentoSize: sm | md | lg   # bento footprint hint
-draft: true               # ship with draft: false
+featured: false # true = appears in bento grid (max 3-4)
+bentoSize: sm | md | lg # bento footprint hint
+draft: true # ship with draft: false
 ---
 ```
 
 ### `work/`
+
 ```yaml
 ---
-title: ""                 # role / position
-org: ""                   # institution / company
+title: "" # role / position
+org: "" # institution / company
 period:
   start: YYYY-MM-DD
-  end:   YYYY-MM-DD       # omit if current
+  end: YYYY-MM-DD # omit if current
 location: ""
 summary: ""
 links:
@@ -53,10 +55,11 @@ links:
 ```
 
 ### `writing/`
+
 ```yaml
 ---
 title: ""
-slug: ""                  # optional
+slug: "" # optional
 date: YYYY-MM-DD
 summary: ""
 tags: []
@@ -65,6 +68,7 @@ draft: true
 ```
 
 ### `places/`
+
 ```yaml
 ---
 city: ""
@@ -73,12 +77,13 @@ coordinates:
   lat: 0.0
   lng: 0.0
 visitedOn: YYYY-MM-DD
-notes: ""                 # short impression, optional
-photos: []                # paths under /public
+notes: "" # short impression, optional
+photos: [] # paths under /public
 ---
 ```
 
 ### `gallery/`
+
 ```yaml
 ---
 title: ""
@@ -108,6 +113,7 @@ exif:
 6. **`draft: true` until told otherwise.** New entries are drafts by default. Massimo flips the flag when he's ready to ship. Don't auto-publish.
 
 7. **Body skeleton, not body content.** When scaffolding, the markdown body should be a thin skeleton — section headings only, with `<!-- TODO -->` placeholders. Example for a project:
+
    ```markdown
    ## Context
 
@@ -121,6 +127,7 @@ exif:
 
    <!-- TODO: results, what was learned, what's next -->
    ```
+
    Massimo writes the actual prose. You do not.
 
 8. **Respect his voice when editing.** When asked to refine existing prose, preserve cadence and word choice. Don't smooth out his idiosyncrasies; they're the point. Cut bloat, fix grammar, tighten — don't rewrite.

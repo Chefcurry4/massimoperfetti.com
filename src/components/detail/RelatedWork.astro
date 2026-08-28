@@ -9,20 +9,20 @@
  * to the same gradient + initial recipe used by projects so logoless work
  * entries still look intentional.
  */
-import { getCollection, type CollectionEntry } from 'astro:content';
-import { relatedWork } from '../../lib/related-work';
-import { coverHueVars } from '../../lib/cover-color';
-import WorkLogo from '../work/WorkLogo.astro';
+import { getCollection, type CollectionEntry } from "astro:content";
+import { relatedWork } from "../../lib/related-work";
+import { coverHueVars } from "../../lib/cover-color";
+import WorkLogo from "../work/WorkLogo.astro";
 
 interface Props {
-  current: CollectionEntry<'work'>;
+  current: CollectionEntry<"work">;
   /** Optional cap; default 3. */
   max?: number;
 }
 
 const { current, max = 3 } = Astro.props;
 
-const all = await getCollection('work', ({ data }) => !data.draft);
+const all = await getCollection("work", ({ data }) => !data.draft);
 const related = relatedWork(current, all, max);
 ---
 
@@ -33,7 +33,7 @@ const related = relatedWork(current, all, max);
 
       <ul class="grid">
         {related.map((entry) => {
-          const initial = entry.data.org.trim().charAt(0).toUpperCase() || '·';
+          const initial = entry.data.org.trim().charAt(0).toUpperCase() || "·";
           const coverStyle = coverHueVars(entry.data.org);
           const hasLogo = Boolean(entry.data.logo);
           return (
@@ -44,7 +44,7 @@ const related = relatedWork(current, all, max);
                 transition:name={`poster-work-${entry.id}`}
               >
                 <div
-                  class:list={['cover', hasLogo && 'cover--logo']}
+                  class:list={["cover", hasLogo && "cover--logo"]}
                   style={hasLogo ? undefined : coverStyle}
                   aria-hidden="true"
                   transition:name={`poster-work-${entry.id}-image`}

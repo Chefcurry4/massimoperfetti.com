@@ -1,15 +1,15 @@
 ---
-title: 'Co-founder & CTO'
-org: 'DualEnergy'
+title: "Co-founder & CTO"
+org: "DualEnergy"
 period: {}
-location: 'Switzerland'
-summary: 'Building the foundation model for dual-use land — bankable software for developers paired with a sensor network on every project we touch.'
-logo: '/work/dualenergy.svg'
+location: "Switzerland"
+summary: "Building the foundation model for dual-use land — bankable software for developers paired with a sensor network on every project we touch."
+logo: "/work/dualenergy.svg"
 featured: true
-tags: ['founder', 'ai', 'energy', 'agriculture']
+tags: ["founder", "ai", "energy", "agriculture"]
 links:
-  - label: 'Site'
-    url: 'https://www.dualenergy.ch/'
+  - label: "Site"
+    url: "https://www.dualenergy.ch/"
 ---
 
 ## Thesis

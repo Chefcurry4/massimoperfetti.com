@@ -16,21 +16,21 @@
  * static PNGs. Cached in `node_modules/.astro-og-canvas` between builds.
  */
 
-import { OGImageRoute } from 'astro-og-canvas';
-import { getCollection } from 'astro:content';
-import { site as siteConfig } from '../../data/site';
-import { about } from '../../data/about';
+import { OGImageRoute } from "astro-og-canvas";
+import { getCollection } from "astro:content";
+import { site as siteConfig } from "../../data/site";
+import { about } from "../../data/about";
 
 interface OGPage {
   readonly title: string;
   readonly description: string;
 }
 
-const projects = await getCollection('projects', ({ data }) => !data.draft);
-const writing = await getCollection('writing', ({ data }) => !data.draft);
-const gallery = await getCollection('gallery');
-const places = await getCollection('places');
-const work = await getCollection('work', ({ data }) => !data.draft);
+const projects = await getCollection("projects", ({ data }) => !data.draft);
+const writing = await getCollection("writing", ({ data }) => !data.draft);
+const gallery = await getCollection("gallery");
+const places = await getCollection("places");
+const work = await getCollection("work", ({ data }) => !data.draft);
 
 const distinctCountries = new Set(places.map((p) => p.data.country)).size;
 
@@ -44,26 +44,27 @@ const pages: Record<string, OGPage> = {
     description: siteConfig.description,
   },
   places: {
-    title: 'Places visited',
+    title: "Places visited",
     description: `${places.length} cities across ${distinctCountries} countries.`,
   },
   // Index-route cards — previously /projects, /work, /gallery and /writing
   // all fell back to the generic home card.
-  'projects-index': {
-    title: 'All projects',
+  "projects-index": {
+    title: "All projects",
     description: `${projects.length} case studies across AI, CFD, and full-stack engineering.`,
   },
-  'work-index': {
-    title: 'Work',
-    description: 'Roles and ventures — research, founding, and the path in between.',
+  "work-index": {
+    title: "Work",
+    description:
+      "Roles and ventures — research, founding, and the path in between.",
   },
-  'gallery-index': {
-    title: 'Gallery',
+  "gallery-index": {
+    title: "Gallery",
     description: `${gallery.length} photographs.`,
   },
-  'writing-index': {
-    title: 'Notes',
-    description: `${writing.length} ${writing.length === 1 ? 'note' : 'notes'} on ML, CFD, and engineering.`,
+  "writing-index": {
+    title: "Notes",
+    description: `${writing.length} ${writing.length === 1 ? "note" : "notes"} on ML, CFD, and engineering.`,
   },
   ...Object.fromEntries(
     projects.map((entry) => [
@@ -82,7 +83,8 @@ const pages: Record<string, OGPage> = {
       `gallery/${entry.id}`,
       {
         title: entry.data.title,
-        description: entry.data.caption ?? entry.data.location ?? siteConfig.name,
+        description:
+          entry.data.caption ?? entry.data.location ?? siteConfig.name,
       },
     ]),
   ),
@@ -98,7 +100,7 @@ const pages: Record<string, OGPage> = {
 };
 
 export const { getStaticPaths, GET } = await OGImageRoute({
-  param: 'slug',
+  param: "slug",
   pages,
   getImageOptions: (_path, page: OGPage) => ({
     title: page.title,
@@ -111,27 +113,27 @@ export const { getStaticPaths, GET } = await OGImageRoute({
     ],
     // Accent rule at the bottom — placeholder accent, swap when the final
     // dark-theme accent is confirmed (see CLAUDE.md open questions).
-    border: { color: [212, 255, 58], width: 6, side: 'block-end' },
+    border: { color: [212, 255, 58], width: 6, side: "block-end" },
     padding: 80,
     font: {
       title: {
         color: [237, 237, 237],
         size: 72,
         lineHeight: 1.1,
-        weight: 'Medium',
-        families: ['Lora'],
+        weight: "Medium",
+        families: ["Lora"],
       },
       description: {
         color: [138, 138, 138],
         size: 30,
         lineHeight: 1.45,
-        weight: 'Normal',
-        families: ['Geist Sans'],
+        weight: "Normal",
+        families: ["Geist Sans"],
       },
     },
     fonts: [
-      './node_modules/@fontsource/lora/files/lora-latin-500-normal.woff',
-      './node_modules/@fontsource/geist-sans/files/geist-sans-latin-400-normal.woff',
+      "./node_modules/@fontsource/lora/files/lora-latin-500-normal.woff",
+      "./node_modules/@fontsource/geist-sans/files/geist-sans-latin-400-normal.woff",
     ],
   }),
 });

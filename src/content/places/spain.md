@@ -1,6 +1,6 @@
 ---
-city: 'Madrid'
-country: 'Spain'
+city: "Madrid"
+country: "Spain"
 coordinates:
   lat: 40.4168
   lng: -3.7038

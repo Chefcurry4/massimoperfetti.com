@@ -14,7 +14,7 @@
  * Hosted by /about; this component owns content + composition only.
  * The page chrome (sidebar offset, backdrop, footer) lives one level up.
  */
-import { about } from '../../data/about';
+import { about } from "../../data/about";
 ---
 
 <header class="about-head">
@@ -38,13 +38,10 @@ import { about } from '../../data/about';
 </dl>
 
 <article class="about-body prose">
-  {about.body.map((paragraph) => (
-    <p>{paragraph}</p>
-  ))}
+  {about.body.map((paragraph) => <p>{paragraph}</p>)}
 </article>
 
 <style>
-
   /* === Head ============================================================ */
   .about-head {
     display: flex;

@@ -4,17 +4,17 @@
  * Mirrors NextPrev: sort by `period.start` desc (periodSortKey), find
  * current, hand the siblings to the shared <AdjacentNav>.
  */
-import { getCollection, type CollectionEntry } from 'astro:content';
-import { periodSortKey } from '../../lib/period';
-import AdjacentNav from './AdjacentNav.astro';
+import { getCollection, type CollectionEntry } from "astro:content";
+import { periodSortKey } from "../../lib/period";
+import AdjacentNav from "./AdjacentNav.astro";
 
 interface Props {
-  current: CollectionEntry<'work'>;
+  current: CollectionEntry<"work">;
 }
 
 const { current } = Astro.props;
 
-const all = (await getCollection('work', ({ data }) => !data.draft)).sort(
+const all = (await getCollection("work", ({ data }) => !data.draft)).sort(
   (a, b) => periodSortKey(b.data.period) - periodSortKey(a.data.period),
 );
 

@@ -1,6 +1,6 @@
 ---
-city: 'Berlin'
-country: 'Germany'
+city: "Berlin"
+country: "Germany"
 coordinates:
   lat: 52.5200
   lng: 13.4050

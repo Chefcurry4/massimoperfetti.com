@@ -15,9 +15,9 @@
  * validation on links, ISO date coercion, refinements on lat/lng ranges.
  */
 
-import { defineCollection } from 'astro:content';
-import { glob } from 'astro/loaders';
-import { z } from 'zod';
+import { defineCollection } from "astro:content";
+import { glob } from "astro/loaders";
+import { z } from "zod";
 
 const linkSchema = z.object({
   label: z.string().min(1),
@@ -25,13 +25,13 @@ const linkSchema = z.object({
 });
 
 const projects = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/projects' }),
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/projects" }),
   schema: z.object({
     title: z.string().min(1),
     slug: z.string().optional(),
     summary: z.string().min(1),
     date: z.coerce.date(),
-    status: z.enum(['live', 'archived', 'in-progress']),
+    status: z.enum(["live", "archived", "in-progress"]),
     tags: z.array(z.string()).default([]),
     // cover/coverPosition are OPTIONAL and currently unread — every card
     // and hero renders the deterministic gradient + initial instead. The
@@ -39,18 +39,18 @@ const projects = defineCollection({
     // previous `cover: z.string()` (required) forced every entry to carry
     // a path to a file that didn't exist.
     cover: z.string().optional(),
-    coverPosition: z.string().default('center'),
+    coverPosition: z.string().default("center"),
     links: z.array(linkSchema).optional(),
     featured: z.boolean().default(false),
     // Fork-facing hint only — BentoGrid currently slots featured projects
     // by array position, not by this field.
-    bentoSize: z.enum(['sm', 'md', 'lg']).optional(),
+    bentoSize: z.enum(["sm", "md", "lg"]).optional(),
     draft: z.boolean().default(false),
   }),
 });
 
 const work = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/work' }),
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/work" }),
   schema: z.object({
     title: z.string().min(1),
     slug: z.string().optional(),
@@ -74,7 +74,7 @@ const work = defineCollection({
 });
 
 const writing = defineCollection({
-  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/writing' }),
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/writing" }),
   schema: z.object({
     title: z.string().min(1),
     slug: z.string().optional(),
@@ -87,7 +87,7 @@ const writing = defineCollection({
 });
 
 const places = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/places' }),
+  loader: glob({ pattern: "**/*.md", base: "./src/content/places" }),
   schema: z.object({
     city: z.string().min(1),
     country: z.string().min(1),
@@ -102,7 +102,7 @@ const places = defineCollection({
 });
 
 const gallery = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/gallery' }),
+  loader: glob({ pattern: "**/*.md", base: "./src/content/gallery" }),
   // Schema-as-function so Astro injects the `image()` helper. `image()`
   // validates the path *and* returns ImageMetadata (src + dimensions +
   // format) for downstream <Image> consumers, unlocking AVIF/WebP/srcset

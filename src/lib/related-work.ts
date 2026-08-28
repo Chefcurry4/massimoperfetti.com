@@ -6,10 +6,10 @@
  * the bottom of `/work/[slug]` without requiring a curated `related: …` field.
  */
 
-import type { CollectionEntry } from 'astro:content';
-import { periodSortKey } from './period';
+import type { CollectionEntry } from "astro:content";
+import { periodSortKey } from "./period";
 
-type WorkEntry = CollectionEntry<'work'>;
+type WorkEntry = CollectionEntry<"work">;
 
 interface Scored {
   readonly entry: WorkEntry;
@@ -36,7 +36,9 @@ export function relatedWork(
 
   scored.sort((a, b) => {
     if (b.score !== a.score) return b.score - a.score;
-    return periodSortKey(b.entry.data.period) - periodSortKey(a.entry.data.period);
+    return (
+      periodSortKey(b.entry.data.period) - periodSortKey(a.entry.data.period)
+    );
   });
 
   return scored.slice(0, max).map((s) => s.entry);

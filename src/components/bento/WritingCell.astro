@@ -13,8 +13,8 @@
  * destination element, so a name would be a source-less orphan (broken
  * morph). Edit the body copy directly here when the announcement changes.
  */
-import Cell from '../ui/Cell.astro';
-import { site } from '../../data/site';
+import Cell from "../ui/Cell.astro";
+import { site } from "../../data/site";
 
 interface Props {
   slot?: string;
@@ -26,58 +26,64 @@ const newsletter = site.newsletter;
 ---
 
 <Cell slot={slot}>
-  {newsletter ? (
-    <>
-      <p class="text-caption muted">newsletter</p>
-      <h2 class="text-h3 title">{newsletter.title}</h2>
-      <p class="lede text-body muted">
-        My brother Matteo and I launched a newsletter — free, in Italian. We
-        write about academic choices, engineering, AI and ML, motivation, work
-        experience, and the advice we wish we'd had along the way.
-      </p>
-      <p class="closer text-small">
-        If it helps a few Italian students find their way a bit better, that's
-        already a win.
-      </p>
-      <div class="meta-row">
-        <p class="meta text-caption muted">free · in italian</p>
-        <a class="notes-link text-caption" href="/writing" data-astro-prefetch>
-          notes →
-        </a>
-        <a
-          class="icon-btn subscribe"
-          href={newsletter.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={`Subscribe to ${newsletter.title} — opens newsletter in a new tab`}
-        >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.7"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
+  {
+    newsletter ? (
+      <>
+        <p class="text-caption muted">newsletter</p>
+        <h2 class="text-h3 title">{newsletter.title}</h2>
+        <p class="lede text-body muted">
+          My brother Matteo and I launched a newsletter — free, in Italian. We
+          write about academic choices, engineering, AI and ML, motivation, work
+          experience, and the advice we wish we'd had along the way.
+        </p>
+        <p class="closer text-small">
+          If it helps a few Italian students find their way a bit better, that's
+          already a win.
+        </p>
+        <div class="meta-row">
+          <p class="meta text-caption muted">free · in italian</p>
+          <a
+            class="notes-link text-caption"
+            href="/writing"
+            data-astro-prefetch
           >
-            <path d="M4 6h12v10H4zM4 6l6 5 6-5M19 9h3M19 12h3M19 15h3" />
-          </svg>
-        </a>
-      </div>
-    </>
-  ) : (
-    <a class="entry" href="/writing" data-astro-prefetch>
-      <p class="text-caption muted">writing</p>
-      <h2 class="text-h3 title">Notes</h2>
-      <p class="lede text-body muted">
-        Short essays, working notes, and longer pieces. Updated when there's
-        something worth saying.
-      </p>
-      <p class="meta text-caption muted entry-cta">read more →</p>
-    </a>
-  )}
+            notes →
+          </a>
+          <a
+            class="icon-btn subscribe"
+            href={newsletter.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`Subscribe to ${newsletter.title} — opens newsletter in a new tab`}
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M4 6h12v10H4zM4 6l6 5 6-5M19 9h3M19 12h3M19 15h3" />
+            </svg>
+          </a>
+        </div>
+      </>
+    ) : (
+      <a class="entry" href="/writing" data-astro-prefetch>
+        <p class="text-caption muted">writing</p>
+        <h2 class="text-h3 title">Notes</h2>
+        <p class="lede text-body muted">
+          Short essays, working notes, and longer pieces. Updated when there's
+          something worth saying.
+        </p>
+        <p class="meta text-caption muted entry-cta">read more →</p>
+      </a>
+    )
+  }
 </Cell>
 
 <style>

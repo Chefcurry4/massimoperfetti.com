@@ -1,11 +1,11 @@
 ---
-title: 'Flow-map learning for turbulent fluids'
-summary: 'Neural surrogate models for Nek5000-generated CFD trajectories. Curriculum rollout with Sobolev loss and noise injection for long-horizon stability.'
+title: "Flow-map learning for turbulent fluids"
+summary: "Neural surrogate models for Nek5000-generated CFD trajectories. Curriculum rollout with Sobolev loss and noise injection for long-horizon stability."
 date: 2026-04-12
-status: 'in-progress'
-tags: ['ai', 'cfd', 'research', 'pytorch']
+status: "in-progress"
+tags: ["ai", "cfd", "research", "pytorch"]
 featured: true
-bentoSize: 'lg'
+bentoSize: "lg"
 # No links yet — the previous placeholders (github.com/example,
 # example.com) rendered a dead GitHub button on the home wall. Add real
 # URLs when the repository / notes are public.

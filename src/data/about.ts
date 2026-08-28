@@ -17,13 +17,13 @@ export interface About {
 
 export const about: About = {
   headline:
-    'Mechanical Engineer working at the intersection of fluid dynamics and machine learning.',
-  role: 'Researcher · MIT van Rees Lab · MSc MIT + TU Delft',
+    "Mechanical Engineer working at the intersection of fluid dynamics and machine learning.",
+  role: "Researcher · MIT van Rees Lab · MSc MIT + TU Delft",
   body: [
-    'Hi. I’m a Mechanical Engineer with a passion for both fluid dynamics and machine learning.',
-    'I’m currently pursuing my Master’s in Mechanical Engineering at MIT as a visiting researcher at the van Rees Lab. I completed my MSc at TU Delft and did my academic internship in Switzerland at Novelis Sierre, working on multiphase, multi-physics flows. My focus sits at the intersection of CFD and AI.',
-    'I’m also Co-Founder & CTO of Dual Energy, a Swiss startup developing agrivoltaics technology.',
-    'Outside the lab: NBA, chess, logic games, reading, full-stack development, startups, and vibe coding.',
-    'This site collects my most significant projects and serves as my professional portfolio. Enjoy.',
+    "Hi. I’m a Mechanical Engineer with a passion for both fluid dynamics and machine learning.",
+    "I’m currently pursuing my Master’s in Mechanical Engineering at MIT as a visiting researcher at the van Rees Lab. I completed my MSc at TU Delft and did my academic internship in Switzerland at Novelis Sierre, working on multiphase, multi-physics flows. My focus sits at the intersection of CFD and AI.",
+    "I’m also Co-Founder & CTO of Dual Energy, a Swiss startup developing agrivoltaics technology.",
+    "Outside the lab: NBA, chess, logic games, reading, full-stack development, startups, and vibe coding.",
+    "This site collects my most significant projects and serves as my professional portfolio. Enjoy.",
   ],
 };

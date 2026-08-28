@@ -1,6 +1,6 @@
 ---
-city: 'Budapest'
-country: 'Hungary'
+city: "Budapest"
+country: "Hungary"
 coordinates:
   lat: 47.4979
   lng: 19.0402

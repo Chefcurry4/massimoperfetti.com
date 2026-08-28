@@ -5,9 +5,9 @@
  *
  * Reference: https://schema.org and https://developers.google.com/search/docs/appearance/structured-data
  */
-import { site } from '../data/site';
-import { contacts } from '../data/contacts';
-import { about } from '../data/about';
+import { site } from "../data/site";
+import { contacts } from "../data/contacts";
+import { about } from "../data/about";
 
 const absolute = (path: string): string => new URL(path, site.url).toString();
 
@@ -18,28 +18,37 @@ const absolute = (path: string): string => new URL(path, site.url).toString();
  * (audience: 'academic' is filtered for the public-facing site).
  */
 const personSameAs: readonly string[] = contacts
-  .filter((c) => c.audience !== 'academic')
-  .filter((c) => c.kind === 'github' || c.kind === 'linkedin' || c.kind === 'newsletter')
+  .filter((c) => c.audience !== "academic")
+  .filter(
+    (c) =>
+      c.kind === "github" || c.kind === "linkedin" || c.kind === "newsletter",
+  )
   .map((c) => c.url);
 
 // Schema.org Person.email expects the bare address; the contacts list
 // stores the `mailto:` URL for direct anchor use elsewhere, so strip it.
 const personEmail = contacts.find(
-  (c) => c.kind === 'email' && c.audience !== 'academic',
+  (c) => c.kind === "email" && c.audience !== "academic",
 )?.handle;
 
 interface PersonSchema {
-  readonly '@context': 'https://schema.org';
-  readonly '@type': 'Person';
-  readonly '@id': string;
+  readonly "@context": "https://schema.org";
+  readonly "@type": "Person";
+  readonly "@id": string;
   readonly name: string;
   readonly url: string;
   readonly image: string;
   readonly jobTitle: string;
   readonly description: string;
   readonly email?: string;
-  readonly worksFor: { readonly '@type': 'Organization'; readonly name: string };
-  readonly alumniOf: readonly { readonly '@type': 'CollegeOrUniversity'; readonly name: string }[];
+  readonly worksFor: {
+    readonly "@type": "Organization";
+    readonly name: string;
+  };
+  readonly alumniOf: readonly {
+    readonly "@type": "CollegeOrUniversity";
+    readonly name: string;
+  }[];
   readonly knowsAbout: readonly string[];
   readonly sameAs: readonly string[];
 }
@@ -51,55 +60,61 @@ interface PersonSchema {
  */
 export function personSchema(imagePath: string): PersonSchema {
   return {
-    '@context': 'https://schema.org',
-    '@type': 'Person',
-    '@id': `${site.url}/#person`,
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "@id": `${site.url}/#person`,
     name: site.author,
     url: site.url,
     image: absolute(imagePath),
     jobTitle: about.role,
     description: site.description,
     email: personEmail,
-    worksFor: { '@type': 'Organization', name: 'MIT van Rees Lab' },
+    worksFor: { "@type": "Organization", name: "MIT van Rees Lab" },
     alumniOf: [
-      { '@type': 'CollegeOrUniversity', name: 'Massachusetts Institute of Technology' },
-      { '@type': 'CollegeOrUniversity', name: 'Delft University of Technology' },
-      { '@type': 'CollegeOrUniversity', name: 'EPFL' },
-      { '@type': 'CollegeOrUniversity', name: 'Politecnico di Torino' },
+      {
+        "@type": "CollegeOrUniversity",
+        name: "Massachusetts Institute of Technology",
+      },
+      {
+        "@type": "CollegeOrUniversity",
+        name: "Delft University of Technology",
+      },
+      { "@type": "CollegeOrUniversity", name: "EPFL" },
+      { "@type": "CollegeOrUniversity", name: "Politecnico di Torino" },
     ],
     knowsAbout: [
-      'Computational Fluid Dynamics',
-      'Machine Learning',
-      'Mechanical Engineering',
-      'Multiphase flows',
-      'Full-stack development',
-      'Agrivoltaics',
+      "Computational Fluid Dynamics",
+      "Machine Learning",
+      "Mechanical Engineering",
+      "Multiphase flows",
+      "Full-stack development",
+      "Agrivoltaics",
     ],
     sameAs: personSameAs,
   };
 }
 
 interface WebSiteSchema {
-  readonly '@context': 'https://schema.org';
-  readonly '@type': 'WebSite';
-  readonly '@id': string;
+  readonly "@context": "https://schema.org";
+  readonly "@type": "WebSite";
+  readonly "@id": string;
   readonly url: string;
   readonly name: string;
   readonly description: string;
   readonly inLanguage: string;
-  readonly author: { readonly '@id': string };
+  readonly author: { readonly "@id": string };
 }
 
 export function webSiteSchema(): WebSiteSchema {
   return {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    '@id': `${site.url}/#website`,
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${site.url}/#website`,
     url: site.url,
     name: site.name,
     description: site.description,
     inLanguage: site.locale,
-    author: { '@id': `${site.url}/#person` },
+    author: { "@id": `${site.url}/#person` },
   };
 }
 
@@ -113,8 +128,8 @@ interface ArticleInput {
 }
 
 interface ArticleSchema {
-  readonly '@context': 'https://schema.org';
-  readonly '@type': 'Article';
+  readonly "@context": "https://schema.org";
+  readonly "@type": "Article";
   readonly headline: string;
   readonly description: string;
   readonly url: string;
@@ -122,25 +137,29 @@ interface ArticleSchema {
   readonly inLanguage: string;
   readonly image?: string;
   readonly keywords?: string;
-  readonly mainEntityOfPage: { readonly '@type': 'WebPage'; readonly '@id': string };
-  readonly author: { readonly '@id': string };
-  readonly publisher: { readonly '@id': string };
+  readonly mainEntityOfPage: {
+    readonly "@type": "WebPage";
+    readonly "@id": string;
+  };
+  readonly author: { readonly "@id": string };
+  readonly publisher: { readonly "@id": string };
 }
 
 export function articleSchema(input: ArticleInput): ArticleSchema {
   return {
-    '@context': 'https://schema.org',
-    '@type': 'Article',
+    "@context": "https://schema.org",
+    "@type": "Article",
     headline: input.title,
     description: input.summary,
     url: input.url,
     datePublished: input.datePublished.toISOString(),
     inLanguage: site.locale,
     image: input.image ? absolute(input.image) : undefined,
-    keywords: input.tags && input.tags.length > 0 ? input.tags.join(', ') : undefined,
-    mainEntityOfPage: { '@type': 'WebPage', '@id': input.url },
-    author: { '@id': `${site.url}/#person` },
-    publisher: { '@id': `${site.url}/#person` },
+    keywords:
+      input.tags && input.tags.length > 0 ? input.tags.join(", ") : undefined,
+    mainEntityOfPage: { "@type": "WebPage", "@id": input.url },
+    author: { "@id": `${site.url}/#person` },
+    publisher: { "@id": `${site.url}/#person` },
   };
 }
 
@@ -149,15 +168,15 @@ interface CreativeWorkInput {
   readonly summary: string;
   readonly url: string;
   readonly dateCreated: Date;
-  readonly status: 'live' | 'archived' | 'in-progress';
+  readonly status: "live" | "archived" | "in-progress";
   readonly tags?: readonly string[];
   readonly image?: string;
   readonly externalLinks?: readonly string[];
 }
 
 interface CreativeWorkSchema {
-  readonly '@context': 'https://schema.org';
-  readonly '@type': 'CreativeWork';
+  readonly "@context": "https://schema.org";
+  readonly "@type": "CreativeWork";
   readonly name: string;
   readonly description: string;
   readonly url: string;
@@ -167,14 +186,19 @@ interface CreativeWorkSchema {
   readonly image?: string;
   readonly keywords?: string;
   readonly sameAs?: readonly string[];
-  readonly mainEntityOfPage: { readonly '@type': 'WebPage'; readonly '@id': string };
-  readonly creator: { readonly '@id': string };
+  readonly mainEntityOfPage: {
+    readonly "@type": "WebPage";
+    readonly "@id": string;
+  };
+  readonly creator: { readonly "@id": string };
 }
 
-export function creativeWorkSchema(input: CreativeWorkInput): CreativeWorkSchema {
+export function creativeWorkSchema(
+  input: CreativeWorkInput,
+): CreativeWorkSchema {
   return {
-    '@context': 'https://schema.org',
-    '@type': 'CreativeWork',
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
     name: input.title,
     description: input.summary,
     url: input.url,
@@ -182,9 +206,13 @@ export function creativeWorkSchema(input: CreativeWorkInput): CreativeWorkSchema
     inLanguage: site.locale,
     creativeWorkStatus: input.status,
     image: input.image ? absolute(input.image) : undefined,
-    keywords: input.tags && input.tags.length > 0 ? input.tags.join(', ') : undefined,
-    sameAs: input.externalLinks && input.externalLinks.length > 0 ? input.externalLinks : undefined,
-    mainEntityOfPage: { '@type': 'WebPage', '@id': input.url },
-    creator: { '@id': `${site.url}/#person` },
+    keywords:
+      input.tags && input.tags.length > 0 ? input.tags.join(", ") : undefined,
+    sameAs:
+      input.externalLinks && input.externalLinks.length > 0
+        ? input.externalLinks
+        : undefined,
+    mainEntityOfPage: { "@type": "WebPage", "@id": input.url },
+    creator: { "@id": `${site.url}/#person` },
   };
 }

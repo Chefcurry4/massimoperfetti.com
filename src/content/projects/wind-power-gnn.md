@@ -1,14 +1,14 @@
 ---
-title: 'Wind Power Forecasting with Graph Neural Networks'
+title: "Wind Power Forecasting with Graph Neural Networks"
 summary: 'Short-term, turbine-level forecasting on the SDWPF dataset. Spatio-temporal product graphs with k-NN, ε-radius, and a wake-aware "dominant direction" graph across vanilla GCN, FastGCN, and Cluster-GCN.'
 date: 2025-06-15
-status: 'archived'
-tags: ['ai', 'graph-neural-networks', 'pytorch', 'research', 'energy']
+status: "archived"
+tags: ["ai", "graph-neural-networks", "pytorch", "research", "energy"]
 featured: true
-bentoSize: 'sm'
+bentoSize: "sm"
 links:
-  - label: 'Repository'
-    url: 'https://github.com/Chefcurry4/GML'
+  - label: "Repository"
+    url: "https://github.com/Chefcurry4/GML"
 ---
 
 ## Overview

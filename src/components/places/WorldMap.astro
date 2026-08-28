@@ -17,27 +17,29 @@
  * imports). Tooltips use native `<title>` elements (browser-rendered,
  * accessible, no extra JS).
  */
-import type { CollectionEntry } from 'astro:content';
-import { geoNaturalEarth1, geoPath } from 'd3-geo';
-import { feature } from 'topojson-client';
-import worldData from 'world-atlas/countries-110m.json';
-import type { Topology, GeometryCollection } from 'topojson-specification';
-import type { FeatureCollection, MultiPolygon, Polygon } from 'geojson';
+import type { CollectionEntry } from "astro:content";
+import { geoNaturalEarth1, geoPath } from "d3-geo";
+import { feature } from "topojson-client";
+import worldData from "world-atlas/countries-110m.json";
+import type { Topology, GeometryCollection } from "topojson-specification";
+import type { FeatureCollection, MultiPolygon, Polygon } from "geojson";
 
 interface Props {
-  entries: CollectionEntry<'places'>[];
+  entries: CollectionEntry<"places">[];
   /** 'mini' shrinks marker radii for the bento cell; 'full' is the /places page. */
-  variant?: 'mini' | 'full';
+  variant?: "mini" | "full";
 }
 
-const { entries, variant = 'full' } = Astro.props;
+const { entries, variant = "full" } = Astro.props;
 
 // TopoJSON → GeoJSON FeatureCollection of country polygons. The
 // countries-110m.json bundle exposes `countries` as a GeometryCollection
 // of MultiPolygons; we cast to the right shape so topojson-client picks
 // the FeatureCollection-returning overload of `feature()`.
 const topology = worldData as unknown as Topology;
-const countriesCollection = topology.objects.countries as GeometryCollection<{ name: string }>;
+const countriesCollection = topology.objects.countries as GeometryCollection<{
+  name: string;
+}>;
 const countries = feature(
   topology,
   countriesCollection,
@@ -69,9 +71,9 @@ interface Marker {
   readonly date: string;
 }
 
-const dateFmt = new Intl.DateTimeFormat('en-US', {
-  month: 'short',
-  year: 'numeric',
+const dateFmt = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  year: "numeric",
 });
 
 const markers: readonly Marker[] = entries
@@ -89,17 +91,17 @@ const markers: readonly Marker[] = entries
   })
   .filter((m): m is Marker => m !== null);
 
-const isMini = variant === 'mini';
+const isMini = variant === "mini";
 const HALO_R = isMini ? 4 : 8;
 const DOT_R = isMini ? 1.8 : 3.5;
 ---
 
 <svg
-  class:list={['world-map', `variant-${variant}`]}
+  class:list={["world-map", `variant-${variant}`]}
   viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
   preserveAspectRatio="xMidYMid meet"
   role="img"
-  aria-label={`World map showing ${markers.length} place${markers.length === 1 ? '' : 's'} visited`}
+  aria-label={`World map showing ${markers.length} place${markers.length === 1 ? "" : "s"} visited`}
 >
   <g class="land">
     {countryPaths.map((d) => <path d={d} />)}

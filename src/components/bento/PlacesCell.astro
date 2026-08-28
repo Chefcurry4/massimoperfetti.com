@@ -9,12 +9,12 @@
  * /places page; the link carries transition:name="poster-places" so the
  * View Transitions API morphs the cell into the page.
  */
-import Cell from '../ui/Cell.astro';
-import type { CollectionEntry } from 'astro:content';
-import WorldMap from '../places/WorldMap.astro';
+import Cell from "../ui/Cell.astro";
+import type { CollectionEntry } from "astro:content";
+import WorldMap from "../places/WorldMap.astro";
 
 interface Props {
-  entries: CollectionEntry<'places'>[];
+  entries: CollectionEntry<"places">[];
   slot?: string;
 }
 
@@ -32,8 +32,10 @@ const distinctCountries = new Set(entries.map((e) => e.data.country)).size;
   <Cell slot={slot} class="places-cell">
     <header class="head">
       <p class="text-caption muted">places</p>
-      {/* h2 like every other bento cell title — this was a <p>, leaving a
-          silent gap in the home page's heading outline. */}
+      {
+        /* h2 like every other bento cell title — this was a <p>, leaving a
+          silent gap in the home page's heading outline. */
+      }
       <h2 class="count text-h3">
         {entries.length}<span class="unit text-small muted"> visited</span>
       </h2>
@@ -44,13 +46,13 @@ const distinctCountries = new Set(entries.map((e) => e.data.country)).size;
     </div>
 
     <p class="text-caption muted footnote">
-      {distinctCountries} {distinctCountries === 1 ? 'country' : 'countries'}
+      {distinctCountries}
+      {distinctCountries === 1 ? "country" : "countries"}
     </p>
   </Cell>
 </a>
 
 <style>
-
   .places-cell {
     gap: var(--space-3);
   }

@@ -7,16 +7,16 @@
  * (right) siblings to the shared <AdjacentNav> for rendering. If both are
  * absent (single project), the section is omitted.
  */
-import { getCollection, type CollectionEntry } from 'astro:content';
-import AdjacentNav from './AdjacentNav.astro';
+import { getCollection, type CollectionEntry } from "astro:content";
+import AdjacentNav from "./AdjacentNav.astro";
 
 interface Props {
-  current: CollectionEntry<'projects'>;
+  current: CollectionEntry<"projects">;
 }
 
 const { current } = Astro.props;
 
-const all = (await getCollection('projects', ({ data }) => !data.draft)).sort(
+const all = (await getCollection("projects", ({ data }) => !data.draft)).sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime(),
 );
 
@@ -32,8 +32,12 @@ const older = idx < all.length - 1 ? all[idx + 1] : null;
       label="Adjacent projects"
       newerLabel="← newer project"
       olderLabel="older project →"
-      newer={newer && { href: `/projects/${newer.id}`, title: newer.data.title }}
-      older={older && { href: `/projects/${older.id}`, title: older.data.title }}
+      newer={
+        newer && { href: `/projects/${newer.id}`, title: newer.data.title }
+      }
+      older={
+        older && { href: `/projects/${older.id}`, title: older.data.title }
+      }
     />
   )
 }

@@ -62,25 +62,26 @@ export interface SiteConfig {
 }
 
 export const site: SiteConfig = {
-  name: 'Massimo Perfetti',
-  url: 'https://massimoperfetti.com',
-  title: 'Massimo Perfetti',
+  name: "Massimo Perfetti",
+  url: "https://massimoperfetti.com",
+  title: "Massimo Perfetti",
   description:
-    'Researcher at MIT van Rees Lab. AI × CFD, full-stack, founder. MSc at MIT and TU Delft.',
-  author: 'Massimo Perfetti',
-  firstName: 'Massimo',
+    "Researcher at MIT van Rees Lab. AI × CFD, full-stack, founder. MSc at MIT and TU Delft.",
+  author: "Massimo Perfetti",
+  firstName: "Massimo",
   /**
    * Default OG image — points at the build-time generated home card.
    * Per-page detail pages pass their own `ogImage` to <Base>; this is the
    * fallback for surfaces that don't override (404, /thanks, etc).
    */
-  defaultOgImage: '/og/home.png',
-  locale: 'en',
-  spotifyEmbedUrl: 'https://open.spotify.com/embed/playlist/382H8jrG9erCxwOiL6naNd',
-  bookingUrl: 'https://app.cal.com/massimo-perfetti',
+  defaultOgImage: "/og/home.png",
+  locale: "en",
+  spotifyEmbedUrl:
+    "https://open.spotify.com/embed/playlist/382H8jrG9erCxwOiL6naNd",
+  bookingUrl: "https://app.cal.com/massimo-perfetti",
   newsletter: {
     title: "Perfettis' Notes",
-    url: 'https://perfettis-notes.beehiiv.com/',
+    url: "https://perfettis-notes.beehiiv.com/",
   },
-  templateRepoUrl: 'https://github.com/Chefcurry4/massimoperfetti.com',
+  templateRepoUrl: "https://github.com/Chefcurry4/massimoperfetti.com",
 };

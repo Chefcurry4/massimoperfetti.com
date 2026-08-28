@@ -9,65 +9,66 @@
  *
  * Phase 2: cells are non-interactive. Phase 4 wires View Transitions.
  */
-import { getCollection } from 'astro:content';
-import { periodSortKey } from '../../lib/period';
+import { getCollection } from "astro:content";
+import { periodSortKey } from "../../lib/period";
 
-import AboutCell from './AboutCell.astro';
-import WorkCell from './WorkCell.astro';
-import WritingCell from './WritingCell.astro';
-import ProjectsCell from './ProjectsCell.astro';
-import GalleryCell from './GalleryCell.astro';
-import PlacesCell from './PlacesCell.astro';
-import SeeAllCell from './SeeAllCell.astro';
-import StubCell from './StubCell.astro';
+import AboutCell from "./AboutCell.astro";
+import WorkCell from "./WorkCell.astro";
+import WritingCell from "./WritingCell.astro";
+import ProjectsCell from "./ProjectsCell.astro";
+import GalleryCell from "./GalleryCell.astro";
+import PlacesCell from "./PlacesCell.astro";
+import SeeAllCell from "./SeeAllCell.astro";
+import StubCell from "./StubCell.astro";
 
 // --- Data load -------------------------------------------------------------
 
-const allProjects = await getCollection('projects', ({ data }) => !data.draft);
+const allProjects = await getCollection("projects", ({ data }) => !data.draft);
 const featuredProjects = allProjects
   .filter((p) => p.data.featured)
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 
-const work = (await getCollection('work')).sort(
+const work = (await getCollection("work")).sort(
   (a, b) => periodSortKey(b.data.period) - periodSortKey(a.data.period),
 );
 
 // Writing collection still drives /writing/[slug] + /writing/rss.xml, but
 // the bento writing slot is now a pinned newsletter announcement (no
 // dynamic data), so we don't load it here.
-const gallery = (await getCollection('gallery')).sort(
+const gallery = (await getCollection("gallery")).sort(
   (a, b) => b.data.date.getTime() - a.data.date.getTime(),
 );
 
-const places = (await getCollection('places')).sort(
+const places = (await getCollection("places")).sort(
   (a, b) => b.data.visitedOn.getTime() - a.data.visitedOn.getTime(),
 );
 
 // --- Slot allocation -------------------------------------------------------
 
 // Column 2 has two work slots. Pad with `null` for stubs.
-const workSlots: ReadonlyArray<typeof work[number] | null> = [
+const workSlots: ReadonlyArray<(typeof work)[number] | null> = [
   work[0] ?? null,
   work[1] ?? null,
 ];
 
 // Column 3: 2 large + 2 small project slots.
-const projLg: ReadonlyArray<typeof allProjects[number] | null> = [
+const projLg: ReadonlyArray<(typeof allProjects)[number] | null> = [
   featuredProjects[0] ?? null,
   featuredProjects[1] ?? null,
 ];
-const projSm: ReadonlyArray<typeof allProjects[number] | null> = [
+const projSm: ReadonlyArray<(typeof allProjects)[number] | null> = [
   featuredProjects[2] ?? null,
   featuredProjects[3] ?? null,
 ];
-
 ---
 
-{/* tabindex/role/aria-label are managed by the script below: on mobile the
+{
+  /* tabindex/role/aria-label are managed by the script below: on mobile the
     wall is a plain vertical stack, so the focusable region (and its
     "arrow keys scroll horizontally" instructions) would be a meaningless
     tab stop with wrong guidance. Server-rendered with the desktop
-    attributes since desktop is the primary morph surface. */}
+    attributes since desktop is the primary morph surface. */
+}
 <div
   class="bento-wall"
   tabindex="0"
@@ -75,15 +76,18 @@ const projSm: ReadonlyArray<typeof allProjects[number] | null> = [
   aria-label="Project wall — use arrow keys to scroll horizontally"
 >
   <div class="bento-grid">
-
     {/* -------- COLUMN 1: about hero, full column -------- */}
-    {/* Contacts moved to the persistent sidebar in Phase 3, so the about
-        cell now occupies the entire column for a stronger first impression. */}
+    {
+      /* Contacts moved to the persistent sidebar in Phase 3, so the about
+        cell now occupies the entire column for a stronger first impression. */
+    }
     <div class="col col-1">
       <AboutCell />
     </div>
 
-    {/* -------- COLUMN 2: work-A | work-B (top row) / writing (bottom) -------- */}
+    {
+      /* -------- COLUMN 2: work-A | work-B (top row) / writing (bottom) -------- */
+    }
     <div class="col col-2">
       <div class="row work-row">
         {
@@ -104,7 +108,9 @@ const projSm: ReadonlyArray<typeof allProjects[number] | null> = [
       <WritingCell slot="cell-writing" />
     </div>
 
-    {/* -------- COLUMN 3: project-1 / project-2 / [P3 | P4 | see-all] -------- */}
+    {
+      /* -------- COLUMN 3: project-1 / project-2 / [P3 | P4 | see-all] -------- */
+    }
     <div class="col col-3">
       {
         projLg[0] ? (
@@ -124,14 +130,22 @@ const projSm: ReadonlyArray<typeof allProjects[number] | null> = [
       <div class="row project-row">
         {
           projSm[0] ? (
-            <ProjectsCell entry={projSm[0]} variant="sm" slot="cell-project-3" />
+            <ProjectsCell
+              entry={projSm[0]}
+              variant="sm"
+              slot="cell-project-3"
+            />
           ) : (
             <StubCell label="project" slot="cell-project-3" />
           )
         }
         {
           projSm[1] ? (
-            <ProjectsCell entry={projSm[1]} variant="sm" slot="cell-project-4" />
+            <ProjectsCell
+              entry={projSm[1]}
+              variant="sm"
+              slot="cell-project-4"
+            />
           ) : (
             <StubCell label="project" slot="cell-project-4" />
           )
@@ -151,13 +165,14 @@ const projSm: ReadonlyArray<typeof allProjects[number] | null> = [
       }
       <PlacesCell entries={places} slot="cell-places" />
     </div>
-
   </div>
 </div>
 
-{/* Scroll hint — shimmer cue prompting horizontal exploration on first
+{
+  /* Scroll hint — shimmer cue prompting horizontal exploration on first
     visit. Auto-hides once the user has scrolled, mobile-hidden via media
-    query (the wall flattens to a vertical stack there). */}
+    query (the wall flattens to a vertical stack there). */
+}
 <div class="bento-hint" aria-hidden="true">
   <span class="bento-hint__text">scroll right</span>
   <span class="bento-hint__arrow">→</span>
@@ -292,10 +307,18 @@ const projSm: ReadonlyArray<typeof allProjects[number] | null> = [
   /* Column-specific row partitions.
      col-1: about hero now occupies the full column (contacts moved to the
      persistent sidebar in Phase 3). */
-  .col-1 { grid-template-rows: minmax(0, 1fr); }
-  .col-2 { grid-template-rows: minmax(0, 0.58fr) minmax(0, 0.42fr); }
-  .col-3 { grid-template-rows: minmax(0, 0.36fr) minmax(0, 0.36fr) minmax(0, 0.28fr); }
-  .col-4 { grid-template-rows: minmax(0, 0.55fr) minmax(0, 0.45fr); }
+  .col-1 {
+    grid-template-rows: minmax(0, 1fr);
+  }
+  .col-2 {
+    grid-template-rows: minmax(0, 0.58fr) minmax(0, 0.42fr);
+  }
+  .col-3 {
+    grid-template-rows: minmax(0, 0.36fr) minmax(0, 0.36fr) minmax(0, 0.28fr);
+  }
+  .col-4 {
+    grid-template-rows: minmax(0, 0.55fr) minmax(0, 0.45fr);
+  }
 
   .row {
     display: grid;
@@ -365,27 +388,42 @@ const projSm: ReadonlyArray<typeof allProjects[number] | null> = [
   }
 
   @keyframes bento-hint-shimmer {
-    from { background-position: 220% 0; }
-    to   { background-position: -220% 0; }
+    from {
+      background-position: 220% 0;
+    }
+    to {
+      background-position: -220% 0;
+    }
   }
   @keyframes bento-hint-arrow {
     0%,
-    100% { transform: translateX(0); opacity: 0.55; }
-    50%  { transform: translateX(4px); opacity: 1; }
+    100% {
+      transform: translateX(0);
+      opacity: 0.55;
+    }
+    50% {
+      transform: translateX(4px);
+      opacity: 1;
+    }
   }
 
   /* Honour reduced motion: drop both animations and use a flat muted
      caption. The hint still appears (and still auto-hides on scroll); it
      just doesn't shimmer or nudge. */
   @media (prefers-reduced-motion: reduce) {
-    .bento-hint { transition: none; }
+    .bento-hint {
+      transition: none;
+    }
     .bento-hint__text {
       animation: none;
       background: none;
       color: var(--text-muted);
       -webkit-text-fill-color: var(--text-muted);
     }
-    .bento-hint__arrow { animation: none; opacity: 0.8; }
+    .bento-hint__arrow {
+      animation: none;
+      opacity: 0.8;
+    }
   }
 
   /* === Scroll progress (desktop only) === */
@@ -454,24 +492,55 @@ const projSm: ReadonlyArray<typeof allProjects[number] | null> = [
        → SeeAll → Writing → Gallery → Places → Contacts. */
     /* Mobile cell order. Contacts moved to the sidebar in Phase 3 — the
        cell-contacts rule is dropped because no element carries that slot. */
-    .cell-about     { order: 1; }
-    .cell-work-a    { order: 2; }
-    .cell-work-b    { order: 3; }
-    .cell-project-1 { order: 4; }
-    .cell-project-2 { order: 5; }
-    .cell-project-3 { order: 6; }
-    .cell-project-4 { order: 7; }
-    .cell-see-all   { order: 8; }
-    .cell-writing   { order: 9; }
-    .cell-gallery   { order: 10; }
-    .cell-places    { order: 11; }
+    .cell-about {
+      order: 1;
+    }
+    .cell-work-a {
+      order: 2;
+    }
+    .cell-work-b {
+      order: 3;
+    }
+    .cell-project-1 {
+      order: 4;
+    }
+    .cell-project-2 {
+      order: 5;
+    }
+    .cell-project-3 {
+      order: 6;
+    }
+    .cell-project-4 {
+      order: 7;
+    }
+    .cell-see-all {
+      order: 8;
+    }
+    .cell-writing {
+      order: 9;
+    }
+    .cell-gallery {
+      order: 10;
+    }
+    .cell-places {
+      order: 11;
+    }
 
     /* On mobile, cells size to content — drop the desktop 100% height. */
-    :global(.bento-cell) { height: auto; min-height: 200px; }
-    :global(.bento-cell.stub) { min-height: 120px; }
+    :global(.bento-cell) {
+      height: auto;
+      min-height: 200px;
+    }
+    :global(.bento-cell.stub) {
+      min-height: 120px;
+    }
 
-    .bento-progress { display: none; }
-    .bento-hint { display: none; }
+    .bento-progress {
+      display: none;
+    }
+    .bento-hint {
+      display: none;
+    }
   }
 </style>
 
@@ -499,8 +568,8 @@ const projSm: ReadonlyArray<typeof allProjects[number] | null> = [
    * animator runs on the compositor and re-targets cleanly when wheel events
    * arrive mid-animation.
    */
-  const SCROLL_KEY = 'bento-wall-scrollLeft';
-  const HINT_KEY = 'bento-hint-dismissed';
+  const SCROLL_KEY = "bento-wall-scrollLeft";
+  const HINT_KEY = "bento-hint-dismissed";
   const HINT_HIDE_PX = 80;
 
   let abortController: AbortController | null = null;
@@ -510,7 +579,7 @@ const projSm: ReadonlyArray<typeof allProjects[number] | null> = [
   // never flashes the wall at scrollLeft 0 and then jumps. (The old code
   // restored on astro:page-load, which fires post-paint.)
   function restoreWallScroll() {
-    const wall = document.querySelector<HTMLElement>('.bento-wall');
+    const wall = document.querySelector<HTMLElement>(".bento-wall");
     if (!wall) return;
     try {
       const stored = sessionStorage.getItem(SCROLL_KEY);
@@ -519,16 +588,16 @@ const projSm: ReadonlyArray<typeof allProjects[number] | null> = [
       if (!Number.isFinite(v)) return;
       // 'instant' bypasses both the wall's scroll-behavior: smooth and the
       // proximity snap re-evaluation nudging the restored offset.
-      wall.scrollTo({ left: v, behavior: 'instant' });
+      wall.scrollTo({ left: v, behavior: "instant" });
     } catch {
       /* storage blocked — first paint stays at scrollLeft 0 */
     }
   }
 
   function bindBentoProgress() {
-    const wall = document.querySelector<HTMLElement>('.bento-wall');
-    const bar = document.querySelector<HTMLElement>('.bento-progress');
-    const hint = document.querySelector<HTMLElement>('.bento-hint');
+    const wall = document.querySelector<HTMLElement>(".bento-wall");
+    const bar = document.querySelector<HTMLElement>(".bento-progress");
+    const hint = document.querySelector<HTMLElement>(".bento-hint");
     if (!wall || !bar) return;
 
     // Tear down the previous run's listeners before binding fresh. Mirrors
@@ -543,23 +612,23 @@ const projSm: ReadonlyArray<typeof allProjects[number] | null> = [
     // Re-showing it would read as nagging.
     let hintDismissed = false;
     try {
-      hintDismissed = sessionStorage.getItem(HINT_KEY) === '1';
+      hintDismissed = sessionStorage.getItem(HINT_KEY) === "1";
     } catch {
       /* storage blocked — in-memory latch only */
     }
-    if (hint && hintDismissed) hint.classList.add('is-hidden');
+    if (hint && hintDismissed) hint.classList.add("is-hidden");
 
     const dismissHint = () => {
       hintDismissed = true;
-      hint?.classList.add('is-hidden');
+      hint?.classList.add("is-hidden");
       try {
-        sessionStorage.setItem(HINT_KEY, '1');
+        sessionStorage.setItem(HINT_KEY, "1");
       } catch {
         /* storage blocked */
       }
     };
 
-    signal.addEventListener('abort', () => {
+    signal.addEventListener("abort", () => {
       if (storageDebounce !== null) {
         clearTimeout(storageDebounce);
         storageDebounce = null;
@@ -606,29 +675,29 @@ const projSm: ReadonlyArray<typeof allProjects[number] | null> = [
     // Region semantics are desktop-only: on the mobile vertical stack the
     // focusable region + "arrow keys scroll horizontally" label would be a
     // meaningless tab stop with wrong instructions.
-    const desktopQuery = window.matchMedia('(min-width: 1024px)');
+    const desktopQuery = window.matchMedia("(min-width: 1024px)");
     const syncRegionSemantics = () => {
       if (desktopQuery.matches) {
-        wall.setAttribute('tabindex', '0');
-        wall.setAttribute('role', 'region');
+        wall.setAttribute("tabindex", "0");
+        wall.setAttribute("role", "region");
         wall.setAttribute(
-          'aria-label',
-          'Project wall — use arrow keys to scroll horizontally',
+          "aria-label",
+          "Project wall — use arrow keys to scroll horizontally",
         );
       } else {
-        wall.removeAttribute('tabindex');
-        wall.removeAttribute('role');
-        wall.removeAttribute('aria-label');
+        wall.removeAttribute("tabindex");
+        wall.removeAttribute("role");
+        wall.removeAttribute("aria-label");
       }
     };
     syncRegionSemantics();
-    desktopQuery.addEventListener('change', syncRegionSemantics, { signal });
+    desktopQuery.addEventListener("change", syncRegionSemantics, { signal });
 
     measure();
     update();
-    wall.addEventListener('scroll', schedule, { passive: true, signal });
+    wall.addEventListener("scroll", schedule, { passive: true, signal });
     window.addEventListener(
-      'resize',
+      "resize",
       () => {
         measure();
         schedule();
@@ -654,6 +723,6 @@ const projSm: ReadonlyArray<typeof allProjects[number] | null> = [
   bindBentoProgress();
   // View Transitions: restore between swap and paint; rebind listeners
   // after the page is fully loaded.
-  document.addEventListener('astro:after-swap', restoreWallScroll);
-  document.addEventListener('astro:page-load', bindBentoProgress);
+  document.addEventListener("astro:after-swap", restoreWallScroll);
+  document.addEventListener("astro:page-load", bindBentoProgress);
 </script>

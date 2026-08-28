@@ -1,14 +1,14 @@
 ---
-title: 'Pedestrian Classifier for Intelligent Vehicles'
-summary: 'A 3-month TU Delft project on real-time pedestrian detection, tracking, and motion planning for intelligent vehicles. CNN classifier with HOG/SVM fallback, Kalman + particle filters for tracking, 2D-to-3D bounding-box projection, and a Best-First-Search planner for constrained urban maneuvers.'
+title: "Pedestrian Classifier for Intelligent Vehicles"
+summary: "A 3-month TU Delft project on real-time pedestrian detection, tracking, and motion planning for intelligent vehicles. CNN classifier with HOG/SVM fallback, Kalman + particle filters for tracking, 2D-to-3D bounding-box projection, and a Best-First-Search planner for constrained urban maneuvers."
 date: 2025-01-29
-status: 'archived'
-tags: ['computer-vision', 'deep-learning', 'autonomous-vehicles', 'research']
+status: "archived"
+tags: ["computer-vision", "deep-learning", "autonomous-vehicles", "research"]
 featured: true
-bentoSize: 'sm'
+bentoSize: "sm"
 links:
-  - label: 'Intelligent Vehicles Group, TU Delft'
-    url: 'https://intelligent-vehicles.org/'
+  - label: "Intelligent Vehicles Group, TU Delft"
+    url: "https://intelligent-vehicles.org/"
 ---
 
 ## Overview

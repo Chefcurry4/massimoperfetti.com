@@ -1,6 +1,6 @@
 ---
-city: 'Dublin'
-country: 'Ireland'
+city: "Dublin"
+country: "Ireland"
 coordinates:
   lat: 53.3498
   lng: -6.2603

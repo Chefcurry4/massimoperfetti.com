@@ -16,12 +16,12 @@
  * same prop shape (variant, height, ariaLabel, class); register them via
  * the slug switch below.
  */
-import type { CollectionEntry } from 'astro:content';
-import DualEnergyLogo from './logos/DualEnergyLogo.astro';
+import type { CollectionEntry } from "astro:content";
+import DualEnergyLogo from "./logos/DualEnergyLogo.astro";
 
 interface Props {
-  entry: CollectionEntry<'work'>;
-  variant?: 'mono' | 'color';
+  entry: CollectionEntry<"work">;
+  variant?: "mono" | "color";
   height?: number;
   ariaLabel?: string;
   class?: string;
@@ -29,14 +29,14 @@ interface Props {
 
 const {
   entry,
-  variant = 'mono',
+  variant = "mono",
   height = 14,
   ariaLabel,
   class: className,
 } = Astro.props;
 
 const slug = entry.id;
-const hasBespoke = slug === 'dualenergy';
+const hasBespoke = slug === "dualenergy";
 const fallbackLogo = entry.data.logo;
 const computedAlt = ariaLabel ?? entry.data.org;
 ---

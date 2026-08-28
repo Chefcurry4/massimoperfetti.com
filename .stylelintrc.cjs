@@ -14,40 +14,49 @@
  * below is opinionated about token consumption, not formatting.
  */
 module.exports = {
-  customSyntax: 'postcss-html',
-  ignoreFiles: ['dist/**', 'node_modules/**', '.astro/**'],
+  customSyntax: "postcss-html",
+  ignoreFiles: ["dist/**", "node_modules/**", ".astro/**"],
 
   rules: {
     /* ===== TOKEN DISCIPLINE — these are the rules that matter ===== */
 
     // No raw hex colors in components. Backgrounds, borders, etc. must
     // reference --color-* / --bg / --surface / --text* tokens.
-    'color-no-hex': true,
+    "color-no-hex": true,
 
     // Border-radius must be composed entirely of scale values: a
     // var(--radius-*) token, 0 / 0px, or 50%. Allows the 4-value shorthand
     // (e.g. `0 var(--radius-sm) var(--radius-sm) 0` for asymmetric corners)
     // by matching space-separated runs of allowed atoms.
-    'declaration-property-value-allowed-list': {
-      'border-radius': [
-        '/^(?:(?:0|0px|50%|var\\(--radius-[a-z]+\\))\\s*){1,4}$/',
+    "declaration-property-value-allowed-list": {
+      "border-radius": [
+        "/^(?:(?:0|0px|50%|var\\(--radius-[a-z]+\\))\\s*){1,4}$/",
       ],
     },
 
     // Direct rgba/rgb in component backgrounds is a smell — should be a
     // scrim/glass/surface token. Allowed in tokens.css and global.css only.
-    'declaration-property-value-disallowed-list': {
-      '/^background/': ['/^rgba?\\(/'],
+    "declaration-property-value-disallowed-list": {
+      "/^background/": ["/^rgba?\\(/"],
     },
 
     /* ===== Permissive on style nits — Astro-specific syntax allowed ===== */
-    'selector-pseudo-class-no-unknown': [
+    "selector-pseudo-class-no-unknown": [
       true,
-      { ignorePseudoClasses: ['global'] },
+      { ignorePseudoClasses: ["global"] },
     ],
-    'at-rule-no-unknown': [
+    "at-rule-no-unknown": [
       true,
-      { ignoreAtRules: ['theme', 'source', 'apply', 'tailwind', 'layer', 'config'] },
+      {
+        ignoreAtRules: [
+          "theme",
+          "source",
+          "apply",
+          "tailwind",
+          "layer",
+          "config",
+        ],
+      },
     ],
   },
 
@@ -59,19 +68,19 @@ module.exports = {
       // src/styles/themes/ are the per-palette override layer for the
       // [data-theme=*] blocks in tokens.css; same exemption rationale.
       files: [
-        'src/styles/tokens.css',
-        'src/styles/global.css',
-        'src/styles/themes/**/*.css',
+        "src/styles/tokens.css",
+        "src/styles/global.css",
+        "src/styles/themes/**/*.css",
       ],
       rules: {
-        'color-no-hex': null,
-        'declaration-property-value-allowed-list': null,
-        'declaration-property-value-disallowed-list': null,
+        "color-no-hex": null,
+        "declaration-property-value-allowed-list": null,
+        "declaration-property-value-disallowed-list": null,
       },
     },
     {
-      files: ['**/*.astro'],
-      customSyntax: 'postcss-html',
+      files: ["**/*.astro"],
+      customSyntax: "postcss-html",
     },
   ],
 };

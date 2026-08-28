@@ -17,13 +17,13 @@
  * When `entry.data.logo` is set, a small mono wordmark renders inline beside
  * the org line via <WorkLogo>. Without a logo, the layout stays text-only.
  */
-import Cell from '../ui/Cell.astro';
-import WorkLogo from '../work/WorkLogo.astro';
-import type { CollectionEntry } from 'astro:content';
-import { formatPeriod } from '../../lib/period';
+import Cell from "../ui/Cell.astro";
+import WorkLogo from "../work/WorkLogo.astro";
+import type { CollectionEntry } from "astro:content";
+import { formatPeriod } from "../../lib/period";
 
 interface Props {
-  entry: CollectionEntry<'work'>;
+  entry: CollectionEntry<"work">;
   slot?: string;
 }
 
@@ -47,7 +47,9 @@ const detailHref = `/work/${entry.id}`;
       <h2
         class="text-h2 title"
         transition:name={`poster-work-${entry.id}-title`}
-      >{title}</h2>
+      >
+        {title}
+      </h2>
       <p class="org text-body">
         {
           logo ? (
@@ -68,7 +70,13 @@ const detailHref = `/work/${entry.id}`;
 
     <p class="meta text-caption muted">
       <span>{periodLabel}</span>
-      {location && <span class="dot" aria-hidden="true">·</span>}
+      {
+        location && (
+          <span class="dot" aria-hidden="true">
+            ·
+          </span>
+        )
+      }
       {location && <span>{location}</span>}
     </p>
 

@@ -1,21 +1,21 @@
 ---
-title: 'Unidiary'
-summary: 'AI-guided study planner for university students. Where I learned full-stack: Next.js + Supabase + Clerk + Vercel, end to end.'
+title: "Unidiary"
+summary: "AI-guided study planner for university students. Where I learned full-stack: Next.js + Supabase + Clerk + Vercel, end to end."
 date: 2025-08-15
-status: 'live'
-tags: ['fullstack', 'nextjs', 'supabase', 'ai', 'edtech']
+status: "live"
+tags: ["fullstack", "nextjs", "supabase", "ai", "edtech"]
 featured: true
-bentoSize: 'lg'
+bentoSize: "lg"
 links:
-  - label: 'Live'
-    url: 'https://www.unidiary.ai/'
-  - label: 'Repository'
-    url: 'https://github.com/Chefcurry4/UniDiary'
+  - label: "Live"
+    url: "https://www.unidiary.ai/"
+  - label: "Repository"
+    url: "https://github.com/Chefcurry4/UniDiary"
 ---
 
 ## Overview
 
-Unidiary is an AI-guided study planner for university students — the name is short for *University Diary*. The product helps students structure their academic year: course selection, study plan, schedule, deadlines. The tagline on the landing page says it plainly: "plan your studies smartly."
+Unidiary is an AI-guided study planner for university students — the name is short for _University Diary_. The product helps students structure their academic year: course selection, study plan, schedule, deadlines. The tagline on the landing page says it plainly: "plan your studies smartly."
 
 It's also the project that taught me full-stack. Every layer was built from scratch — auth, database, billing-adjacent flows, AI guidance, deployment — so each piece had to actually work in production before the next one mattered.
 
@@ -33,7 +33,7 @@ It's also the project that taught me full-stack. Every layer was built from scra
 - Onboarding flow that captures the student's program, year, constraints, and goals.
 - Course catalog with structured filters (program, semester, ECTS, prerequisites).
 - Study-plan generator that proposes a balanced weekly schedule and lets the student edit it cell by cell.
-- Persistent diary view — the actual *journal* part — that logs what was studied, what's due, and what's blocking.
+- Persistent diary view — the actual _journal_ part — that logs what was studied, what's due, and what's blocking.
 - Account, billing, and admin surfaces wired against Clerk + Supabase.
 
 ## What I learned

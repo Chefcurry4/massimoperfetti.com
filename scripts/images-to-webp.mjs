@@ -17,9 +17,9 @@
  * (2x retina) is plenty.
  */
 
-import sharp from 'sharp';
-import { readdir, stat } from 'node:fs/promises';
-import { join, parse } from 'node:path';
+import sharp from "sharp";
+import { readdir, stat } from "node:fs/promises";
+import { join, parse } from "node:path";
 
 // Gallery max-width 1400 covers fullscreen view (max-width: 1280px on
 // /gallery/[slug]) without shipping 2x retina pixels for a bento tile that
@@ -28,8 +28,8 @@ import { join, parse } from 'node:path';
 // the rendered sizes. me.jpeg ships at 1080 (2x retina for the AboutCell
 // portrait at ~360x540).
 const TARGETS = [
-  { dir: 'public/gallery', maxWidth: 1400, quality: 75 },
-  { dir: 'public', maxWidth: 1080, quality: 85, only: ['me.jpeg'] },
+  { dir: "public/gallery", maxWidth: 1400, quality: 75 },
+  { dir: "public", maxWidth: 1080, quality: 85, only: ["me.jpeg"] },
 ];
 
 async function convertOne(inputPath, maxWidth, quality) {

@@ -1,6 +1,6 @@
 ---
-city: 'Paris'
-country: 'France'
+city: "Paris"
+country: "France"
 coordinates:
   lat: 48.8566
   lng: 2.3522

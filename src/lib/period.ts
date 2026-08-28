@@ -21,16 +21,16 @@ function fmt(d: Date): string {
   // formatting in the build machine's local timezone (Eastern, UTC-4/5) would
   // shift them back a day → "Mar 2026" for what the file declares as April.
   // Pinning to UTC keeps the rendered month identical to the YAML date.
-  return d.toLocaleString('en-US', {
-    month: 'short',
-    year: 'numeric',
-    timeZone: 'UTC',
+  return d.toLocaleString("en-US", {
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
   });
 }
 
 export function formatPeriod(period: PeriodLike): string {
-  if (!period.start) return 'Present';
-  return `${fmt(period.start)} — ${period.end ? fmt(period.end) : 'Present'}`;
+  if (!period.start) return "Present";
+  return `${fmt(period.start)} — ${period.end ? fmt(period.end) : "Present"}`;
 }
 
 /**

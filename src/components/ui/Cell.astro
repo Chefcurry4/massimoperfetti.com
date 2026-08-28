@@ -22,18 +22,18 @@ interface Props {
   /** Slot identifier for mobile order rules (e.g. "cell-about", "cell-project-1"). */
   slot?: string;
   /** Element override — defaults to <article>. */
-  as?: 'article' | 'section' | 'div';
+  as?: "article" | "section" | "div";
 }
 
-const { glass = false, class: extra = '', slot, as: Tag = 'article' } = Astro.props;
-const classes = [
-  'bento-cell',
-  glass ? 'glass' : '',
-  slot ?? '',
-  extra,
-]
+const {
+  glass = false,
+  class: extra = "",
+  slot,
+  as: Tag = "article",
+} = Astro.props;
+const classes = ["bento-cell", glass ? "glass" : "", slot ?? "", extra]
   .filter(Boolean)
-  .join(' ');
+  .join(" ");
 ---
 
 <Tag class={classes}>
@@ -71,7 +71,7 @@ const classes = [
    * needing a z-index.
    */
   .bento-cell::after {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
     /* Matches the cell's own radius (the stylelint radius allow-list

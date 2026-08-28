@@ -11,41 +11,43 @@
  * sync, replace the iframe with the inline embed snippet from
  * https://cal.com/docs/embed/inline.
  */
-import Base from '../layouts/Base.astro';
-import { site } from '../data/site';
+import Base from "../layouts/Base.astro";
+import { site } from "../data/site";
 
 const embedSrc = `${site.bookingUrl}?theme=auto&hideEventTypeDetails=false`;
 
 // Plain personal email for the fallback line — keep this in sync with
 // src/data/contacts.ts (first email entry).
-const fallbackEmail = 'massimoperfetti4@gmail.com';
+const fallbackEmail = "massimoperfetti4@gmail.com";
 ---
 
 <Base
   title="Book a call"
   description={`Pick a 30-minute slot. Synced to ${site.firstName}'s Google Calendar.`}
 >
-  {/* Outer wrapper is <section>, not <main> — the embedded Cal.com iframe
+  {
+    /* Outer wrapper is <section>, not <main> — the embedded Cal.com iframe
       contains its own <main> landmark for the booking flow. Two <main>s on
       the same page violates axe's `landmark-unique` rule (and confuses
       assistive tech with multiple "main" announcements). The booking iframe
       is the user's actual primary content here; our header + footer are
-      page chrome around it. */}
+      page chrome around it. */
+  }
   <section id="main" class="page" aria-labelledby="book-heading">
     <header class="head">
       <p class="text-caption muted">book</p>
       <h1 id="book-heading" class="text-h1 headline">Book a call</h1>
-      <p class="text-body muted intro">
-        30 minutes. Pick a time that works.
-      </p>
+      <p class="text-body muted intro">30 minutes. Pick a time that works.</p>
     </header>
 
     <div class="embed-wrap">
-      {/* Explicit width/height attributes give the browser intrinsic
+      {
+        /* Explicit width/height attributes give the browser intrinsic
           dimensions BEFORE the iframe loads, eliminating CLS on slow
           mobile networks. CSS still flex-fills on desktop and clamps to
           80dvh on mobile (`.embed-wrap iframe` rule below). The numbers
-          are placeholders the browser uses for layout reservation only. */}
+          are placeholders the browser uses for layout reservation only. */
+      }
       <iframe
         src={embedSrc}
         title={`Book a 30-min call with ${site.author}`}
@@ -53,13 +55,14 @@ const fallbackEmail = 'massimoperfetti4@gmail.com';
         height="800"
         loading="lazy"
         referrerpolicy="strict-origin-when-cross-origin"
-        allow="clipboard-write; payment"
-      ></iframe>
+        allow="clipboard-write; payment"></iframe>
     </div>
 
     <footer class="meta">
       <span class="text-caption muted">
-        Or just email — <a class="email" href={`mailto:${fallbackEmail}`}>{fallbackEmail}</a>
+        Or just email — <a class="email" href={`mailto:${fallbackEmail}`}
+          >{fallbackEmail}</a
+        >
       </span>
       <a href="/" class="back-link text-caption">← back</a>
     </footer>
@@ -78,9 +81,10 @@ const fallbackEmail = 'massimoperfetti4@gmail.com';
   .page {
     height: calc(100dvh - 2 * var(--wall-inset));
     margin: var(--wall-inset);
-    margin-left: calc(var(--wall-inset) + var(--sidebar-rail) + var(--sidebar-gap));
-    padding:
-      clamp(var(--space-5), 3vw, var(--space-6))
+    margin-left: calc(
+      var(--wall-inset) + var(--sidebar-rail) + var(--sidebar-gap)
+    );
+    padding: clamp(var(--space-5), 3vw, var(--space-6))
       clamp(var(--space-4), 3vw, var(--space-6))
       clamp(var(--space-4), 2vw, var(--space-5));
     display: flex;

@@ -10,14 +10,9 @@
 // Kinds map 1:1 to icon paths in ContactsCluster.astro — add the icon
 // there when adding a kind here. ('x' and 'scholar' were removed as dead:
 // no contact entry used them and the x icon was a plain ✕, not the logo.)
-export type ContactKind =
-  | 'email'
-  | 'github'
-  | 'linkedin'
-  | 'cv'
-  | 'newsletter';
+export type ContactKind = "email" | "github" | "linkedin" | "cv" | "newsletter";
 
-export type ContactAudience = 'public' | 'academic';
+export type ContactAudience = "public" | "academic";
 
 export interface Contact {
   readonly kind: ContactKind;
@@ -29,36 +24,36 @@ export interface Contact {
 
 export const contacts: readonly Contact[] = [
   {
-    kind: 'email',
-    label: 'Email',
-    handle: 'massimoperfetti4@gmail.com',
-    url: 'mailto:massimoperfetti4@gmail.com',
+    kind: "email",
+    label: "Email",
+    handle: "massimoperfetti4@gmail.com",
+    url: "mailto:massimoperfetti4@gmail.com",
   },
   {
-    kind: 'email',
-    label: 'Email (MIT)',
-    handle: 'massip77@mit.edu',
-    url: 'mailto:massip77@mit.edu',
-    audience: 'academic',
+    kind: "email",
+    label: "Email (MIT)",
+    handle: "massip77@mit.edu",
+    url: "mailto:massip77@mit.edu",
+    audience: "academic",
   },
   {
-    kind: 'email',
-    label: 'Email (TU Delft)',
-    handle: 'm.perfetti@student.tudelft.nl',
-    url: 'mailto:m.perfetti@student.tudelft.nl',
-    audience: 'academic',
+    kind: "email",
+    label: "Email (TU Delft)",
+    handle: "m.perfetti@student.tudelft.nl",
+    url: "mailto:m.perfetti@student.tudelft.nl",
+    audience: "academic",
   },
   {
-    kind: 'github',
-    label: 'GitHub',
-    handle: '@Chefcurry4',
-    url: 'https://github.com/Chefcurry4',
+    kind: "github",
+    label: "GitHub",
+    handle: "@Chefcurry4",
+    url: "https://github.com/Chefcurry4",
   },
   {
-    kind: 'linkedin',
-    label: 'LinkedIn',
-    handle: 'mperfetti4',
-    url: 'https://www.linkedin.com/in/mperfetti4/',
+    kind: "linkedin",
+    label: "LinkedIn",
+    handle: "mperfetti4",
+    url: "https://www.linkedin.com/in/mperfetti4/",
   },
   // CV entry disabled until the PDF actually exists — public/cv/ contains
   // only a README, so this link 404'd from the persistent sidebar on every
@@ -71,9 +66,9 @@ export const contacts: readonly Contact[] = [
   //   url: '/cv/Perfetti%20Resume.pdf',
   // },
   {
-    kind: 'newsletter',
-    label: 'Newsletter',
-    handle: 'perfettis-notes',
-    url: 'https://perfettis-notes.beehiiv.com',
+    kind: "newsletter",
+    label: "Newsletter",
+    handle: "perfettis-notes",
+    url: "https://perfettis-notes.beehiiv.com",
   },
 ];

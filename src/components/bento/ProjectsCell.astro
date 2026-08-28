@@ -12,33 +12,33 @@
  * first character, plus the title initial overlaid. Phase later swaps in
  * real <img> when cover paths resolve.
  */
-import Cell from '../ui/Cell.astro';
-import type { CollectionEntry } from 'astro:content';
-import { coverHueVars } from '../../lib/cover-color';
-import PandaIcon from '../projects/icons/PandaIcon.astro';
-import GitHubIcon from '../projects/icons/GitHubIcon.astro';
-import LinkedInIcon from '../projects/icons/LinkedInIcon.astro';
+import Cell from "../ui/Cell.astro";
+import type { CollectionEntry } from "astro:content";
+import { coverHueVars } from "../../lib/cover-color";
+import PandaIcon from "../projects/icons/PandaIcon.astro";
+import GitHubIcon from "../projects/icons/GitHubIcon.astro";
+import LinkedInIcon from "../projects/icons/LinkedInIcon.astro";
 
 interface Props {
-  entry: CollectionEntry<'projects'>;
-  variant?: 'lg' | 'sm';
+  entry: CollectionEntry<"projects">;
+  variant?: "lg" | "sm";
   slot?: string;
 }
 
-const { entry, variant = 'lg', slot } = Astro.props;
+const { entry, variant = "lg", slot } = Astro.props;
 const { title, summary, status, tags, links } = entry.data;
 
-const initial = title.trim().charAt(0).toUpperCase() || '·';
-const hasIcon = entry.id === 'unidiary';
+const initial = title.trim().charAt(0).toUpperCase() || "·";
+const hasIcon = entry.id === "unidiary";
 
 // Deterministic hue pair, shared with /projects/[slug] so the View Transitions
 // morph (Phase 4) interpolates the gradient continuously.
 const coverStyle = coverHueVars(title);
 
 const statusLabel: Record<typeof status, string> = {
-  live: 'live',
-  archived: 'archived',
-  'in-progress': 'in progress',
+  live: "live",
+  archived: "archived",
+  "in-progress": "in progress",
 };
 
 const detailHref = `/projects/${entry.id}`;
@@ -53,82 +53,95 @@ const hasActions = Boolean(ghLink || liLink);
 ---
 
 <div class="card-shell">
-<a
-  href={detailHref}
-  class="card-link"
-  transition:name={`poster-projects-${entry.id}`}
->
-  <Cell slot={slot} class={`projects-cell variant-${variant}`}>
-    {
-      variant === 'lg' && (
-        <div
-          class:list={['cover', { 'cover-bare': hasIcon }]}
-          style={hasIcon ? undefined : coverStyle}
-          aria-hidden="true"
-          transition:name={`poster-projects-${entry.id}-image`}
-        >
-          {hasIcon ? <PandaIcon class="cover-icon" /> : <span class="cover-initial">{initial}</span>}
-        </div>
-      )
-    }
-
-    <div class="meta">
-      <div class="row">
-        <p class="text-caption muted">project</p>
-        <span class:list={['status-pill', 'text-mono-small', `status-${status}`]}>{statusLabel[status]}</span>
-      </div>
-
-      {/* Title morph only from the lg variant: the sm title is 14px/3-line
-          clamped, and morphing it into the 56px display hero produced a
-          blurry 4× cross-fade snap. Without the name the destination title
-          simply fades in as its own group — much calmer. */}
-      <h2
-        class:list={['title', variant === 'lg' ? 'text-h2' : 'text-small']}
-        transition:name={variant === 'lg' ? `poster-projects-${entry.id}-title` : undefined}
-      >{title}</h2>
-
-      {variant === 'lg' && <p class="summary text-small muted">{summary}</p>}
-
+  <a
+    href={detailHref}
+    class="card-link"
+    transition:name={`poster-projects-${entry.id}`}
+  >
+    <Cell slot={slot} class={`projects-cell variant-${variant}`}>
       {
-        tags.length > 0 && variant === 'lg' && (
-          <ul class="tags" aria-label="tags">
-            {tags.slice(0, 3).map((t) => (
-              <li class="tag-chip text-caption">{t}</li>
-            ))}
-          </ul>
+        variant === "lg" && (
+          <div
+            class:list={["cover", { "cover-bare": hasIcon }]}
+            style={hasIcon ? undefined : coverStyle}
+            aria-hidden="true"
+            transition:name={`poster-projects-${entry.id}-image`}
+          >
+            {hasIcon ? (
+              <PandaIcon class="cover-icon" />
+            ) : (
+              <span class="cover-initial">{initial}</span>
+            )}
+          </div>
         )
       }
-    </div>
-  </Cell>
-</a>
-{
-  hasActions && (
-    <div class:list={['card-actions', `card-actions-${variant}`]}>
-      {ghLink && (
-        <a
-          class="icon-btn action-btn"
-          href={ghLink.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={`${title} repository on GitHub`}
+
+      <div class="meta">
+        <div class="row">
+          <p class="text-caption muted">project</p>
+          <span
+            class:list={["status-pill", "text-mono-small", `status-${status}`]}
+            >{statusLabel[status]}</span
+          >
+        </div>
+
+        {
+          /* Title morph only from the lg variant: the sm title is 14px/3-line
+          clamped, and morphing it into the 56px display hero produced a
+          blurry 4× cross-fade snap. Without the name the destination title
+          simply fades in as its own group — much calmer. */
+        }
+        <h2
+          class:list={["title", variant === "lg" ? "text-h2" : "text-small"]}
+          transition:name={variant === "lg"
+            ? `poster-projects-${entry.id}-title`
+            : undefined}
         >
-          <GitHubIcon />
-        </a>
-      )}
-      {liLink && (
-        <a
-          class="icon-btn action-btn"
-          href={liLink.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={`${title} on LinkedIn`}
-        >
-          <LinkedInIcon />
-        </a>
-      )}
-    </div>
-  )
-}
+          {title}
+        </h2>
+
+        {variant === "lg" && <p class="summary text-small muted">{summary}</p>}
+
+        {
+          tags.length > 0 && variant === "lg" && (
+            <ul class="tags" aria-label="tags">
+              {tags.slice(0, 3).map((t) => (
+                <li class="tag-chip text-caption">{t}</li>
+              ))}
+            </ul>
+          )
+        }
+      </div>
+    </Cell>
+  </a>
+  {
+    hasActions && (
+      <div class:list={["card-actions", `card-actions-${variant}`]}>
+        {ghLink && (
+          <a
+            class="icon-btn action-btn"
+            href={ghLink.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`${title} repository on GitHub`}
+          >
+            <GitHubIcon />
+          </a>
+        )}
+        {liLink && (
+          <a
+            class="icon-btn action-btn"
+            href={liLink.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`${title} on LinkedIn`}
+          >
+            <LinkedInIcon />
+          </a>
+        )}
+      </div>
+    )
+  }
 </div>
 
 <style is:global>
@@ -161,7 +174,6 @@ const hasActions = Boolean(ghLink || liLink);
 </style>
 
 <style>
-
   /* Card shell — wraps the morph anchor + the optional github icon as
      siblings, since nesting <a> in <a> is invalid. The shell takes the full
      grid slot (`height: 100%`) so the inner card-link can still fill it. */

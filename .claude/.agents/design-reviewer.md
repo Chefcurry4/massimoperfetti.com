@@ -17,12 +17,14 @@ You will be pointed at one or more files (components, pages, or stylesheets). Re
 Run through every category. Be exhaustive. A clean review means every item is checked, not every item is good.
 
 ### 1. Color discipline
+
 - Are all colors sourced from tokens (`bg-bg`, `bg-surface`, `text-text`, `text-text-muted`, `border-border`, etc.)?
 - Any raw `bg-zinc-*`, `text-gray-*`, `text-white`, `bg-black`, hex literals, `rgb(...)` values? **Flag every one.**
 - More than two visible accent colors in one component? Flag.
 - Light and dark theme both work? (If the component uses a token, this is automatic. If it has hardcoded colors, both themes will fail.)
 
 ### 2. Typography
+
 - Headings use the component classes (`.text-display`, `.text-h1`, `.text-h2`, `.text-h3`)?
 - Body uses `.text-body` or default? No raw `text-[16px]` or `text-base font-normal` soup?
 - Caption / numerics / technical labels use Geist Mono via the caption class?
@@ -30,30 +32,36 @@ Run through every category. Be exhaustive. A clean review means every item is ch
 - Font weights only the ones we load (400, 500, 600)? No `font-thin` or `font-black`?
 
 ### 3. Spacing
+
 - All spacing on the 4px scale (Tailwind's defaults)? Arbitrary values like `mt-[37px]` flagged unless commented.
 - Cells in the bento grid have consistent internal padding rhythm?
 - Whitespace generous, not cramped? (This is a judgment call — flag anything that feels packed.)
 
 ### 4. Glass effect application
+
 - `.glass` used selectively — sidebar, popups, callout buttons — not on every surface?
 - Blur ≤ 24px, saturation ≤ 160%?
 - Glass surfaces have a border (`border-strong`) for legibility, not borderless?
 - Text on glass passes contrast against the worst-case background behind it?
 
 ### 5. Bento grid integrity
+
 - Cards have **variable** sizes? If everything is the same `aspect-square`, **block**.
 - Horizontal scroll container has `scroll-snap-type: x proximity`?
 - Mobile breakpoint (`< 1024px`) collapses to vertical stack?
 - Card sizes follow the spec in CLAUDE.md → "Layout system" → "Desktop horizontal bento"?
 
 ### 6. View Transitions
+
 - Every clickable card that links to a detail page has a `view-transition-name` matching the convention `poster-{collection}-{slug}`?
 - The destination page has a matching name on the corresponding hero element?
 - Names are unique on each page (no collisions)?
 - Sub-element names (`-image`, `-title`) used where helpful, not over-fragmented?
 
 ### 7. Anti-patterns (block-on-sight)
+
 Refer to CLAUDE.md → "Anti-patterns — refuse to ship." If any of the following are present, return **Block**:
+
 - Uniform-size bento cards.
 - Gradient text on the hero.
 - Decorative animated SVGs that loop forever.
@@ -65,17 +73,20 @@ Refer to CLAUDE.md → "Anti-patterns — refuse to ship." If any of the followi
 - Page transitions > 400ms or blocking input mid-flight.
 
 ### 8. Tailwind hygiene
+
 - Repeated 6+ class soups across multiple files → flag, suggest a component class.
 - Inline styles (`style="..."`) without a justifying comment?
 - `@apply` used outside `global.css` / a component class definition?
 
 ### 9. Accessibility (lightweight pass)
+
 - Interactive elements (cards, toggles) reachable by keyboard?
 - Focus styles visible (not just default browser ring)?
 - Images have `alt`?
 - Color contrast roughly safe? (You're not a WCAG validator, but flag obvious failures like grey-on-grey body text.)
 
 ### 10. Performance smells
+
 - Fonts loaded from Google CDN instead of Fontsource?
 - Large unoptimized images in `<img>` instead of Astro's `<Image>`?
 - Heavy client islands where a static `.astro` would do?
@@ -105,6 +116,7 @@ Any longer commentary, tradeoff discussions, or callouts the implementer should 
 ```
 
 Severity rules:
+
 - **block** = anti-pattern; do not ship until fixed.
 - **revise** = norm violation; fix before merging.
 - **nit** = preference; mention but don't gatekeep.

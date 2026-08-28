@@ -33,6 +33,7 @@ Column 1                Column 2                Column 3              Column 4
 ```
 
 Implementation contract:
+
 - Use **CSS Grid with explicit `grid-template-columns` and `grid-template-rows`**. Never `grid-auto-flow` with `auto-fit`.
 - Outer container has `overflow-x: auto`, `scroll-snap-type: x proximity`. Snap points on column boundaries.
 - Total width approximately 200–250vw. Tune based on the live design.
@@ -43,11 +44,13 @@ Implementation contract:
 ## Bento grid spec — mobile (< 1024px)
 
 Single-column vertical stack in this order:
+
 ```
 About → Work → Projects → Writing/notes → Gallery → Places → Contacts
 ```
 
 Implementation:
+
 - Same source markup. A media query swaps `grid-template-columns` to `1fr` and reorders rows via `order` or by restructuring the grid template.
 - Disable horizontal scroll on the outer container at this breakpoint.
 - Don't fork into a separate mobile template. One source of truth.
@@ -57,6 +60,7 @@ Implementation:
 The naming scheme, copied from CLAUDE.md and binding:
 
 For a card linking to `/projects/foo-bar`:
+
 ```
 poster-projects-foo-bar          /* whole card               */
 poster-projects-foo-bar-image    /* cover image              */
@@ -94,6 +98,7 @@ Follow this checklist every time:
 ## Reference repos
 
 When unsure, look first:
+
 - [`Charca/astro-movies`](https://github.com/Charca/astro-movies) — primary reference for our exact stack.
 - [`Ladvace/astro-bento-portfolio`](https://github.com/Ladvace/astro-bento-portfolio) — bento layout patterns.
 - [`a2rp/framer-motion-demos`](https://github.com/a2rp/framer-motion-demos) — broader motion patterns. "grid → detail" is the pattern most relevant to us.

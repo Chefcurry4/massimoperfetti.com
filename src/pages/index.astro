@@ -6,11 +6,11 @@
  * wall sits as a horizontal strip in the middle of the viewport with
  * fixed top + bottom whitespace the wall cannot step over.
  */
-import Base from '../layouts/Base.astro';
-import BentoGrid from '../components/bento/BentoGrid.astro';
-import JsonLd from '../components/ui/JsonLd.astro';
-import { personSchema, webSiteSchema } from '../lib/structured-data';
-import { getPortraitDesktop } from '../lib/portraits';
+import Base from "../layouts/Base.astro";
+import BentoGrid from "../components/bento/BentoGrid.astro";
+import JsonLd from "../components/ui/JsonLd.astro";
+import { personSchema, webSiteSchema } from "../lib/structured-data";
+import { getPortraitDesktop } from "../lib/portraits";
 
 const portrait = await getPortraitDesktop();
 ---

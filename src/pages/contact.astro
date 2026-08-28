@@ -14,14 +14,11 @@
  * Local dev caveat: Astro's dev server doesn't accept the form POST — that's
  * handled by Netlify's build pipeline. Once deployed, the form works.
  */
-import Base from '../layouts/Base.astro';
-import { site } from '../data/site';
+import Base from "../layouts/Base.astro";
+import { site } from "../data/site";
 ---
 
-<Base
-  title="Contact"
-  description={`Send a message to ${site.name}.`}
->
+<Base title="Contact" description={`Send a message to ${site.name}.`}>
   <main id="main" class="detail-page page">
     <a href="/" class="back-link text-caption">← back</a>
 
@@ -30,7 +27,8 @@ import { site } from '../data/site';
       <h1 class="text-h1 headline">Send a message</h1>
       <p class="lede text-body muted">
         For longer threads or attachments. For a 30-min call, the
-        <a href="/book" class="inline-link" data-astro-prefetch>/book</a> form is faster.
+        <a href="/book" class="inline-link" data-astro-prefetch>/book</a> form is
+        faster.
       </p>
     </header>
 
@@ -42,11 +40,15 @@ import { site } from '../data/site';
       netlify-honeypot="bot-field"
       action="/thanks"
     >
-      {/* Required by Netlify Forms — pairs the submission with the form's name. */}
+      {
+        /* Required by Netlify Forms — pairs the submission with the form's name. */
+      }
       <input type="hidden" name="form-name" value="contact" />
 
-      {/* Honeypot — visually hidden, accessible-tree hidden. Bots fill it,
-          humans never see it. Netlify drops any submission that has it set. */}
+      {
+        /* Honeypot — visually hidden, accessible-tree hidden. Bots fill it,
+          humans never see it. Netlify drops any submission that has it set. */
+      }
       <p class="hp" hidden aria-hidden="true">
         <label>
           Don't fill this if you're a human:
@@ -56,9 +58,11 @@ import { site } from '../data/site';
 
       <div class="field">
         <label for="contact-name" class="text-caption muted">name</label>
-        {/* inputmode="text" hints the OS keyboard layout — on mobile it
+        {
+          /* inputmode="text" hints the OS keyboard layout — on mobile it
             picks the standard alphabetic keyboard rather than guessing
-            from `type=text`. autocomplete enables password-manager fill. */}
+            from `type=text`. autocomplete enables password-manager fill. */
+        }
         <input
           id="contact-name"
           name="name"
@@ -71,8 +75,10 @@ import { site } from '../data/site';
 
       <div class="field">
         <label for="contact-email" class="text-caption muted">email</label>
-        {/* inputmode="email" pulls up the @-key-prominent keyboard on iOS
-            and Android — meaningful win over plain `type=email`. */}
+        {
+          /* inputmode="email" pulls up the @-key-prominent keyboard on iOS
+            and Android — meaningful win over plain `type=email`. */
+        }
         <input
           id="contact-email"
           name="email"
@@ -95,17 +101,11 @@ import { site } from '../data/site';
 
       <div class="field">
         <label for="contact-message" class="text-caption muted">message</label>
-        <textarea
-          id="contact-message"
-          name="message"
-          rows="6"
-          required
+        <textarea id="contact-message" name="message" rows="6" required
         ></textarea>
       </div>
 
-      <button type="submit" class="submit text-ui">
-        Send →
-      </button>
+      <button type="submit" class="submit text-ui"> Send → </button>
     </form>
   </main>
 </Base>

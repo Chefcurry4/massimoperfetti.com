@@ -16,7 +16,7 @@
  * Edge collision is not auto-handled. Pass `side` explicitly when the default
  * 'top' would clip (use 'right' near the top of a sidebar, etc.).
  */
-export type TooltipSide = 'top' | 'bottom' | 'left' | 'right';
+export type TooltipSide = "top" | "bottom" | "left" | "right";
 
 interface Props {
   label: string;
@@ -28,13 +28,10 @@ interface Props {
   class?: string;
 }
 
-const { label, side = 'top', class: className } = Astro.props;
+const { label, side = "top", class: className } = Astro.props;
 ---
 
-<span
-  class:list={['tooltip-host', className]}
-  data-tooltip-side={side}
->
+<span class:list={["tooltip-host", className]} data-tooltip-side={side}>
   <slot />
   <span class="tooltip-bubble" aria-hidden="true">{label}</span>
 </span>

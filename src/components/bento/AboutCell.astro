@@ -24,10 +24,10 @@
  * AboutCell sits above the fold and its portrait is the largest contentful
  * paint candidate on the wall.
  */
-import Cell from '../ui/Cell.astro';
-import { about } from '../../data/about';
-import { site } from '../../data/site';
-import { getPortraitDesktop, getPortraitMobile } from '../../lib/portraits';
+import Cell from "../ui/Cell.astro";
+import { about } from "../../data/about";
+import { site } from "../../data/site";
+import { getPortraitDesktop, getPortraitMobile } from "../../lib/portraits";
 
 // Mobile gets a different portrait — the desktop square is composed for the
 // 280×280 box in the bento rail; the mobile cell renders a full-width 1:1
@@ -38,30 +38,31 @@ const portraitMobile = await getPortraitMobile();
 ---
 
 <Cell glass slot="cell-about" class="about-cell">
-  {/* --portrait / --portrait-mobile carry the build-hashed WebP URLs into
+  {
+    /* --portrait / --portrait-mobile carry the build-hashed WebP URLs into
       the scoped stylesheet so the @media block below can swap the
-      background-image without inlining the URLs twice. */}
+      background-image without inlining the URLs twice. */
+  }
   <div
     class="portrait"
     role="img"
     aria-label={`Portrait of ${site.name}`}
     style={`--portrait: url('${portraitDesktop.src}'); --portrait-mobile: url('${portraitMobile.src}');`}
-  ></div>
+  >
+  </div>
 
   <div class="content">
     <p class="text-caption muted">about</p>
-    {/* h1 because this cell is the bento home page's primary heading.
+    {
+      /* h1 because this cell is the bento home page's primary heading.
         AboutContent on /about owns its own h1 so there's no collision —
-        AboutCell is only ever rendered on /. */}
+        AboutCell is only ever rendered on /. */
+    }
     <h1 class="text-h1 name">{site.name}</h1>
     <p class="role text-small">{about.role}</p>
     <p class="body text-small muted">{about.body[0]}</p>
 
-    <a
-      href="/about"
-      class="cta text-caption"
-      data-astro-prefetch
-    >
+    <a href="/about" class="cta text-caption" data-astro-prefetch>
       <span aria-hidden="true">→</span>
       <span>read more</span>
     </a>
@@ -87,7 +88,9 @@ const portraitMobile = await getPortraitMobile();
     background-color: var(--surface);
     background-image: var(--portrait), var(--gradient-cool);
     background-size: cover, cover;
-    background-position: center top, center;
+    background-position:
+      center top,
+      center;
     background-repeat: no-repeat, no-repeat;
     border: 1px solid var(--border);
   }

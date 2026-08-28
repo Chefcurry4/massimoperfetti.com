@@ -28,18 +28,20 @@
  * the `.content > * + *` rule) instead of standalone <hr> elements — gives
  * each section its own breathing room rather than a flat hairline.
  */
-import Identity from './Identity.astro';
-import ContactsCluster from './ContactsCluster.astro';
-import SpotifyWidget from './SpotifyWidget.astro';
+import Identity from "./Identity.astro";
+import ContactsCluster from "./ContactsCluster.astro";
+import SpotifyWidget from "./SpotifyWidget.astro";
 ---
 
-{/* transition:persist keeps the DOM node alive across navigations, but it
+{
+  /* transition:persist keeps the DOM node alive across navigations, but it
     does NOT exclude the element from the root View Transition snapshot —
     without its own transition:name the sidebar was baked into both
     ::view-transition-old(root) and -new(root) and visibly double-imaged
     through every cross-fade. Naming it gives it its own group with
     identical old/new geometry, so the browser animates nothing and the
-    sidebar sits rock-steady while the page transitions around it. */}
+    sidebar sits rock-steady while the page transitions around it. */
+}
 <aside
   class="sidebar glass"
   data-sidebar
@@ -47,8 +49,10 @@ import SpotifyWidget from './SpotifyWidget.astro';
   transition:name="sidebar"
   aria-label="Site navigation and identity"
 >
-  {/* Mobile-only peek row — Identity stays visible in the collapsed mobile
-      drawer. Desktop hides everything except the avatar via .rail rules. */}
+  {
+    /* Mobile-only peek row — Identity stays visible in the collapsed mobile
+      drawer. Desktop hides everything except the avatar via .rail rules. */
+  }
   <div class="peek">
     <Identity />
     <button
@@ -68,10 +72,12 @@ import SpotifyWidget from './SpotifyWidget.astro';
     <SpotifyWidget />
   </div>
 
-  {/* Desktop-only chevron — the discoverable expand/collapse affordance.
+  {
+    /* Desktop-only chevron — the discoverable expand/collapse affordance.
       Sits at bottom-center of the rail when collapsed; rotates 180° and
       moves to the right edge of the panel when expanded. Click toggles
-      .expanded. */}
+      .expanded. */
+  }
   <button
     type="button"
     class="icon-btn rail-chevron"
@@ -91,7 +97,7 @@ import SpotifyWidget from './SpotifyWidget.astro';
       stroke-linejoin="round"
       aria-hidden="true"
     >
-      <path d="M9 6l6 6-6 6" />
+      <path d="M9 6l6 6-6 6"></path>
     </svg>
   </button>
 </aside>
@@ -137,7 +143,7 @@ import SpotifyWidget from './SpotifyWidget.astro';
   /* Vertical accent edge on the right of the rail — subtle signal that the
      column is interactive. Fades out when expanded. */
   .sidebar::after {
-    content: '';
+    content: "";
     position: absolute;
     top: 18%;
     bottom: 18%;
@@ -299,16 +305,16 @@ import SpotifyWidget from './SpotifyWidget.astro';
       height: auto;
       gap: 0;
       border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-      padding:
-        var(--space-2)
-        clamp(var(--space-4), 4vw, var(--space-5))
+      padding: var(--space-2) clamp(var(--space-4), 4vw, var(--space-5))
         max(var(--safe-bottom), var(--space-3));
       cursor: default;
       transition: max-height var(--duration-normal) var(--ease-out-expo);
       /* Lighter blur on mobile — 20px is heavy on low-end GPUs and shows up
          as jank during drag/scroll. The recipe still reads as glass. */
-      backdrop-filter: blur(var(--glass-blur-mobile)) saturate(var(--glass-saturate-mobile));
-      -webkit-backdrop-filter: blur(var(--glass-blur-mobile)) saturate(var(--glass-saturate-mobile));
+      backdrop-filter: blur(var(--glass-blur-mobile))
+        saturate(var(--glass-saturate-mobile));
+      -webkit-backdrop-filter: blur(var(--glass-blur-mobile))
+        saturate(var(--glass-saturate-mobile));
       /* Contain rubber-band so internal scroll doesn't bubble up to body. */
       overscroll-behavior: contain;
     }
@@ -338,8 +344,7 @@ import SpotifyWidget from './SpotifyWidget.astro';
     .sidebar.expanded {
       width: 100%;
       box-shadow: none;
-      padding: var(--space-2)
-        clamp(var(--space-4), 4vw, var(--space-5))
+      padding: var(--space-2) clamp(var(--space-4), 4vw, var(--space-5))
         max(var(--safe-bottom), var(--space-3));
     }
     /* Hide the desktop-only rail chevron + accent edge on mobile. */
@@ -417,7 +422,8 @@ import SpotifyWidget from './SpotifyWidget.astro';
         animation: grip-pulse 1.6s var(--ease-out-expo) 600ms 2;
       }
       @keyframes grip-pulse {
-        0%, 100% {
+        0%,
+        100% {
           transform: scaleX(1);
           opacity: 1;
         }
@@ -507,26 +513,30 @@ import SpotifyWidget from './SpotifyWidget.astro';
 
   function lockBodyScroll() {
     lockedScrollY = window.scrollY;
-    document.body.style.position = 'fixed';
+    document.body.style.position = "fixed";
     document.body.style.top = `-${lockedScrollY}px`;
-    document.body.style.left = '0';
-    document.body.style.right = '0';
-    document.body.classList.add('drawer-open');
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.classList.add("drawer-open");
   }
   function unlockBodyScroll() {
-    document.body.style.position = '';
-    document.body.style.top = '';
-    document.body.style.left = '';
-    document.body.style.right = '';
-    document.body.classList.remove('drawer-open');
+    document.body.style.position = "";
+    document.body.style.top = "";
+    document.body.style.left = "";
+    document.body.style.right = "";
+    document.body.classList.remove("drawer-open");
     window.scrollTo(0, lockedScrollY);
   }
 
   function bindSidebar() {
-    const sidebar = document.querySelector<HTMLElement>('[data-sidebar]');
-    const chevron = document.querySelector<HTMLButtonElement>('[data-rail-chevron]');
-    const toggle = document.querySelector<HTMLButtonElement>('[data-drawer-toggle]');
-    const scrim = document.querySelector<HTMLElement>('[data-drawer-scrim]');
+    const sidebar = document.querySelector<HTMLElement>("[data-sidebar]");
+    const chevron = document.querySelector<HTMLButtonElement>(
+      "[data-rail-chevron]",
+    );
+    const toggle = document.querySelector<HTMLButtonElement>(
+      "[data-drawer-toggle]",
+    );
+    const scrim = document.querySelector<HTMLElement>("[data-drawer-scrim]");
     if (!sidebar) return;
 
     abortController?.abort();
@@ -542,7 +552,7 @@ import SpotifyWidget from './SpotifyWidget.astro';
     };
     // A collapse scheduled just before a navigation must not fire against
     // the persisted sidebar 1s into the next page — clear it on teardown.
-    signal.addEventListener('abort', cancelCollapse);
+    signal.addEventListener("abort", cancelCollapse);
     const scheduleCollapse = () => {
       cancelCollapse();
       collapseTimer = setTimeout(() => {
@@ -554,9 +564,9 @@ import SpotifyWidget from './SpotifyWidget.astro';
     };
     const expand = () => {
       cancelCollapse();
-      sidebar.classList.add('expanded');
-      chevron?.setAttribute('aria-expanded', 'true');
-      chevron?.setAttribute('aria-label', 'Collapse sidebar');
+      sidebar.classList.add("expanded");
+      chevron?.setAttribute("aria-expanded", "true");
+      chevron?.setAttribute("aria-label", "Collapse sidebar");
     };
     const collapseNow = () => {
       cancelCollapse();
@@ -570,46 +580,54 @@ import SpotifyWidget from './SpotifyWidget.astro';
       ) {
         chevron?.focus();
       }
-      sidebar.classList.remove('expanded');
-      chevron?.setAttribute('aria-expanded', 'false');
-      chevron?.setAttribute('aria-label', 'Expand sidebar');
+      sidebar.classList.remove("expanded");
+      chevron?.setAttribute("aria-expanded", "false");
+      chevron?.setAttribute("aria-label", "Expand sidebar");
     };
 
     // Click anywhere on the sidebar expands. Anchors / buttons inside still
     // work because click bubbles up after their default action runs.
     sidebar.addEventListener(
-      'click',
+      "click",
       () => {
-        if (isDesktop() && !sidebar.classList.contains('expanded')) expand();
+        if (isDesktop() && !sidebar.classList.contains("expanded")) expand();
       },
       { signal },
     );
     // Chevron toggles. Stop propagation so it can collapse without the
     // sidebar's click-to-expand reopening it on the same click.
     chevron?.addEventListener(
-      'click',
+      "click",
       (e) => {
         if (!isDesktop()) return;
         e.stopPropagation();
-        if (sidebar.classList.contains('expanded')) collapseNow();
+        if (sidebar.classList.contains("expanded")) collapseNow();
         else expand();
       },
       { signal },
     );
-    sidebar.addEventListener('mouseenter', () => {
-      if (isDesktop()) cancelCollapse();
-    }, { signal });
-    sidebar.addEventListener('mouseleave', () => {
-      if (isDesktop() && sidebar.classList.contains('expanded')) {
-        scheduleCollapse();
-      }
-    }, { signal });
+    sidebar.addEventListener(
+      "mouseenter",
+      () => {
+        if (isDesktop()) cancelCollapse();
+      },
+      { signal },
+    );
+    sidebar.addEventListener(
+      "mouseleave",
+      () => {
+        if (isDesktop() && sidebar.classList.contains("expanded")) {
+          scheduleCollapse();
+        }
+      },
+      { signal },
+    );
 
     document.addEventListener(
-      'keydown',
+      "keydown",
       (e) => {
-        if (e.key !== 'Escape') return;
-        if (isDesktop() && sidebar.classList.contains('expanded')) {
+        if (e.key !== "Escape") return;
+        if (isDesktop() && sidebar.classList.contains("expanded")) {
           collapseNow();
         }
       },
@@ -619,20 +637,20 @@ import SpotifyWidget from './SpotifyWidget.astro';
     // ----- Mobile: bottom drawer ---------------------------------------
     if (toggle && scrim) {
       const FOCUSABLE = [
-        'a[href]',
-        'button:not([disabled])',
-        'input:not([disabled])',
-        'textarea:not([disabled])',
-        'select:not([disabled])',
-        'iframe',
+        "a[href]",
+        "button:not([disabled])",
+        "input:not([disabled])",
+        "textarea:not([disabled])",
+        "select:not([disabled])",
+        "iframe",
         '[tabindex]:not([tabindex="-1"])',
-      ].join(',');
+      ].join(",");
 
-      const GRIP_SEEN_KEY = 'sidebar-grip-seen';
+      const GRIP_SEEN_KEY = "sidebar-grip-seen";
       const markGripSeen = () => {
-        toggle.classList.remove('grip--unseen');
+        toggle.classList.remove("grip--unseen");
         try {
-          localStorage.setItem(GRIP_SEEN_KEY, '1');
+          localStorage.setItem(GRIP_SEEN_KEY, "1");
         } catch {
           /* private mode — pulse just runs every visit, harmless */
         }
@@ -640,22 +658,22 @@ import SpotifyWidget from './SpotifyWidget.astro';
       // If the user has already seen the pulse on this device, clear the
       // class on bind so it never plays again.
       try {
-        if (localStorage.getItem(GRIP_SEEN_KEY) === '1') {
-          toggle.classList.remove('grip--unseen');
+        if (localStorage.getItem(GRIP_SEEN_KEY) === "1") {
+          toggle.classList.remove("grip--unseen");
         }
       } catch {
         /* ignore */
       }
 
       const setOpen = (open: boolean) => {
-        const isOpen = sidebar.classList.contains('open');
+        const isOpen = sidebar.classList.contains("open");
         if (open === isOpen) return;
-        sidebar.classList.toggle('open', open);
-        scrim.classList.toggle('visible', open);
-        toggle.setAttribute('aria-expanded', String(open));
+        sidebar.classList.toggle("open", open);
+        scrim.classList.toggle("visible", open);
+        toggle.setAttribute("aria-expanded", String(open));
         toggle.setAttribute(
-          'aria-label',
-          open ? 'Close sidebar drawer' : 'Open sidebar drawer',
+          "aria-label",
+          open ? "Close sidebar drawer" : "Open sidebar drawer",
         );
         if (open) {
           lockBodyScroll();
@@ -670,7 +688,7 @@ import SpotifyWidget from './SpotifyWidget.astro';
       // the tap-only path via the click handler below (we still bind the
       // pointer events but exit early if the user prefers reduced motion).
       const reduceMotion = window.matchMedia(
-        '(prefers-reduced-motion: reduce)',
+        "(prefers-reduced-motion: reduce)",
       );
       // Drag commits if travel > 30% of available range OR velocity is high.
       const COMMIT_RATIO = 0.3;
@@ -697,7 +715,7 @@ import SpotifyWidget from './SpotifyWidget.astro';
         if (isDesktop() || reduceMotion.matches) return;
         // Only react to primary button / touch / pen, not e.g. middle click.
         if (e.button !== undefined && e.button !== 0) return;
-        const startedOpen = sidebar.classList.contains('open');
+        const startedOpen = sidebar.classList.contains("open");
         // Available travel = drawer's open height − peek. Use the live
         // measurement for the open case, dvh for the closed case.
         const openHeight = startedOpen
@@ -714,7 +732,7 @@ import SpotifyWidget from './SpotifyWidget.astro';
           moved: false,
         };
         toggle.setPointerCapture(e.pointerId);
-        sidebar.classList.add('dragging');
+        sidebar.classList.add("dragging");
       };
 
       // Style writes are coalesced into rAF: pointermove can fire faster
@@ -730,7 +748,7 @@ import SpotifyWidget from './SpotifyWidget.astro';
         sidebar.style.maxHeight = `${px}px`;
         // Fade scrim in proportionally so the tactile feedback is honest.
         scrim.style.opacity = String(pendingClamped);
-        scrim.classList.toggle('visible', pendingClamped > 0.02);
+        scrim.classList.toggle("visible", pendingClamped > 0.02);
       };
       const onPointerMove = (e: PointerEvent) => {
         if (!drag) return;
@@ -753,7 +771,10 @@ import SpotifyWidget from './SpotifyWidget.astro';
       const finishDrag = (e: PointerEvent | null) => {
         if (!drag) return;
         const dy = (e?.clientY ?? drag.lastY) - drag.startY;
-        const dt = Math.max(1, (e?.timeStamp ?? drag.lastTime) - drag.startTime);
+        const dt = Math.max(
+          1,
+          (e?.timeStamp ?? drag.lastTime) - drag.startTime,
+        );
         const velocity = Math.abs(dy) / dt;
         const effective = drag.startedOpen ? Math.max(0, dy) : Math.min(0, dy);
         const traveled = Math.abs(effective);
@@ -768,9 +789,9 @@ import SpotifyWidget from './SpotifyWidget.astro';
           dragRafId = 0;
         }
         // Clear inline overrides so CSS takes back control of the animation.
-        sidebar.style.maxHeight = '';
-        scrim.style.opacity = '';
-        sidebar.classList.remove('dragging');
+        sidebar.style.maxHeight = "";
+        scrim.style.opacity = "";
+        sidebar.classList.remove("dragging");
         try {
           if (e) toggle.releasePointerCapture(e.pointerId);
         } catch {
@@ -792,19 +813,19 @@ import SpotifyWidget from './SpotifyWidget.astro';
           setOpen(!startedOpen);
         } else if (wasMoved) {
           // Snap back — explicitly re-assert current state so transition fires.
-          scrim.classList.toggle('visible', startedOpen);
+          scrim.classList.toggle("visible", startedOpen);
         }
       };
 
-      toggle.addEventListener('pointerdown', onPointerDown, { signal });
-      toggle.addEventListener('pointermove', onPointerMove, { signal });
-      toggle.addEventListener('pointerup', finishDrag, { signal });
-      toggle.addEventListener('pointercancel', () => finishDrag(null), {
+      toggle.addEventListener("pointerdown", onPointerDown, { signal });
+      toggle.addEventListener("pointermove", onPointerMove, { signal });
+      toggle.addEventListener("pointerup", finishDrag, { signal });
+      toggle.addEventListener("pointercancel", () => finishDrag(null), {
         signal,
       });
 
       toggle.addEventListener(
-        'click',
+        "click",
         (e) => {
           // On desktop the toggle button is hidden via CSS, but guard anyway.
           if (isDesktop()) return;
@@ -814,12 +835,12 @@ import SpotifyWidget from './SpotifyWidget.astro';
             suppressNextClick = false;
             return;
           }
-          setOpen(!sidebar.classList.contains('open'));
+          setOpen(!sidebar.classList.contains("open"));
         },
         { signal },
       );
       scrim.addEventListener(
-        'click',
+        "click",
         () => {
           setOpen(false);
           // Return focus to the toggle so keyboard users land somewhere
@@ -829,9 +850,9 @@ import SpotifyWidget from './SpotifyWidget.astro';
         { signal },
       );
       document.addEventListener(
-        'keydown',
+        "keydown",
         (e) => {
-          if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+          if (e.key === "Escape" && sidebar.classList.contains("open")) {
             setOpen(false);
             // Return focus to the toggle so the user keeps a sensible anchor.
             toggle.focus();
@@ -841,8 +862,8 @@ import SpotifyWidget from './SpotifyWidget.astro';
           // inside the sidebar. ESC handled above; everything else falls
           // through to native behavior.
           if (
-            e.key !== 'Tab' ||
-            !sidebar.classList.contains('open') ||
+            e.key !== "Tab" ||
+            !sidebar.classList.contains("open") ||
             isDesktop()
           ) {
             return;
@@ -850,7 +871,7 @@ import SpotifyWidget from './SpotifyWidget.astro';
           const focusables = Array.from(
             sidebar.querySelectorAll<HTMLElement>(FOCUSABLE),
           ).filter(
-            (el) => !el.hasAttribute('hidden') && el.offsetParent !== null,
+            (el) => !el.hasAttribute("hidden") && el.offsetParent !== null,
           );
           if (focusables.length === 0) return;
           const first = focusables[0]!;
@@ -876,5 +897,5 @@ import SpotifyWidget from './SpotifyWidget.astro';
   }
 
   bindSidebar();
-  document.addEventListener('astro:page-load', bindSidebar);
+  document.addEventListener("astro:page-load", bindSidebar);
 </script>

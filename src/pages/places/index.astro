@@ -13,18 +13,18 @@
  * the browser scaled the whole page snapshot — every child smeared for the
  * duration. Card → map figure is a like-for-like morph.
  */
-import { getCollection } from 'astro:content';
-import Base from '../../layouts/Base.astro';
-import WorldMap from '../../components/places/WorldMap.astro';
-import { site } from '../../data/site';
+import { getCollection } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import WorldMap from "../../components/places/WorldMap.astro";
+import { site } from "../../data/site";
 
-const places = (await getCollection('places')).sort(
+const places = (await getCollection("places")).sort(
   (a, b) => b.data.visitedOn.getTime() - a.data.visitedOn.getTime(),
 );
 
-const dateFmt = new Intl.DateTimeFormat('en-US', {
-  month: 'long',
-  year: 'numeric',
+const dateFmt = new Intl.DateTimeFormat("en-US", {
+  month: "long",
+  year: "numeric",
 });
 ---
 
@@ -41,7 +41,9 @@ const dateFmt = new Intl.DateTimeFormat('en-US', {
       <p class="text-caption muted">places</p>
       <h1 class="text-h1 headline">Places visited</h1>
       <p class="text-body muted lede">
-        {places.length} cities across {new Set(places.map((p) => p.data.country)).size} countries.
+        {places.length} cities across {
+          new Set(places.map((p) => p.data.country)).size
+        } countries.
       </p>
     </header>
 

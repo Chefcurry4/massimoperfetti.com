@@ -1,6 +1,6 @@
 ---
-city: 'Istanbul'
-country: 'Turkey'
+city: "Istanbul"
+country: "Turkey"
 coordinates:
   lat: 41.0082
   lng: 28.9784

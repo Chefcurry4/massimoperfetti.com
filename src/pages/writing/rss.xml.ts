@@ -5,13 +5,13 @@
  * date-desc to match the bento + listing order.
  */
 
-import rss from '@astrojs/rss';
-import { getCollection } from 'astro:content';
-import type { APIContext } from 'astro';
-import { site as siteConfig } from '../../data/site';
+import rss from "@astrojs/rss";
+import { getCollection } from "astro:content";
+import type { APIContext } from "astro";
+import { site as siteConfig } from "../../data/site";
 
 export async function GET(context: APIContext) {
-  const entries = await getCollection('writing', ({ data }) => !data.draft);
+  const entries = await getCollection("writing", ({ data }) => !data.draft);
   const items = entries
     .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
     .map((entry) => ({
@@ -23,7 +23,7 @@ export async function GET(context: APIContext) {
 
   return rss({
     title: `${siteConfig.name} — writing`,
-    description: 'Notes and essays.',
+    description: "Notes and essays.",
     site: context.site ?? siteConfig.url,
     items,
     customData: `<language>${siteConfig.locale}</language>`,

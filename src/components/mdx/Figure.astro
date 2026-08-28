@@ -36,8 +36,8 @@ interface Props {
   aspect?: string;
 }
 
-const { src, alt, caption, aspect = '3/2' } = Astro.props;
-const aspectValue = aspect === 'auto' ? undefined : aspect;
+const { src, alt, caption, aspect = "3/2" } = Astro.props;
+const aspectValue = aspect === "auto" ? undefined : aspect;
 ---
 
 <figure class="mdx-figure">

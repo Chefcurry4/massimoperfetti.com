@@ -11,25 +11,28 @@
  * Rendering follows the bento `ProjectsCell variant="sm"` pattern (no cover
  * graphic; eyebrow + status + title) to keep the visual language consistent.
  */
-import { getCollection, type CollectionEntry } from 'astro:content';
-import { relatedProjects } from '../../lib/related-projects';
-import { coverHueVars } from '../../lib/cover-color';
+import { getCollection, type CollectionEntry } from "astro:content";
+import { relatedProjects } from "../../lib/related-projects";
+import { coverHueVars } from "../../lib/cover-color";
 
 interface Props {
-  current: CollectionEntry<'projects'>;
+  current: CollectionEntry<"projects">;
   /** Optional cap; default 3. */
   max?: number;
 }
 
 const { current, max = 3 } = Astro.props;
 
-const all = await getCollection('projects', ({ data }) => !data.draft);
+const all = await getCollection("projects", ({ data }) => !data.draft);
 const related = relatedProjects(current, all, max);
 
-const statusLabel: Record<CollectionEntry<'projects'>['data']['status'], string> = {
-  live: 'live',
-  archived: 'archived',
-  'in-progress': 'in progress',
+const statusLabel: Record<
+  CollectionEntry<"projects">["data"]["status"],
+  string
+> = {
+  live: "live",
+  archived: "archived",
+  "in-progress": "in progress",
 };
 ---
 
@@ -40,7 +43,8 @@ const statusLabel: Record<CollectionEntry<'projects'>['data']['status'], string>
 
       <ul class="grid">
         {related.map((entry) => {
-          const initial = entry.data.title.trim().charAt(0).toUpperCase() || '·';
+          const initial =
+            entry.data.title.trim().charAt(0).toUpperCase() || "·";
           const coverStyle = coverHueVars(entry.data.title);
           return (
             <li>
@@ -60,7 +64,13 @@ const statusLabel: Record<CollectionEntry<'projects'>['data']['status'], string>
                 <div class="meta">
                   <div class="row">
                     <p class="text-caption muted">project</p>
-                    <span class:list={['status-pill', 'text-mono-small', `status-${entry.data.status}`]}>
+                    <span
+                      class:list={[
+                        "status-pill",
+                        "text-mono-small",
+                        `status-${entry.data.status}`,
+                      ]}
+                    >
                       {statusLabel[entry.data.status]}
                     </span>
                   </div>

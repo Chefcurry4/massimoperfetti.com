@@ -10,19 +10,24 @@
  * featured cards on the home wall. From this list view, navigation is a
  * straight cross-fade (Astro's default).
  */
-import { getCollection, type CollectionEntry } from 'astro:content';
-import Base from '../../layouts/Base.astro';
+import { getCollection, type CollectionEntry } from "astro:content";
+import Base from "../../layouts/Base.astro";
 
-const entries = (await getCollection('projects', ({ data }) => !data.draft)).sort((a, b) => {
+const entries = (
+  await getCollection("projects", ({ data }) => !data.draft)
+).sort((a, b) => {
   // featured first, then by date desc
   if (a.data.featured !== b.data.featured) return a.data.featured ? -1 : 1;
   return b.data.date.getTime() - a.data.date.getTime();
 });
 
-const statusLabel: Record<CollectionEntry<'projects'>['data']['status'], string> = {
-  live: 'live',
-  archived: 'archived',
-  'in-progress': 'in progress',
+const statusLabel: Record<
+  CollectionEntry<"projects">["data"]["status"],
+  string
+> = {
+  live: "live",
+  archived: "archived",
+  "in-progress": "in progress",
 };
 ---
 
@@ -53,13 +58,19 @@ const statusLabel: Record<CollectionEntry<'projects'>['data']['status'], string>
                 <p class="text-small muted row-summary">{entry.data.summary}</p>
               </div>
               <div class="row-meta">
-                <span class:list={['status-pill', 'text-mono-small', `status-${entry.data.status}`]}>
+                <span
+                  class:list={[
+                    "status-pill",
+                    "text-mono-small",
+                    `status-${entry.data.status}`,
+                  ]}
+                >
                   {statusLabel[entry.data.status]}
                 </span>
                 <span class="row-date text-caption muted">
-                  {entry.data.date.toLocaleString('en-US', {
-                    month: 'short',
-                    year: 'numeric',
+                  {entry.data.date.toLocaleString("en-US", {
+                    month: "short",
+                    year: "numeric",
                   })}
                 </span>
               </div>

@@ -8,19 +8,19 @@
  * Astro View Transitions navigations (Phase 4 morphs, Phase 5 detail
  * pages).
  */
-import { ClientRouter } from 'astro:transitions';
-import { site } from '../data/site';
-import Sidebar from '../components/sidebar/Sidebar.astro';
-import TemplateCredit from '../components/ui/TemplateCredit.astro';
-import { getPortraitDesktop, getPortraitMobile } from '../lib/portraits';
+import { ClientRouter } from "astro:transitions";
+import { site } from "../data/site";
+import Sidebar from "../components/sidebar/Sidebar.astro";
+import TemplateCredit from "../components/ui/TemplateCredit.astro";
+import { getPortraitDesktop, getPortraitMobile } from "../lib/portraits";
 // Critical font files, resolved to the same hashed URLs the fontsource CSS
 // references (Vite dedupes the asset), so these preloads hit the cache the
 // stylesheet then reads from. Only the two latin normal-weight files — the
 // display serif and body sans are what visibly FOUT; Geist Mono (captions)
 // can arrive with the stylesheet.
-import loraLatinWoff2 from '@fontsource-variable/lora/files/lora-latin-wght-normal.woff2?url';
-import geistLatinWoff2 from '@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url';
-import '../styles/global.css';
+import loraLatinWoff2 from "@fontsource-variable/lora/files/lora-latin-wght-normal.woff2?url";
+import geistLatinWoff2 from "@fontsource-variable/geist/files/geist-latin-wght-normal.woff2?url";
+import "../styles/global.css";
 
 interface Props {
   title?: string;
@@ -29,7 +29,7 @@ interface Props {
   /** Alt text for the OG image — describes the social share preview content. */
   ogImageAlt?: string;
   /** og:type — pass 'article' on writing detail pages. */
-  ogType?: 'website' | 'article';
+  ogType?: "website" | "article";
   /** Extra article:* meta, only meaningful with ogType="article". */
   article?: {
     publishedTime: Date;
@@ -46,7 +46,7 @@ const {
   description = site.description,
   ogImage = site.defaultOgImage,
   ogImageAlt,
-  ogType = 'website',
+  ogType = "website",
   article,
   noindex = false,
 } = Astro.props;
@@ -71,7 +71,7 @@ const ogImageAltText =
 //
 // The two preload <link>s carry `media="..."` so only the variant the
 // visitor will actually paint gets fetched — no double-download.
-const isHome = Astro.url.pathname === '/';
+const isHome = Astro.url.pathname === "/";
 const portraitDesktop = isHome ? await getPortraitDesktop() : null;
 const portraitMobile = isHome ? await getPortraitMobile() : null;
 ---
@@ -80,18 +80,22 @@ const portraitMobile = isHome ? await getPortraitMobile() : null;
 <html lang={site.locale} data-theme="dark">
   <head>
     <meta charset="utf-8" />
-    {/* viewport-fit=cover unlocks env(safe-area-inset-*) on notched iPhones
+    {
+      /* viewport-fit=cover unlocks env(safe-area-inset-*) on notched iPhones
         so full-bleed surfaces (gallery detail, drawer footer) can clear the
-        Dynamic Island and home indicator. */}
+        Dynamic Island and home indicator. */
+    }
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
-    {/* Dark-only site: color-scheme tells the UA to use its dark
+    {
+      /* Dark-only site: color-scheme tells the UA to use its dark
         form-control / scrollbar palette; theme-color paints the mobile
         address-bar to match. The theme-color value must equal the active
         preset's --bg (src/styles/themes/_default.css) — update it if the
-        preset @import in global.css changes. */}
+        preset @import in global.css changes. */
+    }
     <meta name="color-scheme" content="dark" />
     <meta name="theme-color" content="#0a0a0a" />
     <meta name="generator" content={Astro.generator} />
@@ -113,7 +117,7 @@ const portraitMobile = isHome ? await getPortraitMobile() : null;
     <meta property="og:image:alt" content={ogImageAltText} />
     <meta property="og:locale" content={site.locale} />
     {
-      ogType === 'article' && article && (
+      ogType === "article" && article && (
         <>
           <meta
             property="article:published_time"
@@ -136,9 +140,11 @@ const portraitMobile = isHome ? await getPortraitMobile() : null;
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    {/* Font preloads — without these the woff2s are discovered only after
+    {
+      /* Font preloads — without these the woff2s are discovered only after
         the render-blocking CSS parses, guaranteeing a flash of fallback
-        serif on every cold load. */}
+        serif on every cold load. */
+    }
     <link
       rel="preload"
       as="font"
@@ -188,22 +194,28 @@ const portraitMobile = isHome ? await getPortraitMobile() : null;
       )
     }
 
-    {/* Optional JSON-LD structured data — pages pass a `<JsonLd>` element
+    {
+      /* Optional JSON-LD structured data — pages pass a `<JsonLd>` element
         into the `head` slot. Lives in <head> so search engines / AI agents
         parse it on first read; Google explicitly accepts both head and body
-        but head is canonical. */}
+        but head is canonical. */
+    }
     <slot name="head" />
 
-    {/* Dark-only: data-theme="dark" is baked into the <html> tag above —
-        no bootstrap script, no localStorage, no FOUC window. */}
-    {/* Navigation-direction stamp — global.css keys the View Transition
+    {
+      /* Dark-only: data-theme="dark" is baked into the <html> tag above —
+        no bootstrap script, no localStorage, no FOUC window. */
+    }
+    {
+      /* Navigation-direction stamp — global.css keys the View Transition
         on it so back navigations read as a zoom-out instead of being
         visually identical to forward ones. Registered once per document;
-        the listener survives ClientRouter navigations. */}
+        the listener survives ClientRouter navigations. */
+    }
     <script is:inline>
-      document.addEventListener('astro:before-preparation', function (e) {
+      document.addEventListener("astro:before-preparation", function (e) {
         document.documentElement.dataset.navDirection =
-          e.direction === 'back' ? 'back' : 'forward';
+          e.direction === "back" ? "back" : "forward";
       });
     </script>
     <ClientRouter />

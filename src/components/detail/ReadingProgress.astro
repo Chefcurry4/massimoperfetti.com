@@ -17,15 +17,18 @@
  */
 ---
 
-{/* transition:name keeps the bar out of the root View Transition snapshot
+{
+  /* transition:name keeps the bar out of the root View Transition snapshot
     so it doesn't smear through the page cross-fade; between two detail
-    pages it simply stays put. */}
+    pages it simply stays put. */
+}
 <div
   class="reading-progress"
   data-reading-progress
   aria-hidden="true"
   transition:name="reading-progress"
-></div>
+>
+</div>
 
 <style>
   .reading-progress {
@@ -51,7 +54,7 @@
   let abortController: AbortController | null = null;
 
   function bindReadingProgress() {
-    const bar = document.querySelector<HTMLElement>('[data-reading-progress]');
+    const bar = document.querySelector<HTMLElement>("[data-reading-progress]");
     if (!bar) return;
 
     abortController?.abort();
@@ -80,9 +83,9 @@
 
     measure();
     update();
-    window.addEventListener('scroll', schedule, { passive: true, signal });
+    window.addEventListener("scroll", schedule, { passive: true, signal });
     window.addEventListener(
-      'resize',
+      "resize",
       () => {
         measure();
         schedule();
@@ -92,5 +95,5 @@
   }
 
   bindReadingProgress();
-  document.addEventListener('astro:page-load', bindReadingProgress);
+  document.addEventListener("astro:page-load", bindReadingProgress);
 </script>

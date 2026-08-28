@@ -6,15 +6,17 @@
  * availability ring). Name sits in --text on top of it; the degree line
  * sits below in --text-muted to keep visual weight on the name.
  */
-import { site } from '../../data/site';
+import { site } from "../../data/site";
 
-const role = 'MSc Mechanical Engineering MIT | TUDelft';
+const role = "MSc Mechanical Engineering MIT | TUDelft";
 ---
 
 <div class="identity">
-  {/* Decorative gradient disc — NOT a portrait, so no role="img": a
+  {
+    /* Decorative gradient disc — NOT a portrait, so no role="img": a
       previous aria-label announced a photo that doesn't exist. The name
-      text beside it carries the identity. */}
+      text beside it carries the identity. */
+  }
   <div class="avatar" aria-hidden="true"></div>
   <div class="text">
     <p class="name text-body">{site.name}</p>

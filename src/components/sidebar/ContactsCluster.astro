@@ -24,8 +24,8 @@
  * eyebrow on hover is acceptable since that label is contextually
  * redundant when an icon is already labeled by its tooltip.
  */
-import { contacts, type ContactKind } from '../../data/contacts';
-import Tooltip from '../ui/Tooltip.astro';
+import { contacts, type ContactKind } from "../../data/contacts";
+import Tooltip from "../ui/Tooltip.astro";
 
 const iconStrokeWidth = 1.7;
 
@@ -33,23 +33,23 @@ const iconStrokeWidth = 1.7;
 // and 'scholar' entries were removed — the 'x' path was a plain ✕ glyph,
 // not the X logo; re-add real paths if those kinds return to contacts.ts.)
 const iconPaths: Record<ContactKind, string> = {
-  email: 'M3 6.5h18v11H3zM3.5 7l8.5 6.5L20.5 7',
+  email: "M3 6.5h18v11H3zM3.5 7l8.5 6.5L20.5 7",
   github:
-    'M9 19c-4 1.4-4-2-6-2.5M15 21v-3.5a3.4 3.4 0 0 0-.9-2.6c3-.3 6-1.5 6-6.5a5 5 0 0 0-1.4-3.5 4.6 4.6 0 0 0-.1-3.5s-1.1-.4-3.6 1.4a12.3 12.3 0 0 0-6.5 0C5.9 1 4.8 1.4 4.8 1.4a4.6 4.6 0 0 0-.1 3.5A5 5 0 0 0 3.3 8.4c0 5 3 6.2 6 6.5A3.4 3.4 0 0 0 8.4 17.5V21',
+    "M9 19c-4 1.4-4-2-6-2.5M15 21v-3.5a3.4 3.4 0 0 0-.9-2.6c3-.3 6-1.5 6-6.5a5 5 0 0 0-1.4-3.5 4.6 4.6 0 0 0-.1-3.5s-1.1-.4-3.6 1.4a12.3 12.3 0 0 0-6.5 0C5.9 1 4.8 1.4 4.8 1.4a4.6 4.6 0 0 0-.1 3.5A5 5 0 0 0 3.3 8.4c0 5 3 6.2 6 6.5A3.4 3.4 0 0 0 8.4 17.5V21",
   linkedin:
-    'M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2zM4 6.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z',
-  cv: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8',
-  newsletter: 'M4 6h12v10H4zM4 6l6 5 6-5M19 9h3M19 12h3M19 15h3',
+    "M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2zM4 6.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z",
+  cv: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8",
+  newsletter: "M4 6h12v10H4zM4 6l6 5 6-5M19 9h3M19 12h3M19 15h3",
 };
 
 const visibleContacts = contacts.filter(
-  (c) => (c.audience ?? 'public') === 'public',
+  (c) => (c.audience ?? "public") === "public",
 );
 
 // Emails partition: collapse to one envelope icon → click opens popover
 // listing all addresses (incl. academic ones folded back in).
-const emails = contacts.filter((c) => c.kind === 'email');
-const nonEmails = visibleContacts.filter((c) => c.kind !== 'email');
+const emails = contacts.filter((c) => c.kind === "email");
+const nonEmails = visibleContacts.filter((c) => c.kind !== "email");
 const hasMultipleEmails = emails.length > 1;
 const primaryEmail = emails[0];
 ---
@@ -58,103 +58,109 @@ const primaryEmail = emails[0];
   <section class="contacts" aria-label="Contact channels">
     <p class="text-caption muted">contacts</p>
     <ul class="row">
-      {/* Email icon: popover trigger if multiple, plain mailto link otherwise. */}
-      {primaryEmail && (
-        <li>
-          {/* Tooltip text mirrors the aria-label exactly — divergent labels
+      {
+        /* Email icon: popover trigger if multiple, plain mailto link otherwise. */
+      }
+      {
+        primaryEmail && (
+          <li>
+            {/* Tooltip text mirrors the aria-label exactly — divergent labels
               for the same control confuse voice-control users ("click
               Email" vs the announced name). */}
-          <Tooltip
-            label={
-              hasMultipleEmails
-                ? `Email — ${emails.length} addresses`
-                : primaryEmail.label
-            }
-            side="top"
-          >
-            {hasMultipleEmails ? (
-              <button
-                type="button"
-                class="icon-btn icon-link email-trigger"
-                popovertarget="email-popover"
-                aria-label={`Email — ${emails.length} addresses`}
-              >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width={iconStrokeWidth}
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
+            <Tooltip
+              label={
+                hasMultipleEmails
+                  ? `Email — ${emails.length} addresses`
+                  : primaryEmail.label
+              }
+              side="top"
+            >
+              {hasMultipleEmails ? (
+                <button
+                  type="button"
+                  class="icon-btn icon-link email-trigger"
+                  popovertarget="email-popover"
+                  aria-label={`Email — ${emails.length} addresses`}
                 >
-                  <path d={iconPaths.email} />
-                </svg>
-              </button>
-            ) : (
-              <a
-                class="icon-btn icon-link"
-                href={primaryEmail.url}
-                aria-label={`${primaryEmail.label} — ${primaryEmail.handle}`}
-              >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width={iconStrokeWidth}
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width={iconStrokeWidth}
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d={iconPaths.email} />
+                  </svg>
+                </button>
+              ) : (
+                <a
+                  class="icon-btn icon-link"
+                  href={primaryEmail.url}
+                  aria-label={`${primaryEmail.label} — ${primaryEmail.handle}`}
                 >
-                  <path d={iconPaths.email} />
-                </svg>
-              </a>
-            )}
-          </Tooltip>
-        </li>
-      )}
-
-      {nonEmails.map((c) => {
-        // CV link is a downloadable asset, not an external profile — give the
-        // browser the right semantics (`download` triggers save / inline view
-        // depending on user prefs; `target=_blank` falls back to opening the
-        // PDF in a new tab on browsers that ignore `download` for same-origin
-        // top-level links). All other contact icons keep their original
-        // outbound-profile behavior.
-        const isCv = c.kind === 'cv';
-        return (
-          <li>
-            <Tooltip label={c.label} side="top">
-              <a
-                class="icon-btn icon-link"
-                href={c.url}
-                aria-label={`${c.label} — ${c.handle}`}
-                rel="me noopener"
-                download={isCv ? '' : undefined}
-                target={isCv ? '_blank' : undefined}
-              >
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width={iconStrokeWidth}
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d={iconPaths[c.kind]} />
-                </svg>
-              </a>
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width={iconStrokeWidth}
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d={iconPaths.email} />
+                  </svg>
+                </a>
+              )}
             </Tooltip>
           </li>
-        );
-      })}
+        )
+      }
+
+      {
+        nonEmails.map((c) => {
+          // CV link is a downloadable asset, not an external profile — give the
+          // browser the right semantics (`download` triggers save / inline view
+          // depending on user prefs; `target=_blank` falls back to opening the
+          // PDF in a new tab on browsers that ignore `download` for same-origin
+          // top-level links). All other contact icons keep their original
+          // outbound-profile behavior.
+          const isCv = c.kind === "cv";
+          return (
+            <li>
+              <Tooltip label={c.label} side="top">
+                <a
+                  class="icon-btn icon-link"
+                  href={c.url}
+                  aria-label={`${c.label} — ${c.handle}`}
+                  rel="me noopener"
+                  download={isCv ? "" : undefined}
+                  target={isCv ? "_blank" : undefined}
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width={iconStrokeWidth}
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d={iconPaths[c.kind]} />
+                  </svg>
+                </a>
+              </Tooltip>
+            </li>
+          );
+        })
+      }
     </ul>
   </section>
 
@@ -173,7 +179,7 @@ const primaryEmail = emails[0];
         stroke-linejoin="round"
         aria-hidden="true"
       >
-        <path d="M7 17L17 7M9 7h8v8" />
+        <path d="M7 17L17 7M9 7h8v8"></path>
       </svg>
     </a>
 
@@ -184,22 +190,28 @@ const primaryEmail = emails[0];
     </a>
   </section>
 
-  {/* Email popover — anchored to the envelope icon via CSS Anchor
+  {
+    /* Email popover — anchored to the envelope icon via CSS Anchor
       Positioning where supported; falls back to centered modal in browsers
-      that don't yet support `anchor-name` (Firefox WIP as of 2026-05). */}
-  {hasMultipleEmails && (
-    <div id="email-popover" popover="auto" class="email-popover glass">
-      <p class="text-caption muted email-popover-head">choose an address</p>
-      <ul class="email-list">
-        {emails.map((e) => (
-          <li class="email-row">
-            <span class="email-label text-small">{e.label}</span>
-            <a class="email-handle text-mono-small" href={e.url}>{e.handle}</a>
-          </li>
-        ))}
-      </ul>
-    </div>
-  )}
+      that don't yet support `anchor-name` (Firefox WIP as of 2026-05). */
+  }
+  {
+    hasMultipleEmails && (
+      <div id="email-popover" popover="auto" class="email-popover glass">
+        <p class="text-caption muted email-popover-head">choose an address</p>
+        <ul class="email-list">
+          {emails.map((e) => (
+            <li class="email-row">
+              <span class="email-label text-small">{e.label}</span>
+              <a class="email-handle text-mono-small" href={e.url}>
+                {e.handle}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
 </div>
 
 <style>

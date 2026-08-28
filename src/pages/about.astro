@@ -9,12 +9,12 @@
  * Body markup lives in `<AboutContent />`; this file owns only the page
  * chrome (sidebar-aware margin, padding, footer, backdrop).
  */
-import Base from '../layouts/Base.astro';
-import AboutContent from '../components/about/AboutContent.astro';
-import JsonLd from '../components/ui/JsonLd.astro';
-import { personSchema } from '../lib/structured-data';
-import { site } from '../data/site';
-import { getPortraitDesktop } from '../lib/portraits';
+import Base from "../layouts/Base.astro";
+import AboutContent from "../components/about/AboutContent.astro";
+import JsonLd from "../components/ui/JsonLd.astro";
+import { personSchema } from "../lib/structured-data";
+import { site } from "../data/site";
+import { getPortraitDesktop } from "../lib/portraits";
 
 const portrait = await getPortraitDesktop();
 ---
@@ -27,11 +27,13 @@ const portrait = await getPortraitDesktop();
 >
   <JsonLd slot="head" data={personSchema(portrait.src)} />
   <main id="main" class="page">
-    {/* Drift backdrop host — two oversized gradient layers (::before/::after)
+    {
+      /* Drift backdrop host — two oversized gradient layers (::before/::after)
         that pan via transform. A separate element (rather than .page's own
         pseudos) because the two hotspots drift in opposite directions, which
         needs two independently-animated layers; .page::after stays the film
-        grain. */}
+        grain. */
+    }
     <div class="backdrop" aria-hidden="true"></div>
     <AboutContent />
 
@@ -50,13 +52,13 @@ const portrait = await getPortraitDesktop();
      offset — magazine-profile aesthetic, not a centered novel page. */
   .page {
     position: relative;
-    margin-left: calc(var(--wall-inset) + var(--sidebar-rail) + var(--sidebar-gap));
+    margin-left: calc(
+      var(--wall-inset) + var(--sidebar-rail) + var(--sidebar-gap)
+    );
     margin-right: var(--wall-inset);
     max-width: 960px;
-    padding:
-      clamp(var(--space-7), 10vh, var(--space-8))
-      clamp(var(--space-4), 5vw, var(--space-6))
-      var(--space-7);
+    padding: clamp(var(--space-7), 10vh, var(--space-8))
+      clamp(var(--space-4), 5vw, var(--space-6)) var(--space-7);
     display: flex;
     flex-direction: column;
     gap: var(--space-7);
@@ -88,7 +90,7 @@ const portrait = await getPortraitDesktop();
   }
   .backdrop::before,
   .backdrop::after {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
@@ -114,7 +116,7 @@ const portrait = await getPortraitDesktop();
     animation: page-drift-b 32s ease-in-out infinite alternate;
   }
   .page::after {
-    content: '';
+    content: "";
     position: fixed;
     inset: 0;
     z-index: -1;
@@ -166,8 +168,7 @@ const portrait = await getPortraitDesktop();
       /* Top: max(token, safe-top) so the page header clears the Dynamic
          Island. Sides: max(token, safe-{left,right}) for landscape on
          notched devices. Bottom: existing drawer clearance + safe-bottom. */
-      padding:
-        max(clamp(var(--space-6), 8vw, var(--space-7)), var(--safe-top))
+      padding: max(clamp(var(--space-6), 8vw, var(--space-7)), var(--safe-top))
         max(clamp(var(--space-4), 5vw, var(--space-5)), var(--safe-right))
         calc(var(--space-7) + var(--space-5) + var(--safe-bottom))
         max(clamp(var(--space-4), 5vw, var(--space-5)), var(--safe-left));

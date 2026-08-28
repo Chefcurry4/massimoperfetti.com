@@ -112,12 +112,12 @@ Edit one line in [`src/styles/global.css`](src/styles/global.css):
 
 ```css
 /* before */
-@import './themes/_default.css';
+@import "./themes/_default.css";
 
 /* after — pick one */
-@import './themes/_linen.css';
-@import './themes/_sapphire.css';
-@import './themes/_forest.css';
+@import "./themes/_linen.css";
+@import "./themes/_sapphire.css";
+@import "./themes/_forest.css";
 ```
 
 Hot-reload picks it up instantly. See [Theme presets](#theme-presets) below for what each preset looks like and how to write your own.
@@ -148,16 +148,17 @@ Single source of truth: `src/data/site.ts`. Every page reads from this object �
 
 ```ts
 export const site: SiteConfig = {
-  name: 'Your Name',
-  url: 'https://yourdomain.com',
-  title: 'Your Name — Role',
-  description: 'One sentence. The first thing search engines and AI agents read.',
-  author: 'Your Name',
-  firstName: 'Your',                // casual possessive copy ("Your's calendar" — pick something short)
-  defaultOgImage: '/og/home.png',   // auto-generated at build time
-  locale: 'en',
-  spotifyEmbedUrl: '',              // optional
-  bookingUrl: '',                   // optional
+  name: "Your Name",
+  url: "https://yourdomain.com",
+  title: "Your Name — Role",
+  description:
+    "One sentence. The first thing search engines and AI agents read.",
+  author: "Your Name",
+  firstName: "Your", // casual possessive copy ("Your's calendar" — pick something short)
+  defaultOgImage: "/og/home.png", // auto-generated at build time
+  locale: "en",
+  spotifyEmbedUrl: "", // optional
+  bookingUrl: "", // optional
   // newsletter is optional — omit the field entirely if you don't have one.
   // newsletter: { title: 'Your Newsletter', url: 'https://yours.beehiiv.com' },
 };
@@ -173,12 +174,12 @@ The design is fully tokenized in [`src/styles/tokens.css`](src/styles/tokens.css
 
 Bundled presets:
 
-| Preset | Vibe | Accent |
-|---|---|---|
-| `_default` | Editorial neon-on-coal | `#d4ff3a` (lime-yellow) |
-| `_linen` | Warm coal + amber | Deep amber |
-| `_sapphire` | Deep blue + bone | Pale gold |
-| `_forest` | Mossy green + parchment | Bright moss |
+| Preset      | Vibe                    | Accent                  |
+| ----------- | ----------------------- | ----------------------- |
+| `_default`  | Editorial neon-on-coal  | `#d4ff3a` (lime-yellow) |
+| `_linen`    | Warm coal + amber       | Deep amber              |
+| `_sapphire` | Deep blue + bone        | Pale gold               |
+| `_forest`   | Mossy green + parchment | Bright moss             |
 
 To write your own:
 
@@ -190,7 +191,7 @@ $EDITOR src/styles/themes/_yours.css     # edit the 9 palette tokens
 Then point `global.css` at it:
 
 ```css
-@import './themes/_yours.css';
+@import "./themes/_yours.css";
 ```
 
 The token discipline is enforced by stylelint — `pnpm lint:css` will yell if you hardcode a hex color anywhere outside `tokens.css` or `themes/*.css`. Trust it; it's saved me from regressions twice.
@@ -201,13 +202,13 @@ The token discipline is enforced by stylelint — `pnpm lint:css` will yell if y
 
 Five collections, all defined in [`src/content.config.ts`](src/content.config.ts) with strict Zod schemas:
 
-| Collection | Path | Format | Drives |
-|---|---|---|---|
-| `projects` | `src/content/projects/*.{md,mdx}` | Markdown / MDX | `/projects/[slug]`, bento grid, `/projects` index, RSS-eligible |
-| `work` | `src/content/work/*.md` | Markdown | `/work/[slug]`, bento grid, `/work` index |
-| `writing` | `src/content/writing/*.{md,mdx}` | Markdown / MDX | `/writing/[slug]`, bento Writing cell links to your newsletter |
-| `places` | `src/content/places/*.md` | Frontmatter-only | `/places` world map + index |
-| `gallery` | `src/content/gallery/*.md` | Frontmatter-only | `/gallery`, `/gallery/[slug]`, bento auto-cycling cell |
+| Collection | Path                              | Format           | Drives                                                          |
+| ---------- | --------------------------------- | ---------------- | --------------------------------------------------------------- |
+| `projects` | `src/content/projects/*.{md,mdx}` | Markdown / MDX   | `/projects/[slug]`, bento grid, `/projects` index, RSS-eligible |
+| `work`     | `src/content/work/*.md`           | Markdown         | `/work/[slug]`, bento grid, `/work` index                       |
+| `writing`  | `src/content/writing/*.{md,mdx}`  | Markdown / MDX   | `/writing/[slug]`, bento Writing cell links to your newsletter  |
+| `places`   | `src/content/places/*.md`         | Frontmatter-only | `/places` world map + index                                     |
+| `gallery`  | `src/content/gallery/*.md`        | Frontmatter-only | `/gallery`, `/gallery/[slug]`, bento auto-cycling cell          |
 
 For each, the schema is enforced at build — you literally cannot deploy a broken entry. Open the schema file once, then keep an existing entry open as a template and fill in your own.
 
@@ -220,9 +221,10 @@ For richer project case studies, write `.mdx` and import the editorial component
 title: "My project"
 # ... rest of frontmatter
 ---
-import Figure from '../../components/mdx/Figure.astro';
-import Pullquote from '../../components/mdx/Pullquote.astro';
-import Aside from '../../components/mdx/Aside.astro';
+
+import Figure from "../../components/mdx/Figure.astro";
+import Pullquote from "../../components/mdx/Pullquote.astro";
+import Aside from "../../components/mdx/Aside.astro";
 
 # Heading
 
@@ -311,11 +313,11 @@ Both work — Astro builds to plain static `dist/`. The contact form won't work 
 
 ### Optional integrations
 
-| Service | Used by | Setup |
-|---|---|---|
-| [Cal.com](https://cal.com) | `/book`, sidebar Book CTA | Create an event type, paste its public URL into `site.bookingUrl`. |
-| [Spotify](https://open.spotify.com) | sidebar widget | Use any embed URL — playlist, album, track. Pattern: `https://open.spotify.com/embed/playlist/{id}`. |
-| Newsletter (e.g. [beehiiv](https://beehiiv.com)) | bento Writing cell | Paste your newsletter URL into `site.newsletter.url`. |
+| Service                                          | Used by                   | Setup                                                                                                |
+| ------------------------------------------------ | ------------------------- | ---------------------------------------------------------------------------------------------------- |
+| [Cal.com](https://cal.com)                       | `/book`, sidebar Book CTA | Create an event type, paste its public URL into `site.bookingUrl`.                                   |
+| [Spotify](https://open.spotify.com)              | sidebar widget            | Use any embed URL — playlist, album, track. Pattern: `https://open.spotify.com/embed/playlist/{id}`. |
+| Newsletter (e.g. [beehiiv](https://beehiiv.com)) | bento Writing cell        | Paste your newsletter URL into `site.newsletter.url`.                                                |
 
 Every integration is opt-out — leave the URL empty in `site.ts` and the corresponding surface hides itself.
 
