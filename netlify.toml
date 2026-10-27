@@ -1,14 +1,8 @@
+# Plain static site: no build step, publish the repo root.
+# The previous Astro site lives on the `astro-site` branch.
 [build]
-  # Typecheck + token-discipline lint gate the deploy — they existed as
-  # scripts but nothing ran them in CI.
-  command = "pnpm check && pnpm lint:css && pnpm build"
-  publish = "dist"
-
-[build.environment]
-  # Astro 6 requires Node >= 22.12. CLAUDE.md spec said Node 20; updated to
-  # match the installed Astro version. Bump again if Astro raises the floor.
-  NODE_VERSION = "22"
-  PNPM_VERSION = "10"
+  command = "echo static site, no build"
+  publish = "."
 
 [[headers]]
   for = "/*"
@@ -17,22 +11,14 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
 
-# Content-hashed build assets — safe to cache forever. Netlify's default is
-# max-age=0 must-revalidate, which re-validated every /_astro file on every
-# navigation (View Transitions included).
 [[headers]]
-  for = "/_astro/*"
+  for = "/fonts/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# OG cards + favicon aren't hashed but change rarely; a day of caching with
-# revalidation keeps social scrapers and repeat visits cheap.
-[[headers]]
-  for = "/og/*"
-  [headers.values]
-    Cache-Control = "public, max-age=86400, must-revalidate"
-
-[[headers]]
-  for = "/favicon.svg"
-  [headers.values]
-    Cache-Control = "public, max-age=86400, must-revalidate"
+# Old Astro routes (/projects/..., /writing/..., etc.) land on the home page.
+# Not forced, so real files like /cv/... and /me.webp are still served.
+[[redirects]]
+  from = "/*"
+  to = "/"
+  status = 302

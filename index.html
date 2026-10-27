@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Massimo Perfetti</title>
+  <meta name="description" content="Mechanical engineer working at the intersection of fluid dynamics and machine learning. Researcher at MIT, co-founder of Dual Energy.">
+  <meta name="theme-color" content="#050506">
+  <link rel="canonical" href="https://massimoperfetti.com/">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Massimo Perfetti">
+  <meta property="og:description" content="Mechanical engineer working at the intersection of fluid dynamics and machine learning.">
+  <meta property="og:url" content="https://massimoperfetti.com/">
+  <meta property="og:image" content="https://massimoperfetti.com/me.webp">
+  <link rel="preload" href="/fonts/InstrumentSans-620.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/Chivo-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <style>
+    @font-face { font-family: "Instrument Sans"; src: url("/fonts/InstrumentSans-620.woff2") format("woff2"); font-weight: 500; font-display: swap; size-adjust: 87.5%; ascent-override: 109.71%; descent-override: 25.14%; line-gap-override: 0%; }
+    @font-face { font-family: "Chivo"; src: url("/fonts/Chivo-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+    @font-face { font-family: "Chivo Mono"; src: url("/fonts/ChivoMono-Regular.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+
+    :root {
+      color-scheme: dark;
+      --void: #050506;
+      --graphite: #1c1d20;
+      --ice: #dcebf5;
+      --ice-muted: #8e9aa6;
+      --light-blue: #8fb8de;
+      --hairline: #2e3138;
+      --font-display: "Instrument Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --font-sans: Chivo, system-ui, -apple-system, "Segoe UI", sans-serif;
+      --font-mono: "Chivo Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      --ease: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { background: var(--void); -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+    body { margin: 0; min-height: 100svh; display: flex; background: var(--void); color: var(--ice); font-family: var(--font-sans); font-size: 17px; line-height: 28px; }
+    ::selection { background: rgba(143, 184, 222, 0.3); color: var(--ice); }
+
+    main { width: 100%; max-width: 640px; margin: auto; padding: 96px 24px; }
+
+    .photo { display: block; width: 112px; height: 112px; border-radius: 50%; object-fit: cover; border: 1px solid var(--hairline); background: var(--graphite); }
+
+    h1 { margin: 40px 0 0; font-family: var(--font-display); font-size: 64px; line-height: 66px; font-weight: 500; letter-spacing: -0.018em; }
+    .role { margin: 16px 0 0; color: var(--ice-muted); font-family: var(--font-mono); font-size: 13px; line-height: 20px; }
+
+    .label { display: flex; align-items: center; gap: 8px; margin: 64px 0 16px; font-family: var(--font-mono); font-size: 13px; line-height: 20px; font-weight: 400; }
+    .label::before { content: ">"; color: var(--ice-muted); }
+    .label span { padding: 0 2px; border-radius: 2px; background: rgba(143, 184, 222, 0.2); }
+
+    p { margin: 0 0 16px; }
+    .muted { color: var(--ice-muted); }
+
+    .links { display: flex; flex-wrap: wrap; gap: 12px; margin: 0; padding: 0; list-style: none; }
+    .links a { display: inline-flex; align-items: center; height: 40px; padding: 0 20px; border: 1px solid var(--hairline); border-radius: 9999px; background: var(--graphite); color: var(--ice); font-size: 15px; line-height: 20px; text-decoration: none; transition: border-color 150ms var(--ease), color 150ms var(--ease); }
+    .links a:focus-visible { outline: 2px solid var(--light-blue); outline-offset: 2px; }
+    @media (hover: hover) { .links a:hover { border-color: var(--light-blue); color: var(--light-blue); } }
+
+    footer { margin-top: 64px; color: var(--ice-muted); font-family: var(--font-mono); font-size: 13px; line-height: 20px; }
+
+    @media (max-width: 599px) {
+      main { padding: 64px 24px; }
+      h1 { font-size: 44px; line-height: 48px; }
+      .photo { width: 96px; height: 96px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <img class="photo" src="/me.webp" width="640" height="640" alt="Portrait of Massimo Perfetti">
+    <h1>Massimo Perfetti</h1>
+    <p class="role">Researcher · MIT van Rees Lab · Co-founder &amp; CTO, Dual Energy</p>
+
+    <h2 class="label"><span>~/about</span></h2>
+    <p>Mechanical engineer working at the intersection of fluid dynamics and machine learning.</p>
+    <p>I’m a visiting researcher at MIT’s van Rees Lab, working on AI for computational fluid dynamics. I studied at MIT and TU Delft (MSc) and at EPFL and Politecnico di Torino (BSc), and interned at Novelis Sierre on multiphase, multi-physics flows.</p>
+    <p>I’m also Co-Founder &amp; CTO of Dual Energy, a Swiss startup developing agrivoltaics technology.</p>
+    <p class="muted">Outside the lab: NBA, chess, logic games, reading, and building things.</p>
+
+    <h2 class="label"><span>~/links</span></h2>
+    <ul class="links">
+      <li><a href="mailto:massimoperfetti4@gmail.com">Email</a></li>
+      <li><a href="https://www.linkedin.com/in/mperfetti4/" rel="me">LinkedIn</a></li>
+      <li><a href="https://github.com/Chefcurry4" rel="me">GitHub</a></li>
+      <li><a href="https://x.com/chefcurry4L" rel="me">X</a></li>
+      <li><a href="/cv/Perfetti%20Resume.pdf">CV</a></li>
+    </ul>
+
+    <footer>© 2026 Massimo Perfetti</footer>
+  </main>
+</body>
+</html>
