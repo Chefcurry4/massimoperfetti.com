@@ -1,8 +1,10 @@
-# Plain static site: no build step, publish the repo root.
+# Plain static site: the "build" only copies the public files into dist/.
+# Netlify's deploy step expects dist/ (it ignored publish = "." and failed),
+# and this keeps README/CLAUDE.md/netlify.toml off the live site.
 # The previous Astro site lives on the `astro-site` branch.
 [build]
-  command = "echo static site, no build"
-  publish = "."
+  command = "rm -rf dist && mkdir dist && cp -r index.html me.webp fonts favicon.ico favicon.svg apple-touch-icon.png robots.txt dist/"
+  publish = "dist"
 
 [[headers]]
   for = "/*"
