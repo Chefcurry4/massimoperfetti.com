@@ -4,7 +4,6 @@ One static page: `index.html` (inline CSS, no build step), deployed by Netlify f
 
 - `me.webp`: portrait
 - `fonts/`: Instrument Sans, Chivo, Chivo Mono (SIL OFL, licenses alongside)
-- `cv/`: resume PDF
 
 To preview locally, open `index.html` or run `npx serve .`.
 

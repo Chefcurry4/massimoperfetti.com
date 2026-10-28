@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Massimo Perfetti</title>
-  <meta name="description" content="Mechanical engineer working where fluid dynamics meets machine learning. Visiting researcher at MIT.">
+  <meta name="description" content="Mechanical engineer working where fluid dynamics meets machine learning. Building Antemyth in San Francisco.">
   <meta name="theme-color" content="#050506">
   <link rel="canonical" href="https://massimoperfetti.com/">
   <link rel="icon" href="/favicon.ico" sizes="any">
@@ -48,6 +48,10 @@
     h1 { margin: 40px 0 0; font-family: var(--font-display); font-size: 64px; line-height: 66px; font-weight: 500; letter-spacing: -0.018em; }
 
     p { margin: 24px 0 0; max-width: 34em; color: var(--ice); }
+    p + p { margin-top: 16px; }
+    p a { color: inherit; text-decoration: underline; text-decoration-color: var(--light-blue); text-decoration-thickness: 1px; text-underline-offset: 4px; transition: color 150ms var(--ease); }
+    p a:focus-visible { outline: 2px solid var(--light-blue); outline-offset: 2px; border-radius: 2px; }
+    @media (hover: hover) { p a:hover { color: var(--light-blue); } }
 
     .links { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 40px; margin: 48px 0 0; padding: 0; list-style: none; }
     .links a { display: inline-flex; align-items: center; gap: 6px; color: var(--ice); font-size: 22px; line-height: 32px; text-decoration: underline; text-decoration-color: var(--light-blue); text-decoration-thickness: 1px; text-underline-offset: 6px; transition: color 150ms var(--ease); }
@@ -68,15 +72,15 @@
 </head>
 <body>
   <main>
-    <img class="photo" src="/me.webp" width="640" height="640" alt="Portrait of Massimo Perfetti">
+    <img class="photo" src="/me.webp" width="640" height="640" alt="Orcas swimming underwater, in black and white">
     <h1>Massimo Perfetti</h1>
-    <p>I’m a mechanical engineer working where fluid dynamics meets machine learning. I’m currently a visiting researcher at MIT’s van Rees Lab, teaching neural networks to simulate how fluids move, after studying at TU Delft, EPFL and Politecnico di Torino. Away from the lab you’ll find me watching the NBA, playing chess or reading.</p>
+    <p>I’m a mechanical engineer working where fluid dynamics meets machine learning. These days I’m in San Francisco building <a href="https://www.antemyth.ai/">Antemyth</a> with three friends from MIT. AI is running out of power faster than it’s running out of chips, and plenty of buildings already have spare power they never use. So we put GPU boxes there and switch them on in weeks, not years.</p>
+    <p>Before this I was at <a href="https://www.mit.edu/">MIT</a>’s <a href="https://vanreeslab.mit.edu/">van Rees Lab</a> teaching neural networks how fluids move, after studying at <a href="https://www.tudelft.nl/en/">TU Delft</a>, <a href="https://www.epfl.ch/en/">EPFL</a> and <a href="https://www.polito.it/">Politecnico di Torino</a>. Outside of work I’m usually watching the NBA, playing chess or reading.</p>
 
     <ul class="links">
       <li><a href="https://www.linkedin.com/in/mperfetti4/" rel="me">LinkedIn<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 9 9 3M4 3h5v5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a></li>
       <li><a href="https://github.com/Chefcurry4" rel="me">GitHub<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 9 9 3M4 3h5v5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a></li>
       <li><a href="https://x.com/chefcurry4L" rel="me">X<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 9 9 3M4 3h5v5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a></li>
-      <li><a href="/cv/Perfetti%20Resume.pdf">CV<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M3 9 9 3M4 3h5v5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a></li>
       <li><a class="mail" href="mailto:massimoperfetti4@gmail.com" aria-label="Email"><svg viewBox="0 0 26 26" aria-hidden="true"><rect x="2.5" y="5.5" width="21" height="15" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="m3.5 7 9.5 7 9.5-7" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a></li>
     </ul>
 
